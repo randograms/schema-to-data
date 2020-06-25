@@ -1,1 +1,10 @@
-{}
+{
+  "scripts": {
+    "build:flowchart": "node buildFlowchart",
+    "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml"
+  },
+  "devDependencies": {
+    "node-plantuml": "0.9.0",
+    "nodemon": "2.0.4"
+  }
+}
