@@ -26,7 +26,7 @@ if (schema.type?) then (string)
 elseif (schema.type?) then (nonempty array)
   :copy.type = schema.type;
 elseif (schema.type?) then (undefined)
-  :copy.type = ['null', 'string', 'number', 'boolean', 'array', 'object'];
+  :copy.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 else
   :error;
   note right
