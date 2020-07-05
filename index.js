@@ -9,13 +9,13 @@ const maxNumber = maxInteger;
 const numberIntegerChance = 0.5;
 const minArrayItems = 0;
 const maxArrayItems = 5;
-const optionalPropertyChance = .8;
+const optionalPropertyChance = 0.8;
 
 const coerceSchema = (schema) => {
-  const typedSchema = coerceTypes(schema);
-  const conformedSchema = conformSchemaToType(typedSchema);
+  const typedSchema = coerceTypes(schema); // eslint-disable-line no-use-before-define
+  const conformedSchema = conformSchemaToType(typedSchema); // eslint-disable-line no-use-before-define
   return conformedSchema;
-}
+};
 
 const coerceTypes = (schema) => {
   const typedSchema = { ...schema };
@@ -28,7 +28,7 @@ const coerceTypes = (schema) => {
 };
 
 const getSchemaKeysForType = (type) => {
-  switch(type) {
+  switch (type) {
     case 'null': return [
     ];
     case 'string': return [
@@ -51,7 +51,7 @@ const getSchemaKeysForType = (type) => {
 };
 
 const conformSchemaToType = (typedSchema, type) => {
-  type = type || _.sample(typedSchema.type);
+  type = type || _.sample(typedSchema.type); // eslint-disable-line no-param-reassign
 
   const singleTypedSchema = {
     type,
@@ -81,23 +81,38 @@ const conformSchemaToType = (typedSchema, type) => {
   return singleTypedSchema;
 };
 
+const generateData = (singleTypedSchema) => {
+  /* eslint-disable no-use-before-define */
+  switch (singleTypedSchema.type) {
+    case 'null': return null;
+    case 'string': return generateString();
+    case 'number': return generateNumber();
+    case 'integer': return generateInteger();
+    case 'boolean': return generateBoolean();
+    case 'array': return generateArray(singleTypedSchema);
+    case 'object': return generateObject(singleTypedSchema);
+    default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
+  }
+  /* eslint-enable no-use-before-define */
+};
+
 const generateString = () => {
-  return faker.lorem.word();
+  const randomWord = faker.lorem.word();
+  return randomWord;
 };
 
 const generateNumber = () => {
   const isFloat = Math.random() < numberIntegerChance;
 
-  return _.random(minNumber, maxNumber, isFloat)
+  return _.random(minNumber, maxNumber, isFloat);
 };
 
 const generateInteger = () => {
-  return _.random(minInteger, maxInteger);
+  const randomInteger = _.random(minInteger, maxInteger);
+  return randomInteger;
 };
 
-const generateBoolean = () => {
-  return faker.random.boolean();
-};
+const generateBoolean = () => faker.random.boolean();
 
 const generateArray = (arraySchema) => {
   // all array schemas will have been coerced to a tuple array schema
@@ -118,19 +133,6 @@ const generateObject = (objectSchema) => {
     .value();
 
   return mockObject;
-};
-
-const generateData = (singleTypedSchema) => {
-  switch(singleTypedSchema.type) {
-    case 'null': return null;
-    case 'string': return generateString();
-    case 'number': return generateNumber();
-    case 'integer': return generateInteger();
-    case 'boolean': return generateBoolean();
-    case 'array': return generateArray(singleTypedSchema);
-    case 'object': return generateObject(singleTypedSchema);
-    default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
-  }
 };
 
 const schemaToData = (schema) => {

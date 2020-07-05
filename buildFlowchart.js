@@ -1,7 +1,9 @@
-const plantuml = require('node-plantuml');
-const fs = require('fs');
+/* eslint-disable import/no-extraneous-dependencies */
 
-const OUT_DIR = 'build'
+const fs = require('fs');
+const plantuml = require('node-plantuml');
+
+const OUT_DIR = 'build';
 
 if (!fs.existsSync(OUT_DIR)) {
   fs.mkdirSync(OUT_DIR);
