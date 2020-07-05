@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const { red } = require('ansi-colors');
-const schemaToData = require('.');
+const { schemaToData } = require('.');
 
 [
   ['empty type array', { type: [] }],

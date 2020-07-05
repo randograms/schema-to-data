@@ -2,15 +2,21 @@
   "scripts": {
     "build:flowchart": "node buildFlowchart",
     "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:unit": "mocha --require tests/setup tests/unit/**/*.test.js"
   },
   "devDependencies": {
     "ansi-colors": "4.1.1",
+    "chai": "4.2.0",
     "eslint": "7.4.0",
     "eslint-config-airbnb-base": "14.2.0",
     "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-mocha": "7.0.1",
+    "mocha": "8.0.1",
     "node-plantuml": "0.9.0",
-    "nodemon": "2.0.4"
+    "nodemon": "2.0.4",
+    "sinon": "9.0.2",
+    "sinon-chai": "3.5.0"
   },
   "dependencies": {
     "faker": "4.1.0",

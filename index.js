@@ -85,12 +85,12 @@ const generateData = (singleTypedSchema) => {
   /* eslint-disable no-use-before-define */
   switch (singleTypedSchema.type) {
     case 'null': return null;
-    case 'string': return generateString();
-    case 'number': return generateNumber();
-    case 'integer': return generateInteger();
-    case 'boolean': return generateBoolean();
-    case 'array': return generateArray(singleTypedSchema);
-    case 'object': return generateObject(singleTypedSchema);
+    case 'string': return lib.generateString();
+    case 'number': return lib.generateNumber();
+    case 'integer': return lib.generateInteger();
+    case 'boolean': return lib.generateBoolean();
+    case 'array': return lib.generateArray(singleTypedSchema);
+    case 'object': return lib.generateObject(singleTypedSchema);
     default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
   }
   /* eslint-enable no-use-before-define */
@@ -142,4 +142,17 @@ const schemaToData = (schema) => {
   return generatedData;
 };
 
-module.exports = schemaToData;
+const lib = {
+  generateData,
+  generateString,
+  generateNumber,
+  generateInteger,
+  generateBoolean,
+  generateArray,
+  generateObject,
+};
+
+module.exports = {
+  schemaToData,
+  lib,
+};
