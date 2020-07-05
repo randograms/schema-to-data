@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+
 const _ = require('lodash');
 const { red } = require('ansi-colors');
 const schemaToData = require('.');
@@ -41,4 +43,4 @@ const schemaToData = require('.');
   } catch (error) {
     console.log(paddedLabel, red(error.message));
   }
-})
+});
