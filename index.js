@@ -7,6 +7,14 @@ const maxInteger = 100000;
 const minNumber = minInteger;
 const maxNumber = maxInteger;
 const numberIntegerChance = 0.5;
+const minArrayItems = 0;
+const maxArrayItems = 5;
+
+const coerceSchema = (schema) => {
+  const typedSchema = coerceTypes(schema);
+  const conformedSchema = conformSchemaToType(typedSchema);
+  return conformedSchema;
+}
 
 const coerceTypes = (schema) => {
   const typedSchema = { ...schema };
@@ -18,9 +26,50 @@ const coerceTypes = (schema) => {
   return typedSchema;
 };
 
+const getSchemaKeysForType = (type) => {
+  switch(type) {
+    case 'null': return [
+    ];
+    case 'string': return [
+    ];
+    case 'number': return [
+    ];
+    case 'integer': return [
+    ];
+    case 'boolean': return [
+    ];
+    case 'array': return [
+      'items',
+    ];
+    case 'object': return [
+    ];
+    default: return [];
+  }
+};
+
 const conformSchemaToType = (typedSchema, type) => {
   type = type || _.sample(typedSchema.type);
-  const singleTypedSchema = { ...typedSchema, type };
+
+  const singleTypedSchema = {
+    type,
+    ..._.pick(typedSchema, getSchemaKeysForType(type)),
+  };
+
+  if (type === 'array') {
+    const itemsDefinition = singleTypedSchema.items || {};
+
+    let itemsSchemas;
+    if (_.isArray(itemsDefinition)) itemsSchemas = itemsDefinition;
+    else {
+      const itemSchema = itemsDefinition;
+      const length = _.random(minArrayItems, maxArrayItems);
+      itemsSchemas = _.times(length, () => itemSchema);
+    }
+
+    singleTypedSchema.items = itemsSchemas.map(coerceSchema);
+  }
+
+  singleTypedSchema.type = type;
   return singleTypedSchema;
 };
 
@@ -42,8 +91,10 @@ const generateBoolean = () => {
   return faker.random.boolean();
 };
 
-const generateArray = () => {
-  return [];
+const generateArray = (arraySchema) => {
+  // all array schemas will have been coerced to a tuple array schema
+  const { items } = arraySchema;
+  return items.map(generateData);
 };
 
 const generateObject = () => {
@@ -57,15 +108,15 @@ const generateData = (singleTypedSchema) => {
     case 'number': return generateNumber();
     case 'integer': return generateInteger();
     case 'boolean': return generateBoolean();
+    case 'array': return generateArray(singleTypedSchema);
     case 'object': return generateObject();
-    default: throw Error('Expected schema to have been coerced to a single known type');
+    default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
   }
 };
 
 const schemaToData = (schema) => {
-  const typedSchema = coerceTypes(schema);
-  const singleTypedSchema = conformSchemaToType(typedSchema, undefined);
-  const generatedData = generateData(singleTypedSchema);
+  const coercedSchema = coerceSchema(schema);
+  const generatedData = generateData(coercedSchema);
 
   return generatedData;
 };
