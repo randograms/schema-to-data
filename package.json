@@ -4,6 +4,7 @@
     "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml"
   },
   "devDependencies": {
+    "ansi-colors": "4.1.1",
     "node-plantuml": "0.9.0",
     "nodemon": "2.0.4"
   },

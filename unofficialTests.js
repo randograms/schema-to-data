@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { red } = require('ansi-colors');
 const schemaToData = require('.');
 
 [
@@ -19,6 +20,6 @@ const schemaToData = require('.');
   try {
     console.log(paddedLabel, schemaToData(schema));
   } catch (error) {
-    console.log(paddedLabel, error.message);
+    console.log(paddedLabel, red(error.message));
   }
 })
