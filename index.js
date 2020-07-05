@@ -11,26 +11,16 @@ const numberIntegerChance = 0.5;
 const coerceTypes = (schema) => {
   const typedSchema = { ...schema };
 
-  if (_.isString(schema.type)) {
-    typedSchema.type = [schema.type];
-  } else if (_.isArray(schema.type) && _.isEmpty(schema.type)) {
-    throw Error('Schema "type" must not be an empty array');
-  } else if (!_.isArray(schema.type)) {
-    typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
-  }
+  if (_.isString(schema.type)) typedSchema.type = [schema.type];
+  else if (_.isArray(schema.type)) typedSchema.type = schema.type;
+  else typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
   return typedSchema;
 };
 
 const conformSchemaToType = (typedSchema, type) => {
-  const singleTypedSchema = { ...typedSchema };
-
-  if (type === undefined) {
-    singleTypedSchema.type = _.sample(typedSchema.type);
-  } else {
-    throw Error('Unhandled scenario')
-  }
-
+  type = type || _.sample(typedSchema.type);
+  const singleTypedSchema = { ...typedSchema, type };
   return singleTypedSchema;
 };
 
@@ -67,8 +57,8 @@ const generateData = (singleTypedSchema) => {
     case 'number': return generateNumber();
     case 'integer': return generateInteger();
     case 'boolean': return generateBoolean();
-    case 'array': return generateArray();
-    default: return generateObject();
+    case 'object': return generateObject();
+    default: throw Error('Expected schema to have been coerced to a single known type');
   }
 };
 
