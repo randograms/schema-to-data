@@ -19,6 +19,21 @@ const schemaToData = require('.');
   ['list array', { type: 'array', items: {} }],
   ['string array', { type: 'array', items: { type: 'string' } }],
   ['2 type array', { type: 'array', items: { type: ['string', 'boolean'] } }],
+  ['optional properties', {
+    type: 'object',
+    properties: {
+      optional1: { type: 'string' },
+      optional2: { type: 'number' },
+    },
+  }],
+  ['required properties', {
+    type: 'object',
+    properties: {
+      required1: { type: 'string' },
+      optional1: { type: 'number' },
+    },
+    required: ['required1'],
+  }],
 ].forEach(([label, schema]) => {
   const paddedLabel = `${_.padEnd(label, 17, ' ')}:`;
   try {

@@ -9,6 +9,7 @@ const maxNumber = maxInteger;
 const numberIntegerChance = 0.5;
 const minArrayItems = 0;
 const maxArrayItems = 5;
+const optionalPropertyChance = .8;
 
 const coerceSchema = (schema) => {
   const typedSchema = coerceTypes(schema);
@@ -42,6 +43,8 @@ const getSchemaKeysForType = (type) => {
       'items',
     ];
     case 'object': return [
+      'properties',
+      'required',
     ];
     default: return [];
   }
@@ -67,6 +70,11 @@ const conformSchemaToType = (typedSchema, type) => {
     }
 
     singleTypedSchema.items = itemsSchemas.map(coerceSchema);
+  } else if (type === 'object') {
+    const propertyDefinitions = singleTypedSchema.properties || {};
+    singleTypedSchema.required = singleTypedSchema.required || [];
+
+    singleTypedSchema.properties = _.mapValues(propertyDefinitions, coerceSchema);
   }
 
   singleTypedSchema.type = type;
@@ -97,8 +105,19 @@ const generateArray = (arraySchema) => {
   return items.map(generateData);
 };
 
-const generateObject = () => {
-  return {};
+const generateObject = (objectSchema) => {
+  const { properties, required: requiredPropertyNames } = objectSchema;
+
+  const allPropertyNames = _.keys(properties);
+  const optionalPropertyNames = _.difference(allPropertyNames, requiredPropertyNames);
+  const optionalPropertyNamesToGenerate = _.filter(optionalPropertyNames, () => Math.random() < optionalPropertyChance);
+
+  const mockObject = _(properties)
+    .pick([...requiredPropertyNames, ...optionalPropertyNamesToGenerate])
+    .mapValues(generateData)
+    .value();
+
+  return mockObject;
 };
 
 const generateData = (singleTypedSchema) => {
@@ -109,7 +128,7 @@ const generateData = (singleTypedSchema) => {
     case 'integer': return generateInteger();
     case 'boolean': return generateBoolean();
     case 'array': return generateArray(singleTypedSchema);
-    case 'object': return generateObject();
+    case 'object': return generateObject(singleTypedSchema);
     default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
   }
 };
