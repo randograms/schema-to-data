@@ -117,7 +117,7 @@ const generateBoolean = () => faker.random.boolean();
 const generateArray = (arraySchema) => {
   // all array schemas will have been coerced to a tuple array schema
   const { items } = arraySchema;
-  return items.map(generateData);
+  return items.map(lib.generateData); // eslint-disable-line no-use-before-define
 };
 
 const generateObject = (objectSchema) => {
@@ -129,7 +129,7 @@ const generateObject = (objectSchema) => {
 
   const mockObject = _(properties)
     .pick([...requiredPropertyNames, ...optionalPropertyNamesToGenerate])
-    .mapValues(generateData)
+    .mapValues(lib.generateData) // eslint-disable-line no-use-before-define
     .value();
 
   return mockObject;
