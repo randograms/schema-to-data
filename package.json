@@ -2,9 +2,10 @@
   "scripts": {
     "build:flowchart": "node buildFlowchart",
     "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml",
-    "lint": "eslint .",
-    "test:integration": "mocha --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
-    "test:unit": "mocha --require tests/setup tests/unit/**/*.test.js"
+    "lint": "eslint . --color",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
+    "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js"
   },
   "devDependencies": {
     "ajv": "6.12.3",
