@@ -21,7 +21,7 @@ const coerceTypes = (schema) => {
   const typedSchema = { ...schema };
 
   if (_.isString(schema.type)) typedSchema.type = [schema.type];
-  else if (_.isArray(schema.type)) typedSchema.type = schema.type;
+  else if (_.isArray(schema.type)) typedSchema.type = [...schema.type];
   else typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
   return typedSchema;
@@ -143,6 +143,7 @@ const schemaToData = (schema) => {
 };
 
 const lib = {
+  coerceTypes,
   generateData,
   generateString,
   generateNumber,
