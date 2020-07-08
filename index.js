@@ -50,8 +50,8 @@ const getSchemaKeysForType = (type) => {
   }
 };
 
-const conformSchemaToType = (typedSchema, type) => {
-  type = type || _.sample(typedSchema.type); // eslint-disable-line no-param-reassign
+const conformSchemaToType = (typedSchema) => {
+  const type = _.sample(typedSchema.type);
 
   const singleTypedSchema = {
     type,
@@ -69,12 +69,12 @@ const conformSchemaToType = (typedSchema, type) => {
       itemsSchemas = _.times(length, () => itemSchema);
     }
 
-    singleTypedSchema.items = itemsSchemas.map(coerceSchema);
+    singleTypedSchema.items = itemsSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
   } else if (type === 'object') {
     const propertyDefinitions = singleTypedSchema.properties || {};
     singleTypedSchema.required = singleTypedSchema.required || [];
 
-    singleTypedSchema.properties = _.mapValues(propertyDefinitions, coerceSchema);
+    singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
   }
 
   singleTypedSchema.type = type;
@@ -143,7 +143,9 @@ const schemaToData = (schema) => {
 };
 
 const lib = {
+  coerceSchema,
   coerceTypes,
+  conformSchemaToType,
   generateData,
   generateString,
   generateNumber,

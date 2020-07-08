@@ -11,6 +11,7 @@
     "ajv": "6.12.3",
     "ansi-colors": "4.1.1",
     "chai": "4.2.0",
+    "chai-like": "1.1.1",
     "chai-things": "0.2.0",
     "eslint": "7.4.0",
     "eslint-config-airbnb-base": "14.2.0",
