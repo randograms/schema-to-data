@@ -21,7 +21,7 @@ const coerceTypes = (schema) => {
   const typedSchema = { ...schema };
 
   if (_.isString(schema.type)) typedSchema.type = [schema.type];
-  else if (_.isArray(schema.type)) typedSchema.type = schema.type;
+  else if (_.isArray(schema.type)) typedSchema.type = [...schema.type];
   else typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
   return typedSchema;
@@ -50,8 +50,8 @@ const getSchemaKeysForType = (type) => {
   }
 };
 
-const conformSchemaToType = (typedSchema, type) => {
-  type = type || _.sample(typedSchema.type); // eslint-disable-line no-param-reassign
+const conformSchemaToType = (typedSchema) => {
+  const type = _.sample(typedSchema.type);
 
   const singleTypedSchema = {
     type,
@@ -69,12 +69,12 @@ const conformSchemaToType = (typedSchema, type) => {
       itemsSchemas = _.times(length, () => itemSchema);
     }
 
-    singleTypedSchema.items = itemsSchemas.map(coerceSchema);
+    singleTypedSchema.items = itemsSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
   } else if (type === 'object') {
     const propertyDefinitions = singleTypedSchema.properties || {};
     singleTypedSchema.required = singleTypedSchema.required || [];
 
-    singleTypedSchema.properties = _.mapValues(propertyDefinitions, coerceSchema);
+    singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
   }
 
   singleTypedSchema.type = type;
@@ -117,7 +117,7 @@ const generateBoolean = () => faker.random.boolean();
 const generateArray = (arraySchema) => {
   // all array schemas will have been coerced to a tuple array schema
   const { items } = arraySchema;
-  return items.map(generateData);
+  return items.map(lib.generateData); // eslint-disable-line no-use-before-define
 };
 
 const generateObject = (objectSchema) => {
@@ -129,7 +129,7 @@ const generateObject = (objectSchema) => {
 
   const mockObject = _(properties)
     .pick([...requiredPropertyNames, ...optionalPropertyNamesToGenerate])
-    .mapValues(generateData)
+    .mapValues(lib.generateData) // eslint-disable-line no-use-before-define
     .value();
 
   return mockObject;
@@ -143,6 +143,9 @@ const schemaToData = (schema) => {
 };
 
 const lib = {
+  coerceSchema,
+  coerceTypes,
+  conformSchemaToType,
   generateData,
   generateString,
   generateNumber,
