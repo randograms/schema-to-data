@@ -15,6 +15,7 @@ const testSchema = ({
   skip = false,
   ...unsupportedOptions
 } = {}) => {
+  const runCount = 10;
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
   if (!description) {
@@ -27,11 +28,31 @@ const testSchema = ({
     });
   };
 
+  const saveResults = function () {
+    this.results = _.range(runCount)
+      .map((runIndex) => {
+        let mockData;
+        let errors = null;
+        try {
+          mockData = schemaToData(schema);
+          const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+
+          if (!validator.validate(schema, mockData)) errors = validator.errorsText();
+        } catch (error) {
+          errors = error.message;
+        }
+
+        return {
+          runIndex,
+          errors,
+          mockData,
+        };
+      });
+  };
+
   const itReturnsValidData = () => {
     it('returns valid data', function () {
-      const runCount = 10;
-
-      const failures = _.range(runCount)
+      const failures = this.results
         .map((index) => {
           let mockData;
           let errors;
@@ -107,6 +128,7 @@ const testSchema = ({
       return;
     }
 
+    before(saveResults);
     itReturnsValidData();
   });
 };
