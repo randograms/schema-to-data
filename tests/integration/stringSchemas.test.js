@@ -1,6 +1,6 @@
 describe('string schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'with just type',
     schema: { type: 'string' },
   });
 });

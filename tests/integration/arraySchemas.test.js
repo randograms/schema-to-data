@@ -1,11 +1,11 @@
 describe('array schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'with just type',
     schema: { type: 'array' },
   });
 
   testSchema({
-    description: 'when items is a tuple',
+    scenario: 'when items is a tuple',
     schema: {
       type: 'array',
       items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
@@ -13,7 +13,7 @@ describe('array schemas', function () {
   });
 
   testSchema({
-    description: 'with typeless items',
+    scenario: 'with typeless items',
     schema: {
       type: 'array',
       items: {},
@@ -21,7 +21,7 @@ describe('array schemas', function () {
   });
 
   testSchema({
-    description: 'with single typed items',
+    scenario: 'with single typed items',
     schema: {
       type: 'array',
       items: { type: 'string' },
@@ -29,7 +29,7 @@ describe('array schemas', function () {
   });
 
   testSchema({
-    description: 'with multi-typed items',
+    scenario: 'with multi-typed items',
     schema: {
       type: 'array',
       items: { type: ['string', 'boolean'] },

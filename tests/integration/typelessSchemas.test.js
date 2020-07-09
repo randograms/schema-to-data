@@ -1,6 +1,6 @@
 describe('typeless schemas', function () {
   testSchema({
-    description: 'when type is undefined',
+    scenario: 'when type is undefined',
     schema: {},
   });
 });

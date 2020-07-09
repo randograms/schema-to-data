@@ -1,11 +1,11 @@
 describe('object schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'with just type',
     schema: { type: 'object' },
   });
 
   testSchema({
-    description: 'with optional properties',
+    scenario: 'with optional properties',
     schema: {
       type: 'object',
       properties: {
@@ -16,7 +16,7 @@ describe('object schemas', function () {
   });
 
   testSchema({
-    description: 'with optional and required properties',
+    scenario: 'with optional and required properties',
     schema: {
       type: 'object',
       properties: {
@@ -28,7 +28,7 @@ describe('object schemas', function () {
   });
 
   testSchema({
-    description: 'with multi-typed properties',
+    scenario: 'with multi-typed properties',
     schema: {
       type: 'object',
       properties: {
@@ -39,7 +39,7 @@ describe('object schemas', function () {
   });
 
   testSchema({
-    description: 'with typless properties',
+    scenario: 'with typless properties',
     schema: {
       type: 'object',
       properties: {

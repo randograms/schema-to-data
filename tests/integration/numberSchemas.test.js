@@ -1,6 +1,6 @@
 describe('number schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'with just type',
     schema: { type: 'number' },
   });
 });

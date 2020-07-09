@@ -7,7 +7,7 @@ const regularValidator = new Ajv();
 const edgeCaseValidator = new Ajv({ validateSchema: false });
 
 const testSchema = ({
-  description,
+  scenario,
   schema,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   itThrowsTheError: expectedError = null,
@@ -19,8 +19,8 @@ const testSchema = ({
   const runCount = 10;
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
-  if (!description) {
-    throw Error('"testSchema" must be given a "description"');
+  if (!scenario) {
+    throw Error('"testSchema" must be given a "scenario"');
   }
 
   const itThrowsTheExpectedError = () => {
@@ -99,7 +99,7 @@ const testSchema = ({
   let contextMethod = only ? context.only : context;
   contextMethod = skip ? context.skip : contextMethod;
 
-  const formattedDescription = debug ? blue(description) : description;
+  const formattedDescription = debug ? blue(scenario) : scenario;
   contextMethod(formattedDescription, function () {
     before(function () {
       if (!schema) {
