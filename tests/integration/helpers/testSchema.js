@@ -12,6 +12,7 @@ const testSchema = ({
   expectedError = null,
   debug = false,
   only = false,
+  skip = false,
   ...unsupportedOptions
 } = {}) => {
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
@@ -81,8 +82,8 @@ const testSchema = ({
     });
   };
 
-  const contextMethod = only ? context.only : context;
-  contextMethod(description, function () {
+  let contextMethod = only ? context.only : context;
+  contextMethod = skip ? context.skip : contextMethod;
     before(function () {
       if (!schema) {
         throw Error('"schema" must be provided');
@@ -108,5 +109,6 @@ const testSchema = ({
 };
 
 testSchema.only = (options) => testSchema({ ...options, only: true });
+testSchema.skip = (options) => testSchema({ ...options, skip: true });
 
 module.exports = { testSchema };
