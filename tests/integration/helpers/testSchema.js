@@ -49,53 +49,50 @@ const testSchema = ({
           mockData,
         };
       });
+
+    this.failures = this.results.filter(({ errors }) => errors !== null);
+    this.isSuccess = this.failures.length === 0;
+
+    if (!debug && this.isSuccess) {
+      return;
+    }
+
+    const filteredResults = debug
+      ? this.results
+      : this.failures;
+
+    const errorsPaddingLength = (
+      _(filteredResults)
+        .map(({ errors }) => (errors === null ? 0 : errors.length))
+        .push('Errors'.length)
+        .max()
+    );
+    const paddedErrorsHeading = _.padEnd('Errors', errorsPaddingLength, ' ');
+
+    const tableHeading = `      ${reset('Run')} | ${paddedErrorsHeading} | Mock Data`;
+    const tableHeadingLine = `      ${_.repeat('-', tableHeading.length)}`;
+    const tableBodyRows = filteredResults.map(({ runIndex, errors, mockData }) => {
+      const formattedRunIndex = reset(_.padStart(runIndex, 2, '0'));
+      const formattedErrors = red(_.padEnd(errors, errorsPaddingLength, ' '));
+      const formattedMockData = reset(JSON.stringify(mockData));
+
+      return `       ${formattedRunIndex} | ${formattedErrors} | ${formattedMockData}`;
+    });
+
+    const message = [
+      tableHeading,
+      tableHeadingLine,
+      tableBodyRows,
+    ]
+      .flat()
+      .join('\n');
+
+    console.log(message); // eslint-disable-line no-console
   };
 
   const itReturnsValidData = () => {
     it('returns valid data', function () {
-      const failures = this.results.filter(({ errors }) => errors !== null);
-      const isSuccess = failures.length === 0;
-
-      const filteredResults = debug
-        ? this.results
-        : failures;
-
-      if (!debug && isSuccess) {
-        return;
-      }
-
-      const errorMessageToFlatten = isSuccess ? [] : [`${failures.length}/${runCount} runs failed`];
-      const errorsPaddingLength = (
-        _(filteredResults)
-          .map(({ errors }) => (errors === null ? 0 : errors.length))
-          .push('Errors'.length)
-          .max()
-      );
-      const paddedErrorsHeading = _.padEnd('Errors', errorsPaddingLength, ' ');
-      const tableHeading = `      ${reset('Run')} | ${paddedErrorsHeading} | Mock Data`;
-      const tableHeadingLine = `      ${_.repeat('-', tableHeading.length)}`;
-      const tableBodyRows = filteredResults.map(({ runIndex, errors, mockData }) => {
-        const formattedRunIndex = reset(_.padStart(runIndex, 2, '0'));
-        const formattedErrors = red(_.padEnd(errors, errorsPaddingLength, ' '));
-        const formattedMockData = reset(JSON.stringify(mockData));
-
-        return `       ${formattedRunIndex} | ${formattedErrors} | ${formattedMockData}`;
-      });
-
-      const message = [
-        errorMessageToFlatten,
-        tableHeading,
-        tableHeadingLine,
-        tableBodyRows,
-      ]
-        .flat()
-        .join('\n');
-
-      if (isSuccess) {
-        console.log(message); // eslint-disable-line no-console
-      } else {
-        throw Error(message);
-      }
+      if (!this.isSuccess) throw Error(`${this.failures.length}/${runCount} runs failed; see output above`);
     });
   };
 
