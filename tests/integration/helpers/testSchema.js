@@ -8,7 +8,7 @@ const edgeCaseValidator = new Ajv({ validateSchema: false });
 
 const testSchema = ({
   scenario,
-  schema,
+  schema: inputSchema,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   itThrowsTheError: expectedError = null,
   debug = process.env.DEBUG === 'true',
@@ -25,7 +25,7 @@ const testSchema = ({
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      expect(() => schemaToData(schema)).to.throw(expectedError);
+      expect(() => schemaToData(inputSchema)).to.throw(expectedError);
     });
   };
 
@@ -35,10 +35,10 @@ const testSchema = ({
         let mockData;
         let errors = null;
         try {
-          mockData = schemaToData(schema);
+          mockData = schemaToData(inputSchema);
           const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
 
-          if (!validator.validate(schema, mockData)) errors = validator.errorsText();
+          if (!validator.validate(inputSchema, mockData)) errors = validator.errorsText();
         } catch (error) {
           errors = error.message;
         }
@@ -102,7 +102,7 @@ const testSchema = ({
   const formattedDescription = debug ? blue(scenario) : scenario;
   contextMethod(formattedDescription, function () {
     before(function () {
-      if (!schema) {
+      if (!inputSchema) {
         throw Error('"schema" must be provided');
       }
 
@@ -111,7 +111,7 @@ const testSchema = ({
       }
 
       if (ignoreSchemaValidation) {
-        const isSchemaValid = regularValidator.validateSchema(schema);
+        const isSchemaValid = regularValidator.validateSchema(inputSchema);
 
         if (isSchemaValid) {
           throw Error('Expected schema to be invalid');
@@ -126,8 +126,10 @@ const testSchema = ({
       }
 
       if (debug) {
-        const singleLineSchema = JSON.stringify(schema, ' ');
-        const stringifiedSchema = singleLineSchema.length < 60 ? singleLineSchema : JSON.stringify(schema, null, 2);
+        const singleLineSchema = JSON.stringify(inputSchema, ' ');
+        const stringifiedSchema = singleLineSchema.length < 60
+          ? singleLineSchema
+          : JSON.stringify(inputSchema, null, 2);
 
         const [firstLine, ...otherLines] = stringifiedSchema.split('\n');
         const formattedSchema = [
