@@ -3,6 +3,7 @@ describe('malformed schemas', function () {
     description: 'when type is an empty array',
     schema: { type: [] },
     expectedError: 'Expected schema to have a known type but got "undefined"',
+    expectedSchemaValidationError: 'data.type should be equal to one of the allowed values',
   });
 
   testSchema({
