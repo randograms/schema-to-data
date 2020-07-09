@@ -47,15 +47,6 @@ const testSchema = ({
             }
 
             const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
-
-            if (ignoreSchemaValidation) {
-              const testFn = () => {
-                regularValidator.validate(schema, mockData);
-              };
-
-              expect(testFn, 'Schema failed validation for the wrong reason').to.throw(expectedSchemaValidationError);
-            }
-
             if (validator.validate(schema, mockData)) return null;
 
             errors = validator.errorsText();
@@ -91,6 +82,21 @@ const testSchema = ({
 
       if (!_.isEmpty(unsupportedOptions)) {
         throw Error(`"testSchema" was called with unsupported options: ${_.keys(unsupportedOptions)}`);
+      }
+
+      if (ignoreSchemaValidation) {
+        const isSchemaValid = regularValidator.validateSchema(schema);
+
+        if (isSchemaValid) {
+          throw Error('Expected schema to be invalid');
+        }
+
+        if (!isSchemaValid) {
+          expect(
+            regularValidator.errorsText(),
+            'Schema failed validation for the wrong reason',
+          ).to.include(expectedSchemaValidationError);
+        }
       }
     });
 
