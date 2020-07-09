@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const Ajv = require('ajv');
+const { blue, reset, red } = require('ansi-colors');
 const { schemaToData } = require('../../..');
 
 const regularValidator = new Ajv();
@@ -52,40 +53,48 @@ const testSchema = ({
 
   const itReturnsValidData = () => {
     it('returns valid data', function () {
-      const failures = this.results
-        .map((index) => {
-          let mockData;
-          let errors;
-          try {
-            mockData = schemaToData(schema);
+      const failures = this.results.filter(({ errors }) => errors !== null);
+      const isSuccess = failures.length === 0;
 
-            if (debug) {
-              console.log(mockData); // eslint-disable-line no-console
-            }
+      const filteredResults = debug
+        ? this.results
+        : failures;
 
-            const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
-            if (validator.validate(schema, mockData)) return null;
+      if (!debug && isSuccess) {
+        return;
+      }
 
-            errors = validator.errorsText();
-          } catch (error) {
-            errors = error.message;
-          }
+      const errorMessageToFlatten = isSuccess ? [] : [`${failures.length}/${runCount} runs failed`];
+      const errorsPaddingLength = (
+        _(filteredResults)
+          .map(({ errors }) => (errors === null ? 0 : errors.length))
+          .push('Errors'.length)
+          .max()
+      );
+      const paddedErrorsHeading = _.padEnd('Errors', errorsPaddingLength, ' ');
+      const tableHeading = `      ${reset('Run')} | ${paddedErrorsHeading} | Mock Data`;
+      const tableHeadingLine = `      ${_.repeat('-', tableHeading.length)}`;
+      const tableBodyRows = filteredResults.map(({ runIndex, errors, mockData }) => {
+        const formattedRunIndex = reset(_.padStart(runIndex, 2, '0'));
+        const formattedErrors = red(_.padEnd(errors, errorsPaddingLength, ' '));
+        const formattedMockData = reset(JSON.stringify(mockData));
 
-          return {
-            index,
-            errors,
-            mockData,
-          };
-        })
-        .filter((result) => result !== null);
+        return `       ${formattedRunIndex} | ${formattedErrors} | ${formattedMockData}`;
+      });
 
-      if (failures.length > 0) {
-        const errorMessage = [
-          `${failures.length}/${runCount} runs failed`,
-          ...failures.map(({ index, errors, mockData }) => `${index}: ${errors} | ${JSON.stringify(mockData)}`),
-        ].join('\n');
+      const message = [
+        errorMessageToFlatten,
+        tableHeading,
+        tableHeadingLine,
+        tableBodyRows,
+      ]
+        .flat()
+        .join('\n');
 
-        throw Error(errorMessage);
+      if (isSuccess) {
+        console.log(message); // eslint-disable-line no-console
+      } else {
+        throw Error(message);
       }
     });
   };
