@@ -18,7 +18,7 @@ const testSchema = ({
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
   if (!description) {
-    throw Error('"description" must be provided');
+    throw Error('"testSchema" must be given a "description"');
   }
 
   const itThrowsAnError = () => {
