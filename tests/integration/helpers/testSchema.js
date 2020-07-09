@@ -29,37 +29,18 @@ const testSchema = ({
     });
   };
 
-  const saveResults = function () {
-    this.results = _.range(runCount)
-      .map((runIndex) => {
-        let mockData;
-        let errors = null;
-        try {
-          mockData = schemaToData(inputSchema);
-          const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+  const reportResults = ({
+    customizedResults,
+    onlyPrintFailures = true,
+  } = {}) => {
+    const failures = customizedResults.filter(({ errors }) => errors !== null);
+    const testPassed = failures.length === 0;
 
-          if (!validator.validate(inputSchema, mockData)) errors = validator.errorsText();
-        } catch (error) {
-          errors = error.message;
-        }
-
-        return {
-          runIndex,
-          errors,
-          mockData,
-        };
-      });
-
-    this.failures = this.results.filter(({ errors }) => errors !== null);
-    this.isSuccess = this.failures.length === 0;
-
-    if (!debug && this.isSuccess) {
+    if (testPassed && onlyPrintFailures) {
       return;
     }
 
-    const filteredResults = debug
-      ? this.results
-      : this.failures;
+    const filteredResults = onlyPrintFailures ? failures : customizedResults;
 
     const errorsPaddingLength = (
       _(filteredResults)
@@ -88,11 +69,57 @@ const testSchema = ({
       .join('\n');
 
     console.log(message); // eslint-disable-line no-console
+
+    if (!testPassed) {
+      throw Error(`${failures.length}/${runCount} runs failed; see output above`);
+    }
+  };
+
+  const saveResults = function () {
+    const customizedResults = (
+      _.range(runCount)
+        .map((runIndex) => {
+          let mockData;
+          let errors = null;
+          try {
+            mockData = schemaToData(inputSchema);
+          } catch (error) {
+            errors = error.message;
+          }
+
+          return {
+            runIndex,
+            errors,
+            mockData,
+          };
+        })
+    );
+
+    reportResults({
+      customizedResults,
+      onlyPrintFailures: !debug,
+    });
+
+    this.results = customizedResults.map((result) => _.pick(result, ['runIndex', 'mockData']));
+
+    if (debug) {
+      console.log('      ^^^^before^^^^\n'); // eslint-disable-line no-console
+    }
   };
 
   const itReturnsValidData = () => {
     it('returns valid data', function () {
-      if (!this.isSuccess) throw Error(`${this.failures.length}/${runCount} runs failed; see output above`);
+      const customizedResults = this.results.map((result) => {
+        const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+        const isValid = validator.validate(inputSchema, result.mockData);
+
+        return {
+          ...result,
+          errors: isValid ? null : validator.errorsText(),
+        };
+      });
+
+      reportResults({ customizedResults });
     });
   };
 
