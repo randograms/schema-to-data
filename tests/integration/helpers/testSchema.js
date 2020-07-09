@@ -21,13 +21,9 @@ const testSchema = ({
     throw Error('"testSchema" must be given a "description"');
   }
 
-  const itThrowsAnError = () => {
+  const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      const testFn = () => {
-        schemaToData(schema);
-      };
-
-      expect(testFn).to.throw(expectedError);
+      expect(() => schemaToData(schema)).to.throw(expectedError);
     });
   };
 
@@ -106,11 +102,12 @@ const testSchema = ({
       }
     });
 
-    if (expectedError) {
-      itThrowsAnError();
-    } else {
-      itReturnsValidData();
+    if (expectedError !== null) {
+      itThrowsTheExpectedError();
+      return;
     }
+
+    itReturnsValidData();
   });
 };
 
