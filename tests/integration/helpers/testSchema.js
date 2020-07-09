@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const Ajv = require('ajv');
+const { blue, reset, red } = require('ansi-colors');
 const { schemaToData } = require('../../..');
 
 const regularValidator = new Ajv();
@@ -10,79 +11,96 @@ const testSchema = ({
   schema,
   expectedSchemaValidationError = null,
   expectedError = null,
-  debug = false,
+  debug = process.env.DEBUG === 'true',
   only = false,
+  skip = false,
   ...unsupportedOptions
 } = {}) => {
+  const runCount = 10;
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
   if (!description) {
-    throw Error('"description" must be provided');
+    throw Error('"testSchema" must be given a "description"');
   }
 
-  const itThrowsAnError = () => {
+  const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      const testFn = () => {
-        schemaToData(schema);
-      };
-
-      expect(testFn).to.throw(expectedError);
+      expect(() => schemaToData(schema)).to.throw(expectedError);
     });
+  };
+
+  const saveResults = function () {
+    this.results = _.range(runCount)
+      .map((runIndex) => {
+        let mockData;
+        let errors = null;
+        try {
+          mockData = schemaToData(schema);
+          const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+
+          if (!validator.validate(schema, mockData)) errors = validator.errorsText();
+        } catch (error) {
+          errors = error.message;
+        }
+
+        return {
+          runIndex,
+          errors,
+          mockData,
+        };
+      });
+
+    this.failures = this.results.filter(({ errors }) => errors !== null);
+    this.isSuccess = this.failures.length === 0;
+
+    if (!debug && this.isSuccess) {
+      return;
+    }
+
+    const filteredResults = debug
+      ? this.results
+      : this.failures;
+
+    const errorsPaddingLength = (
+      _(filteredResults)
+        .map(({ errors }) => (errors === null ? 0 : errors.length))
+        .push('Errors'.length)
+        .max()
+    );
+    const paddedErrorsHeading = _.padEnd('Errors', errorsPaddingLength, ' ');
+
+    const tableHeading = `      ${reset('Run')} | ${paddedErrorsHeading} | Mock Data`;
+    const tableHeadingLine = `      ${_.repeat('-', tableHeading.length)}`;
+    const tableBodyRows = filteredResults.map(({ runIndex, errors, mockData }) => {
+      const formattedRunIndex = reset(_.padStart(runIndex, 2, '0'));
+      const formattedErrors = red(_.padEnd(errors, errorsPaddingLength, ' '));
+      const formattedMockData = reset(JSON.stringify(mockData));
+
+      return `       ${formattedRunIndex} | ${formattedErrors} | ${formattedMockData}`;
+    });
+
+    const message = [
+      tableHeading,
+      tableHeadingLine,
+      tableBodyRows,
+    ]
+      .flat()
+      .join('\n');
+
+    console.log(message); // eslint-disable-line no-console
   };
 
   const itReturnsValidData = () => {
     it('returns valid data', function () {
-      const runCount = 10;
-
-      const failures = _.range(runCount)
-        .map((index) => {
-          let mockData;
-          let errors;
-          try {
-            mockData = schemaToData(schema);
-
-            if (debug) {
-              console.log(mockData); // eslint-disable-line no-console
-            }
-
-            const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
-
-            if (ignoreSchemaValidation) {
-              const testFn = () => {
-                regularValidator.validate(schema, mockData);
-              };
-
-              expect(testFn, 'Schema failed validation for the wrong reason').to.throw(expectedSchemaValidationError);
-            }
-
-            if (validator.validate(schema, mockData)) return null;
-
-            errors = validator.errorsText();
-          } catch (error) {
-            errors = error.message;
-          }
-
-          return {
-            index,
-            errors,
-            mockData,
-          };
-        })
-        .filter((result) => result !== null);
-
-      if (failures.length > 0) {
-        const errorMessage = [
-          `${failures.length}/${runCount} runs failed`,
-          ...failures.map(({ index, errors, mockData }) => `${index}: ${errors} | ${JSON.stringify(mockData)}`),
-        ].join('\n');
-
-        throw Error(errorMessage);
-      }
+      if (!this.isSuccess) throw Error(`${this.failures.length}/${runCount} runs failed; see output above`);
     });
   };
 
-  const contextMethod = only ? context.only : context;
-  contextMethod(description, function () {
+  let contextMethod = only ? context.only : context;
+  contextMethod = skip ? context.skip : contextMethod;
+
+  const formattedDescription = debug ? blue(description) : description;
+  contextMethod(formattedDescription, function () {
     before(function () {
       if (!schema) {
         throw Error('"schema" must be provided');
@@ -90,6 +108,33 @@ const testSchema = ({
 
       if (!_.isEmpty(unsupportedOptions)) {
         throw Error(`"testSchema" was called with unsupported options: ${_.keys(unsupportedOptions)}`);
+      }
+
+      if (ignoreSchemaValidation) {
+        const isSchemaValid = regularValidator.validateSchema(schema);
+
+        if (isSchemaValid) {
+          throw Error('Expected schema to be invalid');
+        }
+
+        if (!isSchemaValid) {
+          expect(
+            regularValidator.errorsText(),
+            'Schema failed validation for the wrong reason',
+          ).to.include(expectedSchemaValidationError);
+        }
+      }
+
+      if (debug) {
+        const singleLineSchema = JSON.stringify(schema, ' ');
+        const stringifiedSchema = singleLineSchema.length < 60 ? singleLineSchema : JSON.stringify(schema, null, 2);
+
+        const [firstLine, ...otherLines] = stringifiedSchema.split('\n');
+        const formattedSchema = [
+          firstLine,
+          ...otherLines.map((line) => `      ${line}`),
+        ].join('\n');
+        console.log('      Schema:', formattedSchema); // eslint-disable-line no-console
       }
     });
 
@@ -99,14 +144,17 @@ const testSchema = ({
       }
     });
 
-    if (expectedError) {
-      itThrowsAnError();
-    } else {
-      itReturnsValidData();
+    if (expectedError !== null) {
+      itThrowsTheExpectedError();
+      return;
     }
+
+    before(saveResults);
+    itReturnsValidData();
   });
 };
 
 testSchema.only = (options) => testSchema({ ...options, only: true });
+testSchema.skip = (options) => testSchema({ ...options, skip: true });
 
 module.exports = { testSchema };
