@@ -9,8 +9,8 @@ const edgeCaseValidator = new Ajv({ validateSchema: false });
 const testSchema = ({
   description,
   schema,
-  expectedSchemaValidationError = null,
-  expectedError = null,
+  theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
+  itThrowsTheError: expectedError = null,
   debug = process.env.DEBUG === 'true',
   only = false,
   skip = false,
