@@ -11,7 +11,7 @@ const testSchema = ({
   schema,
   expectedSchemaValidationError = null,
   expectedError = null,
-  debug = false,
+  debug = process.env.DEBUG === 'true',
   only = false,
   skip = false,
   ...unsupportedOptions
@@ -101,6 +101,9 @@ const testSchema = ({
 
   let contextMethod = only ? context.only : context;
   contextMethod = skip ? context.skip : contextMethod;
+
+  const formattedDescription = debug ? blue(description) : description;
+  contextMethod(formattedDescription, function () {
     before(function () {
       if (!schema) {
         throw Error('"schema" must be provided');
@@ -123,6 +126,18 @@ const testSchema = ({
             'Schema failed validation for the wrong reason',
           ).to.include(expectedSchemaValidationError);
         }
+      }
+
+      if (debug) {
+        const singleLineSchema = JSON.stringify(schema, ' ');
+        const stringifiedSchema = singleLineSchema.length < 60 ? singleLineSchema : JSON.stringify(schema, null, 2);
+
+        const [firstLine, ...otherLines] = stringifiedSchema.split('\n');
+        const formattedSchema = [
+          firstLine,
+          ...otherLines.map((line) => `      ${line}`),
+        ].join('\n');
+        console.log('      Schema:', formattedSchema); // eslint-disable-line no-console
       }
     });
 
