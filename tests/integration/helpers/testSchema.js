@@ -9,6 +9,8 @@ const edgeCaseValidator = new Ajv({ validateSchema: false });
 const testSchema = ({
   scenario,
   schema: inputSchema,
+  runCount = 10,
+  itSometimesValidatesAgainst: schemasThatValidateAtLeastOnce = null,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   itThrowsTheError: expectedError = null,
   debug = process.env.DEBUG === 'true',
@@ -16,7 +18,6 @@ const testSchema = ({
   skip = false,
   ...unsupportedOptions
 } = {}) => {
-  const runCount = 10;
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
   if (!scenario) {
@@ -31,10 +32,11 @@ const testSchema = ({
 
   const reportResults = ({
     customizedResults,
+    allMustPass,
     onlyPrintFailures = true,
   } = {}) => {
     const failures = customizedResults.filter(({ errors }) => errors !== null);
-    const testPassed = failures.length === 0;
+    const testPassed = allMustPass ? failures.length === 0 : failures.length !== customizedResults.length;
 
     if (testPassed && onlyPrintFailures) {
       return;
@@ -75,6 +77,11 @@ const testSchema = ({
     }
   };
 
+  const getSchemaValidationResults = (results, validator, schema) => results.map((result) => ({
+    ...result,
+    errors: validator.validate(schema, result.mockData) ? null : validator.errorsText(),
+  }));
+
   const saveResults = function () {
     const customizedResults = (
       _.range(runCount)
@@ -97,6 +104,7 @@ const testSchema = ({
 
     reportResults({
       customizedResults,
+      allMustPass: true,
       onlyPrintFailures: !debug,
     });
 
@@ -107,19 +115,24 @@ const testSchema = ({
     }
   };
 
-  const itReturnsValidData = () => {
-    it('returns valid data', function () {
-      const customizedResults = this.results.map((result) => {
-        const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
-        const isValid = validator.validate(inputSchema, result.mockData);
+  const itAlwaysReturnsValidData = () => {
+    it('always returns valid data', function () {
+      const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
 
-        return {
-          ...result,
-          errors: isValid ? null : validator.errorsText(),
-        };
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, validator, inputSchema),
+        allMustPass: true,
       });
+    });
+  };
 
-      reportResults({ customizedResults });
+  const itSometimesValidatesAgainstTheSchema = (validationSchema) => {
+    const statement = validationSchema.itSometimesReturns;
+    it(`sometimes returns ${statement}`, function () {
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, regularValidator, validationSchema),
+        allMustPass: false,
+      });
     });
   };
 
@@ -165,6 +178,22 @@ const testSchema = ({
         ].join('\n');
         console.log('      Schema:', formattedSchema); // eslint-disable-line no-console
       }
+
+      if (schemasThatValidateAtLeastOnce !== null) {
+        if (!_.isArray(schemasThatValidateAtLeastOnce) || schemasThatValidateAtLeastOnce.length === 0) {
+          throw Error('"itSometimesValidatesAgainst" must be a non empty array');
+        }
+
+        const allSchemasAreAnnotated = (
+          _(schemasThatValidateAtLeastOnce)
+            .map('itSometimesReturns')
+            .every(_.isString)
+            .valueOf()
+        );
+        if (!allSchemasAreAnnotated) {
+          throw Error('All schemas in "itSometimesValidatesAgainst" must have an "itSometimesReturns" string annotation'); // eslint-disable-line max-len
+        }
+      }
     });
 
     after(function () {
@@ -179,7 +208,11 @@ const testSchema = ({
     }
 
     before(saveResults);
-    itReturnsValidData();
+    itAlwaysReturnsValidData();
+
+    if (schemasThatValidateAtLeastOnce !== null) {
+      schemasThatValidateAtLeastOnce.forEach(itSometimesValidatesAgainstTheSchema);
+    }
   });
 };
 
