@@ -7,6 +7,11 @@
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
     "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js"
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint && npm run test"
+    }
+  },
   "devDependencies": {
     "ajv": "6.12.3",
     "ansi-colors": "4.1.1",
@@ -17,6 +22,7 @@
     "eslint-config-airbnb-base": "14.2.0",
     "eslint-plugin-import": "2.22.0",
     "eslint-plugin-mocha": "7.0.1",
+    "husky": "4.2.5",
     "mocha": "8.0.1",
     "node-plantuml": "0.9.0",
     "nodemon": "2.0.4",
