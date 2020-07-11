@@ -1,8 +1,19 @@
 describe('object schemas', function () {
-  // TODO: test that this always returns an empty object (for now)
   testSchema({
     scenario: 'by default',
     schema: { type: 'object' },
+  });
+
+  // TODO: extend this test to 'without properties or required'
+  testSchema({
+    scenario: 'without properties',
+    schema: { type: 'object' },
+    itAlwaysValidatesAgainst: [
+      {
+        itAlwaysReturns: 'an empty object (for now)',
+        const: {},
+      },
+    ],
   });
 
   testSchema({

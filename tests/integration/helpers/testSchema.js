@@ -10,6 +10,7 @@ const testSchema = ({
   scenario,
   schema: inputSchema,
   runCount = 10,
+  itAlwaysValidatesAgainst: schemasThatAlwaysValidate = null,
   itSometimesValidatesAgainst: schemasThatValidateAtLeastOnce = null,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   itThrowsTheError: expectedError = null,
@@ -126,6 +127,16 @@ const testSchema = ({
     });
   };
 
+  const itAlwaysValidatesAgainstTheSchema = (validationSchema) => {
+    const statement = validationSchema.itAlwaysReturns;
+    it(`always returns ${statement}`, function () {
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, regularValidator, validationSchema),
+        allMustPass: true,
+      });
+    });
+  };
+
   const itSometimesValidatesAgainstTheSchema = (validationSchema) => {
     const statement = validationSchema.itSometimesReturns;
     it(`sometimes returns ${statement}`, function () {
@@ -194,6 +205,22 @@ const testSchema = ({
           throw Error('All schemas in "itSometimesValidatesAgainst" must have an "itSometimesReturns" string annotation'); // eslint-disable-line max-len
         }
       }
+
+      if (schemasThatAlwaysValidate !== null) {
+        if (!_.isArray(schemasThatAlwaysValidate) || schemasThatAlwaysValidate.length === 0) {
+          throw Error('"itAlwaysValidatesAgainst" must be a non empty array');
+        }
+
+        const allSchemasAreAnnotated = (
+          _(schemasThatAlwaysValidate)
+            .map('itAlwaysReturns')
+            .every(_.isString)
+            .valueOf()
+        );
+        if (!allSchemasAreAnnotated) {
+          throw Error('All schemas in "itAlwaysValidatesAgainst" must have an "itAlwaysReturns" string annotation'); // eslint-disable-line max-len
+        }
+      }
     });
 
     after(function () {
@@ -212,6 +239,10 @@ const testSchema = ({
 
     if (schemasThatValidateAtLeastOnce !== null) {
       schemasThatValidateAtLeastOnce.forEach(itSometimesValidatesAgainstTheSchema);
+    }
+
+    if (schemasThatAlwaysValidate !== null) {
+      schemasThatAlwaysValidate.forEach(itAlwaysValidatesAgainstTheSchema);
     }
   });
 };
