@@ -25,12 +25,9 @@ describe('object properties schemas', function () {
   });
 
   testSchema({
-    scenario: 'with typless properties',
+    scenario: 'with typeless properties',
     schema: {
       type: 'object',
-      properties: {
-        required: {},
-      },
       required: ['required'],
     },
     runCount: 30,
