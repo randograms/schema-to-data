@@ -23,7 +23,7 @@ describe('object schemas', function () {
         optional2: { type: 'number' },
       },
     },
-    runCount: 40,
+    runCount: 100,
     itSometimesValidatesAgainst: [
       {
         itSometimesReturns: 'an empty object',
