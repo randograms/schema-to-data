@@ -32,8 +32,8 @@ describe('object properties schemas', function () {
       required: ['property'],
     },
     runCount: 40,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
-      itSometimesReturns: `an object with ${descriptor} property`,
+    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an object with ${schemaDescriptor} property`,
       properties: { property: basicSchema },
       required: ['property'],
     })),

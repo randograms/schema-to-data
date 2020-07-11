@@ -14,7 +14,7 @@ const mapBasicSchemas = (callback) => {
     ['an object', { type: 'object' }],
   ];
 
-  return descriptorSchemaTuples.map(([descriptor, basicSchema]) => callback({ descriptor, basicSchema }));
+  return descriptorSchemaTuples.map(([schemaDescriptor, basicSchema]) => callback({ schemaDescriptor, basicSchema }));
 };
 
 module.exports = {

@@ -7,8 +7,8 @@ describe('multi-typed schemas', function () {
       itAlwaysReturns: 'data',
     },
     runCount: 30,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
-      itSometimesReturns: `${descriptor}`,
+    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `${schemaDescriptor}`,
       ...basicSchema,
     })),
   });

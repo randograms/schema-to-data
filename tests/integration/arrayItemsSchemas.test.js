@@ -18,8 +18,8 @@ describe('array items schemas', function () {
       type: 'array',
     },
     runCount: 30,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
-      itSometimesReturns: `an array with ${descriptor}`,
+    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an array with ${schemaDescriptor}`,
       contains: basicSchema,
     })),
   });
