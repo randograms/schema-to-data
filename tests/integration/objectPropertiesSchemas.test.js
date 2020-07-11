@@ -4,37 +4,38 @@ describe('object properties schemas', function () {
   testSchema({
     scenario: 'with multi-typed properties',
     schema: {
+      itAlwaysReturns: 'an object',
       type: 'object',
       properties: {
-        required: { type: ['number', 'boolean'] },
+        property: { type: ['number', 'boolean'] },
       },
-      required: ['required'],
     },
     itSometimesValidatesAgainst: [
       {
         itSometimesReturns: 'an object with a property that has the first type',
-        properties: { required: { type: 'number' } },
-        required: ['required'],
+        properties: { property: { type: 'number' } },
+        required: ['property'],
       },
       {
         itSometimesReturns: 'an object with a property that has the second type',
-        properties: { required: { type: 'boolean' } },
-        required: ['required'],
+        properties: { property: { type: 'boolean' } },
+        required: ['property'],
       },
     ],
   });
 
   testSchema({
-    scenario: 'with typeless properties',
+    scenario: 'with typeless required properties',
     schema: {
+      itAlwaysReturns: 'an object with the required properties',
       type: 'object',
-      required: ['required'],
+      required: ['property'],
     },
     runCount: 40,
     itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
       itSometimesReturns: `an object with ${descriptor} property`,
-      properties: { required: basicSchema },
-      required: ['required'],
+      properties: { property: basicSchema },
+      required: ['property'],
     })),
   });
 });

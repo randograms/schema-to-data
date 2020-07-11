@@ -3,7 +3,10 @@ const { decimalSchema } = require('./helpers/commonSchemas');
 describe('number schemas', function () {
   testSchema({
     scenario: 'by default',
-    schema: { type: 'number' },
+    schema: {
+      itAlwaysReturns: 'a number',
+      type: 'number',
+    },
     itSometimesValidatesAgainst: [
       {
         itSometimesReturns: 'an integer',

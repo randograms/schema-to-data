@@ -1,6 +1,9 @@
 describe('null schemas', function () {
   testSchema({
     scenario: 'by default',
-    schema: { type: 'null' },
+    schema: {
+      itAlwaysReturns: 'null',
+      type: 'null',
+    },
   });
 });

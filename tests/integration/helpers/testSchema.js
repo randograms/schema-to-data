@@ -13,17 +13,22 @@ const testSchema = ({
   itAlwaysValidatesAgainst: schemasThatAlwaysValidate = null,
   itSometimesValidatesAgainst: schemasThatValidateAtLeastOnce = null,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
-  itThrowsTheError: expectedError = null,
   debug = process.env.DEBUG === 'true',
   only = false,
   skip = false,
   ...unsupportedOptions
 } = {}) => {
-  const ignoreSchemaValidation = expectedSchemaValidationError !== null;
-
   if (!scenario) {
-    throw Error('"testSchema" must be given a "scenario"');
+    throw Error('"testSchema" must be provided a "scenario"');
   }
+
+  if (!inputSchema) {
+    throw Error('"testSchema" must be provided a "schema"');
+  }
+
+  const ignoreSchemaValidation = expectedSchemaValidationError !== null;
+  const expectedError = inputSchema.itThrowsTheError || null;
+  const returnDescriptor = inputSchema.itAlwaysReturns || null;
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
@@ -117,7 +122,7 @@ const testSchema = ({
   };
 
   const itAlwaysReturnsValidData = () => {
-    it('always returns valid data', function () {
+    it(`always returns ${returnDescriptor}`, function () {
       const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
 
       reportResults({
@@ -153,12 +158,12 @@ const testSchema = ({
   const formattedDescription = debug ? blue(scenario) : scenario;
   contextMethod(formattedDescription, function () {
     before(function () {
-      if (!inputSchema) {
-        throw Error('"schema" must be provided');
+      if (!_.isEmpty(unsupportedOptions)) {
+        throw Error(`"testSchema" was called with unsupported option(s): ${_.keys(unsupportedOptions)}`);
       }
 
-      if (!_.isEmpty(unsupportedOptions)) {
-        throw Error(`"testSchema" was called with unsupported options: ${_.keys(unsupportedOptions)}`);
+      if ((!returnDescriptor && !expectedError) || (returnDescriptor && expectedError)) {
+        throw Error('"schema" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
       }
 
       if (ignoreSchemaValidation) {

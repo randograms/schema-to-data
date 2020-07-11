@@ -5,6 +5,7 @@ describe('array items schemas', function () {
   testSchema({
     scenario: 'when items is a tuple',
     schema: {
+      itAlwaysReturns: 'an array',
       type: 'array',
       items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
     },
@@ -12,7 +13,10 @@ describe('array items schemas', function () {
 
   testSchema({
     scenario: 'with typeless items',
-    schema: { type: 'array' },
+    schema: {
+      itAlwaysReturns: 'an array',
+      type: 'array',
+    },
     runCount: 30,
     itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
       itSometimesReturns: `an array with ${descriptor}`,
@@ -23,6 +27,7 @@ describe('array items schemas', function () {
   testSchema({
     scenario: 'with single typed items',
     schema: {
+      itAlwaysReturns: 'an array with items of the provided type',
       type: 'array',
       items: { type: 'string' },
     },
@@ -31,6 +36,7 @@ describe('array items schemas', function () {
   testSchema({
     scenario: 'with multi-typed items',
     schema: {
+      itAlwaysReturns: 'an array with items restricted by the provided types',
       type: 'array',
       items: { type: ['string', 'boolean'] },
     },
