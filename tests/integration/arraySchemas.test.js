@@ -2,6 +2,7 @@ describe('array schemas', function () {
   testSchema({
     scenario: 'by default',
     schema: { type: 'array' },
+    runCount: 20,
     itSometimesValidatesAgainst: [
       {
         itSometimesReturns: 'an empty array',
