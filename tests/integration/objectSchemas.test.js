@@ -56,6 +56,14 @@ describe('object schemas', function () {
   });
 
   testSchema({
+    scenario: 'with required properties',
+    schema: {
+      type: 'object',
+      required: ['required'],
+    },
+  });
+
+  testSchema({
     scenario: 'with optional and required properties',
     schema: {
       type: 'object',

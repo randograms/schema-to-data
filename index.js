@@ -71,8 +71,12 @@ const conformSchemaToType = (typedSchema) => {
 
     singleTypedSchema.items = itemsSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
   } else if (type === 'object') {
-    const propertyDefinitions = singleTypedSchema.properties || {};
+    const propertyDefinitions = { ...singleTypedSchema.properties } || {};
     singleTypedSchema.required = singleTypedSchema.required || [];
+
+    singleTypedSchema.required.forEach((propertyName) => {
+      propertyDefinitions[propertyName] = propertyDefinitions[propertyName] || {};
+    });
 
     singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
   }
@@ -121,6 +125,7 @@ const generateArray = (arraySchema) => {
 };
 
 const generateObject = (objectSchema) => {
+  // properties will have been coerced to always have a schema for required properties
   const { properties, required: requiredPropertyNames } = objectSchema;
 
   const allPropertyNames = _.keys(properties);

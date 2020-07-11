@@ -213,6 +213,30 @@ describe('conformSchemaToType', function () {
         });
       });
     });
+
+    context('that has a required property without a schema', function () {
+      before(function () {
+        this.coercedPropertySchema = Symbol('coercedPropertySchema');
+        sandbox.stub(lib, 'coerceSchema').withArgs({}).returns(this.coercedPropertySchema);
+
+        const typedSchema = generateValidTestSchema({
+          type: ['object'],
+          required: ['property'],
+        });
+
+        this.result = lib.conformSchemaToType(typedSchema);
+      });
+      after(sandbox.restore);
+
+      it('returns a schema with a coerced property definition', function () {
+        expect(this.result).to.be.like({
+          properties: {
+            property: this.coercedPropertySchema,
+          },
+          required: ['property'],
+        });
+      });
+    });
   });
 
   context('with a typedSchema with an empty type set', function () {

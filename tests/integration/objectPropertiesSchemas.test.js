@@ -25,15 +25,12 @@ describe('object properties schemas', function () {
   });
 
   testSchema({
-    scenario: 'with typless properties',
+    scenario: 'with typeless properties',
     schema: {
       type: 'object',
-      properties: {
-        required: {},
-      },
       required: ['required'],
     },
-    runCount: 30,
+    runCount: 40,
     itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
       itSometimesReturns: `an object with ${descriptor} property`,
       properties: { required: basicSchema },
