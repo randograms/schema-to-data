@@ -26,7 +26,7 @@ describe('conformSchemaToType', function () {
   });
 
   context('with a typedSchema with multiple types', function () {
-    this.retries(10);
+    this.retries(20);
 
     beforeEach(function () {
       this.typedSchema = {

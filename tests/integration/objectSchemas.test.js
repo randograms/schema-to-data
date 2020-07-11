@@ -73,6 +73,7 @@ describe('object schemas', function () {
       },
       required: ['required'],
     },
+    runCount: 20,
     itSometimesValidatesAgainst: [
       {
         itSometimesReturns: 'an object with just the required properties',
