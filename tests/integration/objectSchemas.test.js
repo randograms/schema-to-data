@@ -1,4 +1,7 @@
+const { mapBasicSchemas } = require('./helpers/commonSchemas');
+
 describe('object schemas', function () {
+  // TODO: test that this always returns an empty object (for now)
   testSchema({
     scenario: 'with just type',
     schema: { type: 'object' },
@@ -13,6 +16,34 @@ describe('object schemas', function () {
         optional2: { type: 'number' },
       },
     },
+    runCount: 40,
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an empty object',
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with just the first property',
+        properties: { optional1: { type: 'string' } },
+        required: ['optional1'],
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with just the second property',
+        properties: { optional2: { type: 'number' } },
+        required: ['optional2'],
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with both properties',
+        properties: {
+          optional1: { type: 'string' },
+          optional2: { type: 'number' },
+        },
+        required: ['optional1', 'optional2'],
+        additionalProperties: false,
+      },
+    ],
   });
 
   testSchema({
@@ -20,11 +51,28 @@ describe('object schemas', function () {
     schema: {
       type: 'object',
       properties: {
-        required1: { type: 'string' },
-        optional1: { type: 'number' },
+        required: { type: 'string' },
+        optional: { type: 'number' },
       },
-      required: ['required1'],
+      required: ['required'],
     },
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an object with just the required property',
+        properties: { required: { type: 'string' } },
+        required: ['required'],
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with both properties',
+        properties: {
+          required: { type: 'string' },
+          optional: { type: 'number' },
+        },
+        required: ['required', 'optional'],
+        additionalProperties: false,
+      },
+    ],
   });
 
   testSchema({
@@ -32,10 +80,22 @@ describe('object schemas', function () {
     schema: {
       type: 'object',
       properties: {
-        required1: { type: ['number', 'boolean'] },
+        required: { type: ['number', 'boolean'] },
       },
-      required: ['required1'],
+      required: ['required'],
     },
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an object with a property that has the first type',
+        properties: { required: { type: 'number' } },
+        required: ['required'],
+      },
+      {
+        itSometimesReturns: 'an object with a property that has the second type',
+        properties: { required: { type: 'boolean' } },
+        required: ['required'],
+      },
+    ],
   });
 
   testSchema({
@@ -43,9 +103,15 @@ describe('object schemas', function () {
     schema: {
       type: 'object',
       properties: {
-        required1: {},
+        required: {},
       },
-      required: ['required1'],
+      required: ['required'],
     },
+    runCount: 30,
+    itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
+      itSometimesReturns: `an object with ${descriptor} property`,
+      properties: { required: basicSchema },
+      required: ['required'],
+    })),
   });
 });
