@@ -1,6 +1,6 @@
 describe('integer schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'by default',
     schema: { type: 'integer' },
   });
 });

@@ -7,59 +7,43 @@ const regularValidator = new Ajv();
 const edgeCaseValidator = new Ajv({ validateSchema: false });
 
 const testSchema = ({
-  description,
-  schema,
-  expectedSchemaValidationError = null,
-  expectedError = null,
+  scenario,
+  schema: inputSchema,
+  runCount = 10,
+  itAlwaysValidatesAgainst: schemasThatAlwaysValidate = null,
+  itSometimesValidatesAgainst: schemasThatValidateAtLeastOnce = null,
+  theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
+  itThrowsTheError: expectedError = null,
   debug = process.env.DEBUG === 'true',
   only = false,
   skip = false,
   ...unsupportedOptions
 } = {}) => {
-  const runCount = 10;
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
 
-  if (!description) {
-    throw Error('"testSchema" must be given a "description"');
+  if (!scenario) {
+    throw Error('"testSchema" must be given a "scenario"');
   }
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      expect(() => schemaToData(schema)).to.throw(expectedError);
+      expect(() => schemaToData(inputSchema)).to.throw(expectedError);
     });
   };
 
-  const saveResults = function () {
-    this.results = _.range(runCount)
-      .map((runIndex) => {
-        let mockData;
-        let errors = null;
-        try {
-          mockData = schemaToData(schema);
-          const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+  const reportResults = ({
+    customizedResults,
+    allMustPass,
+    onlyPrintFailures = true,
+  } = {}) => {
+    const failures = customizedResults.filter(({ errors }) => errors !== null);
+    const testPassed = allMustPass ? failures.length === 0 : failures.length !== customizedResults.length;
 
-          if (!validator.validate(schema, mockData)) errors = validator.errorsText();
-        } catch (error) {
-          errors = error.message;
-        }
-
-        return {
-          runIndex,
-          errors,
-          mockData,
-        };
-      });
-
-    this.failures = this.results.filter(({ errors }) => errors !== null);
-    this.isSuccess = this.failures.length === 0;
-
-    if (!debug && this.isSuccess) {
+    if (testPassed && onlyPrintFailures) {
       return;
     }
 
-    const filteredResults = debug
-      ? this.results
-      : this.failures;
+    const filteredResults = onlyPrintFailures ? failures : customizedResults;
 
     const errorsPaddingLength = (
       _(filteredResults)
@@ -88,21 +72,88 @@ const testSchema = ({
       .join('\n');
 
     console.log(message); // eslint-disable-line no-console
+
+    if (!testPassed) {
+      throw Error(`${failures.length}/${runCount} runs failed; see output above`);
+    }
   };
 
-  const itReturnsValidData = () => {
-    it('returns valid data', function () {
-      if (!this.isSuccess) throw Error(`${this.failures.length}/${runCount} runs failed; see output above`);
+  const getSchemaValidationResults = (results, validator, schema) => results.map((result) => ({
+    ...result,
+    errors: validator.validate(schema, result.mockData) ? null : validator.errorsText(),
+  }));
+
+  const saveResults = function () {
+    const customizedResults = (
+      _.range(runCount)
+        .map((runIndex) => {
+          let mockData;
+          let errors = null;
+          try {
+            mockData = schemaToData(inputSchema);
+          } catch (error) {
+            errors = error.message;
+          }
+
+          return {
+            runIndex,
+            errors,
+            mockData,
+          };
+        })
+    );
+
+    reportResults({
+      customizedResults,
+      allMustPass: true,
+      onlyPrintFailures: !debug,
+    });
+
+    this.results = customizedResults.map((result) => _.pick(result, ['runIndex', 'mockData']));
+
+    if (debug) {
+      console.log('      ^^^^before^^^^\n'); // eslint-disable-line no-console
+    }
+  };
+
+  const itAlwaysReturnsValidData = () => {
+    it('always returns valid data', function () {
+      const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
+
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, validator, inputSchema),
+        allMustPass: true,
+      });
+    });
+  };
+
+  const itAlwaysValidatesAgainstTheSchema = (validationSchema) => {
+    const statement = validationSchema.itAlwaysReturns;
+    it(`always returns ${statement}`, function () {
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, regularValidator, validationSchema),
+        allMustPass: true,
+      });
+    });
+  };
+
+  const itSometimesValidatesAgainstTheSchema = (validationSchema) => {
+    const statement = validationSchema.itSometimesReturns;
+    it(`sometimes returns ${statement}`, function () {
+      reportResults({
+        customizedResults: getSchemaValidationResults(this.results, regularValidator, validationSchema),
+        allMustPass: false,
+      });
     });
   };
 
   let contextMethod = only ? context.only : context;
   contextMethod = skip ? context.skip : contextMethod;
 
-  const formattedDescription = debug ? blue(description) : description;
+  const formattedDescription = debug ? blue(scenario) : scenario;
   contextMethod(formattedDescription, function () {
     before(function () {
-      if (!schema) {
+      if (!inputSchema) {
         throw Error('"schema" must be provided');
       }
 
@@ -111,7 +162,7 @@ const testSchema = ({
       }
 
       if (ignoreSchemaValidation) {
-        const isSchemaValid = regularValidator.validateSchema(schema);
+        const isSchemaValid = regularValidator.validateSchema(inputSchema);
 
         if (isSchemaValid) {
           throw Error('Expected schema to be invalid');
@@ -126,8 +177,10 @@ const testSchema = ({
       }
 
       if (debug) {
-        const singleLineSchema = JSON.stringify(schema, ' ');
-        const stringifiedSchema = singleLineSchema.length < 60 ? singleLineSchema : JSON.stringify(schema, null, 2);
+        const singleLineSchema = JSON.stringify(inputSchema, ' ');
+        const stringifiedSchema = singleLineSchema.length < 60
+          ? singleLineSchema
+          : JSON.stringify(inputSchema, null, 2);
 
         const [firstLine, ...otherLines] = stringifiedSchema.split('\n');
         const formattedSchema = [
@@ -135,6 +188,38 @@ const testSchema = ({
           ...otherLines.map((line) => `      ${line}`),
         ].join('\n');
         console.log('      Schema:', formattedSchema); // eslint-disable-line no-console
+      }
+
+      if (schemasThatValidateAtLeastOnce !== null) {
+        if (!_.isArray(schemasThatValidateAtLeastOnce) || schemasThatValidateAtLeastOnce.length === 0) {
+          throw Error('"itSometimesValidatesAgainst" must be a non empty array');
+        }
+
+        const allSchemasAreAnnotated = (
+          _(schemasThatValidateAtLeastOnce)
+            .map('itSometimesReturns')
+            .every(_.isString)
+            .valueOf()
+        );
+        if (!allSchemasAreAnnotated) {
+          throw Error('All schemas in "itSometimesValidatesAgainst" must have an "itSometimesReturns" string annotation'); // eslint-disable-line max-len
+        }
+      }
+
+      if (schemasThatAlwaysValidate !== null) {
+        if (!_.isArray(schemasThatAlwaysValidate) || schemasThatAlwaysValidate.length === 0) {
+          throw Error('"itAlwaysValidatesAgainst" must be a non empty array');
+        }
+
+        const allSchemasAreAnnotated = (
+          _(schemasThatAlwaysValidate)
+            .map('itAlwaysReturns')
+            .every(_.isString)
+            .valueOf()
+        );
+        if (!allSchemasAreAnnotated) {
+          throw Error('All schemas in "itAlwaysValidatesAgainst" must have an "itAlwaysReturns" string annotation'); // eslint-disable-line max-len
+        }
       }
     });
 
@@ -150,7 +235,15 @@ const testSchema = ({
     }
 
     before(saveResults);
-    itReturnsValidData();
+    itAlwaysReturnsValidData();
+
+    if (schemasThatValidateAtLeastOnce !== null) {
+      schemasThatValidateAtLeastOnce.forEach(itSometimesValidatesAgainstTheSchema);
+    }
+
+    if (schemasThatAlwaysValidate !== null) {
+      schemasThatAlwaysValidate.forEach(itAlwaysValidatesAgainstTheSchema);
+    }
   });
 };
 

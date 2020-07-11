@@ -1,14 +1,21 @@
+const { mapBasicSchemas } = require('./helpers/commonSchemas');
+
 describe('malformed schemas', function () {
   testSchema({
-    description: 'when type is an empty array',
+    scenario: 'when type is an empty array',
     schema: { type: [] },
-    expectedError: 'Expected schema to have a known type but got "undefined"',
-    expectedSchemaValidationError: 'data.type should be equal to one of the allowed values',
+    itThrowsTheError: 'Expected schema to have a known type but got "undefined"',
+    theSchemaIsInvalidBecause: 'data.type should be equal to one of the allowed values',
   });
 
   testSchema({
-    description: 'when type is not a string or array',
+    scenario: 'when type is not a string or array',
     schema: { type: {} },
-    expectedSchemaValidationError: 'data.type should be equal to one of the allowed values',
+    runCount: 30,
+    theSchemaIsInvalidBecause: 'data.type should be equal to one of the allowed values',
+    itSometimesValidatesAgainst: mapBasicSchemas(({ descriptor, basicSchema }) => ({
+      itSometimesReturns: `${descriptor}`,
+      ...basicSchema,
+    })),
   });
 });

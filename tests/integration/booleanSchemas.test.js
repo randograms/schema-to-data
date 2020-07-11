@@ -1,6 +1,16 @@
 describe('boolean schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'by default',
     schema: { type: 'boolean' },
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'true',
+        const: true,
+      },
+      {
+        itSometimesReturns: 'false',
+        const: false,
+      },
+    ],
   });
 });

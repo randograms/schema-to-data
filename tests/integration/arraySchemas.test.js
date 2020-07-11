@@ -1,38 +1,21 @@
 describe('array schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'by default',
     schema: { type: 'array' },
-  });
-
-  testSchema({
-    description: 'when items is a tuple',
-    schema: {
-      type: 'array',
-      items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-    },
-  });
-
-  testSchema({
-    description: 'with typeless items',
-    schema: {
-      type: 'array',
-      items: {},
-    },
-  });
-
-  testSchema({
-    description: 'with single typed items',
-    schema: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-  });
-
-  testSchema({
-    description: 'with multi-typed items',
-    schema: {
-      type: 'array',
-      items: { type: ['string', 'boolean'] },
-    },
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an empty array',
+        maxItems: 0,
+      },
+      {
+        itSometimesReturns: 'an array with one item',
+        minItems: 1,
+        maxItems: 1,
+      },
+      {
+        itSometimesReturns: 'an array with multiple items',
+        minItems: 3,
+      },
+    ],
   });
 });

@@ -1,11 +1,23 @@
 describe('object schemas', function () {
   testSchema({
-    description: 'with just type',
+    scenario: 'by default',
     schema: { type: 'object' },
   });
 
+  // TODO: extend this test to 'without properties or required'
   testSchema({
-    description: 'with optional properties',
+    scenario: 'without properties',
+    schema: { type: 'object' },
+    itAlwaysValidatesAgainst: [
+      {
+        itAlwaysReturns: 'an empty object (for now)',
+        const: {},
+      },
+    ],
+  });
+
+  testSchema({
+    scenario: 'with optional properties',
     schema: {
       type: 'object',
       properties: {
@@ -13,39 +25,62 @@ describe('object schemas', function () {
         optional2: { type: 'number' },
       },
     },
+    runCount: 40,
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an empty object',
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with just the first property',
+        properties: { optional1: { type: 'string' } },
+        required: ['optional1'],
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with just the second property',
+        properties: { optional2: { type: 'number' } },
+        required: ['optional2'],
+        additionalProperties: false,
+      },
+      {
+        itSometimesReturns: 'an object with both properties',
+        properties: {
+          optional1: { type: 'string' },
+          optional2: { type: 'number' },
+        },
+        required: ['optional1', 'optional2'],
+        additionalProperties: false,
+      },
+    ],
   });
 
   testSchema({
-    description: 'with optional and required properties',
+    scenario: 'with optional and required properties',
     schema: {
       type: 'object',
       properties: {
-        required1: { type: 'string' },
-        optional1: { type: 'number' },
+        required: { type: 'string' },
+        optional: { type: 'number' },
       },
-      required: ['required1'],
+      required: ['required'],
     },
-  });
-
-  testSchema({
-    description: 'with multi-typed properties',
-    schema: {
-      type: 'object',
-      properties: {
-        required1: { type: ['number', 'boolean'] },
+    itSometimesValidatesAgainst: [
+      {
+        itSometimesReturns: 'an object with just the required property',
+        properties: { required: { type: 'string' } },
+        required: ['required'],
+        additionalProperties: false,
       },
-      required: ['required1'],
-    },
-  });
-
-  testSchema({
-    description: 'with typless properties',
-    schema: {
-      type: 'object',
-      properties: {
-        required1: {},
+      {
+        itSometimesReturns: 'an object with both properties',
+        properties: {
+          required: { type: 'string' },
+          optional: { type: 'number' },
+        },
+        required: ['required', 'optional'],
+        additionalProperties: false,
       },
-      required: ['required1'],
-    },
+    ],
   });
 });
