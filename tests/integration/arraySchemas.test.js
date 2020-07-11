@@ -1,7 +1,10 @@
 describe('array schemas', function () {
   testSchema({
     scenario: 'by default',
-    schema: { type: 'array' },
+    schema: {
+      itAlwaysReturns: 'an array',
+      type: 'array',
+    },
     runCount: 20,
     itSometimesValidatesAgainst: [
       {
