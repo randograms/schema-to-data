@@ -2,7 +2,7 @@ const { decimalSchema } = require('./helpers/commonSchemas');
 
 describe('number schemas', function () {
   testSchema({
-    scenario: 'with just type',
+    scenario: 'by default',
     schema: { type: 'number' },
     itSometimesValidatesAgainst: [
       {

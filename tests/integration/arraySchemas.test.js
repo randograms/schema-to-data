@@ -1,6 +1,6 @@
 describe('array schemas', function () {
   testSchema({
-    scenario: 'with just type',
+    scenario: 'by default',
     schema: { type: 'array' },
     itSometimesValidatesAgainst: [
       {

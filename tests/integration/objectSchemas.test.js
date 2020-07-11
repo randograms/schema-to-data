@@ -1,7 +1,7 @@
 describe('object schemas', function () {
   // TODO: test that this always returns an empty object (for now)
   testSchema({
-    scenario: 'with just type',
+    scenario: 'by default',
     schema: { type: 'object' },
   });
 
