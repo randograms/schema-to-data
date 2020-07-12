@@ -87,7 +87,6 @@ const conformSchemaToType = (typedSchema) => {
     singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
   }
 
-  singleTypedSchema.type = type;
   return singleTypedSchema;
 };
 
