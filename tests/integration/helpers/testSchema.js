@@ -1,6 +1,11 @@
 const _ = require('lodash');
 const Ajv = require('ajv');
-const { blue, reset, red } = require('ansi-colors');
+const {
+  blue,
+  reset,
+  red,
+  yellow,
+} = require('ansi-colors');
 const { schemaToData } = require('../../..');
 
 const regularValidator = new Ajv();
@@ -82,7 +87,8 @@ const testSchema = ({
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      expect(() => schemaToData(inputSchema)).to.throw(expectedError);
+      const testSchemaToData = () => schemaToData(inputSchema);
+      expect(testSchemaToData).to.throw(expectedError);
     });
   };
 
@@ -227,7 +233,7 @@ const testSchema = ({
 
     after(function () {
       if (only) {
-        throw Error('"testSchema" was run with "only"');
+        throw Error(yellow('"testSchema" was run with "only"'));
       }
     });
 
