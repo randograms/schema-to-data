@@ -63,6 +63,8 @@ describe('conformSchemaToType', function () {
     it('can return a string schema with only relevant keys', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'string',
+        minLength: 0,
+        maxLength: 20,
       });
     });
 
@@ -175,6 +177,26 @@ describe('conformSchemaToType', function () {
             this.coercedItemSchema2,
             this.coercedItemSchema3,
           ],
+        });
+      });
+    });
+  });
+
+  context('with a string typed schema', function () {
+    context('when minLength exceeds the default maxLength', function () {
+      before(function () {
+        const typedSchema = generateValidTestSchema({
+          type: ['string'],
+          minLength: 1000,
+        });
+
+        this.result = lib.conformSchemaToType(typedSchema);
+      });
+
+      it('adjusts the maxLength', function () {
+        expect(this.result).to.be.like({
+          minLength: 1000,
+          maxLength: 1020,
         });
       });
     });

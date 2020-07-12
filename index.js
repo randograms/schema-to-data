@@ -2,13 +2,15 @@ const _ = require('lodash');
 const faker = require('faker');
 
 // TODO: allow these to be configured
-const minInteger = -100000;
-const maxInteger = 100000;
-const minNumber = minInteger;
-const maxNumber = maxInteger;
+const defaultMinStringLength = 0;
+const stringLengthRange = 20;
+const defaultMinInteger = -100000;
+const defaultMaxInteger = 100000;
+const defaultMinNumber = defaultMinInteger;
+const defaultMaxNumber = defaultMaxInteger;
 const numberIntegerChance = 0.5;
-const minArrayItems = 0;
-const maxArrayItems = 5;
+const defaultMinArrayItems = 0;
+const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
 
 const coerceSchema = (schema) => {
@@ -32,6 +34,7 @@ const getSchemaKeysForType = (type) => {
     case 'null': return [
     ];
     case 'string': return [
+      'minLength',
     ];
     case 'number': return [
     ];
@@ -58,14 +61,17 @@ const conformSchemaToType = (typedSchema) => {
     ..._.pick(typedSchema, getSchemaKeysForType(type)),
   };
 
-  if (type === 'array') {
+  if (type === 'string') {
+    singleTypedSchema.minLength = typedSchema.minLength || defaultMinStringLength;
+    singleTypedSchema.maxLength = typedSchema.maxLength || (singleTypedSchema.minLength + stringLengthRange);
+  } else if (type === 'array') {
     const itemsDefinition = singleTypedSchema.items || {};
 
     let itemsSchemas;
     if (_.isArray(itemsDefinition)) itemsSchemas = itemsDefinition;
     else {
       const itemSchema = itemsDefinition;
-      const length = _.random(minArrayItems, maxArrayItems);
+      const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
       itemsSchemas = _.times(length, () => itemSchema);
     }
 
@@ -81,7 +87,6 @@ const conformSchemaToType = (typedSchema) => {
     singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
   }
 
-  singleTypedSchema.type = type;
   return singleTypedSchema;
 };
 
@@ -89,7 +94,7 @@ const generateData = (singleTypedSchema) => {
   /* eslint-disable no-use-before-define */
   switch (singleTypedSchema.type) {
     case 'null': return null;
-    case 'string': return lib.generateString();
+    case 'string': return lib.generateString(singleTypedSchema);
     case 'number': return lib.generateNumber();
     case 'integer': return lib.generateInteger();
     case 'boolean': return lib.generateBoolean();
@@ -100,19 +105,46 @@ const generateData = (singleTypedSchema) => {
   /* eslint-enable no-use-before-define */
 };
 
-const generateString = () => {
-  const randomWord = faker.lorem.word();
-  return randomWord;
+const generateString = (stringSchema) => {
+  // minLength and maxLength will be guaranteed to exist
+  const { minLength, maxLength } = stringSchema;
+
+  if (maxLength < minLength) {
+    throw Error('Cannot generate data for conflicting "minLength" and "maxLength"');
+  }
+
+  const stringLength = _.random(minLength, maxLength);
+
+  let generatedLength = 0;
+  const randomWords = [];
+
+  while (generatedLength < stringLength) {
+    let randomWord = faker.lorem.word();
+    generatedLength += randomWord.length;
+
+    if (generatedLength > stringLength) {
+      const numCharsToRemove = generatedLength - stringLength;
+      const numCharsToKeep = randomWord.length - numCharsToRemove;
+
+      randomWord = randomWord.substr(0, numCharsToKeep);
+      generatedLength -= numCharsToRemove;
+    }
+
+    randomWords.push(randomWord);
+  }
+
+  const randomString = randomWords.join('');
+  return randomString;
 };
 
 const generateNumber = () => {
   const isFloat = Math.random() < numberIntegerChance;
 
-  return _.random(minNumber, maxNumber, isFloat);
+  return _.random(defaultMinNumber, defaultMaxNumber, isFloat);
 };
 
 const generateInteger = () => {
-  const randomInteger = _.random(minInteger, maxInteger);
+  const randomInteger = _.random(defaultMinInteger, defaultMaxInteger);
   return randomInteger;
 };
 
