@@ -10,7 +10,7 @@ describe('object properties schemas', function () {
         property: { type: ['number', 'boolean'] },
       },
     },
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an object with a property that has the first type',
         properties: { property: { type: 'number' } },
@@ -32,7 +32,7 @@ describe('object properties schemas', function () {
       required: ['property'],
     },
     runCount: 50,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
       itSometimesReturns: `an object with ${schemaDescriptor} property`,
       properties: { property: basicSchema },
       required: ['property'],

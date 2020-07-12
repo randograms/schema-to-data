@@ -7,7 +7,7 @@ describe('multi-typed schemas', function () {
       itAlwaysReturns: 'data',
     },
     runCount: 30,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
       itSometimesReturns: `${schemaDescriptor}`,
       ...basicSchema,
     })),
@@ -27,7 +27,7 @@ describe('multi-typed schemas', function () {
       itAlwaysReturns: 'data of one of the provided types',
       type: ['string', 'boolean'],
     },
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'data of the first type',
         contains: { type: 'string' },

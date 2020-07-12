@@ -5,7 +5,7 @@ describe('object schemas', function () {
       itAlwaysReturns: 'an object',
       type: 'object',
     },
-    itAlwaysValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itAlwaysReturns: 'an empty object (for now)',
         const: {},
@@ -24,7 +24,7 @@ describe('object schemas', function () {
       },
     },
     runCount: 100,
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty object',
         additionalProperties: false,
@@ -74,7 +74,7 @@ describe('object schemas', function () {
       required: ['required'],
     },
     runCount: 20,
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an object with just the required properties',
         properties: { required: { type: 'string' } },

@@ -18,7 +18,7 @@ describe('malformed schemas', function () {
     },
     runCount: 40,
     theSchemaIsInvalidBecause: 'data.type should be equal to one of the allowed values',
-    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
       itSometimesReturns: `${schemaDescriptor}`,
       ...basicSchema,
     })),

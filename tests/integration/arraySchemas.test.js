@@ -6,7 +6,7 @@ describe('array schemas', function () {
       type: 'array',
     },
     runCount: 30,
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty array',
         maxItems: 0,

@@ -5,7 +5,7 @@ describe('boolean schemas', function () {
       itAlwaysReturns: 'a boolean',
       type: 'boolean',
     },
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'true',
         const: true,
