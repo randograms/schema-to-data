@@ -4,12 +4,13 @@
     "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml",
     "lint": "eslint . --color",
     "test": "npm run test:unit && npm run test:integration",
+    "prepush": "npm run lint && cross-env RUN_COUNT=50 npm run test",
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
     "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js"
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run lint && npm run test"
+      "pre-push": "npm run prepush"
     }
   },
   "devDependencies": {
@@ -18,6 +19,7 @@
     "chai": "4.2.0",
     "chai-like": "1.1.1",
     "chai-things": "0.2.0",
+    "cross-env": "7.0.2",
     "eslint": "7.4.0",
     "eslint-config-airbnb-base": "14.2.0",
     "eslint-plugin-import": "2.22.0",
