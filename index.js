@@ -2,15 +2,15 @@ const _ = require('lodash');
 const faker = require('faker');
 
 // TODO: allow these to be configured
-const minStringLength = 0;
+const defaultMinStringLength = 0;
 const stringLengthRange = 20;
-const minInteger = -100000;
-const maxInteger = 100000;
-const minNumber = minInteger;
-const maxNumber = maxInteger;
+const defaultMinInteger = -100000;
+const defaultMaxInteger = 100000;
+const defaultMinNumber = defaultMinInteger;
+const defaultMaxNumber = defaultMaxInteger;
 const numberIntegerChance = 0.5;
-const minArrayItems = 0;
-const maxArrayItems = 5;
+const defaultMinArrayItems = 0;
+const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
 
 const coerceSchema = (schema) => {
@@ -62,7 +62,7 @@ const conformSchemaToType = (typedSchema) => {
   };
 
   if (type === 'string') {
-    singleTypedSchema.minLength = typedSchema.minLength || minStringLength;
+    singleTypedSchema.minLength = typedSchema.minLength || defaultMinStringLength;
     singleTypedSchema.maxLength = typedSchema.maxLength || (singleTypedSchema.minLength + stringLengthRange);
   } else if (type === 'array') {
     const itemsDefinition = singleTypedSchema.items || {};
@@ -71,7 +71,7 @@ const conformSchemaToType = (typedSchema) => {
     if (_.isArray(itemsDefinition)) itemsSchemas = itemsDefinition;
     else {
       const itemSchema = itemsDefinition;
-      const length = _.random(minArrayItems, maxArrayItems);
+      const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
       itemsSchemas = _.times(length, () => itemSchema);
     }
 
@@ -141,11 +141,11 @@ const generateString = (stringSchema) => {
 const generateNumber = () => {
   const isFloat = Math.random() < numberIntegerChance;
 
-  return _.random(minNumber, maxNumber, isFloat);
+  return _.random(defaultMinNumber, defaultMaxNumber, isFloat);
 };
 
 const generateInteger = () => {
-  const randomInteger = _.random(minInteger, maxInteger);
+  const randomInteger = _.random(defaultMinInteger, defaultMaxInteger);
   return randomInteger;
 };
 
