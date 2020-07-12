@@ -11,10 +11,12 @@ const { schemaToData } = require('../../..');
 const regularValidator = new Ajv();
 const edgeCaseValidator = new Ajv({ validateSchema: false });
 
+const defaultRunCount = parseInt(process.env.RUN_COUNT || 10, 10);
+
 const testSchema = ({
   scenario,
   schema: inputSchema,
-  runCount = 10,
+  runCount = defaultRunCount,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   itValidatesAgainst: validationSchemas = null,
   debug = process.env.DEBUG === 'true',
@@ -22,6 +24,8 @@ const testSchema = ({
   skip = false,
   ...unsupportedOptions
 } = {}) => {
+  const actualRunCount = _.max([runCount, defaultRunCount]);
+
   const hasScenario = scenario !== undefined;
 
   const hasInputSchema = inputSchema !== undefined;
@@ -135,7 +139,7 @@ const testSchema = ({
     console.log(message); // eslint-disable-line no-console
 
     if (!testPassed) {
-      throw Error(`${failures.length}/${runCount} runs failed; see output above`);
+      throw Error(`${failures.length}/${actualRunCount} runs failed; see output above`);
     }
   };
 
@@ -146,7 +150,7 @@ const testSchema = ({
 
   const saveResults = function () {
     const customizedResults = (
-      _.range(runCount)
+      _.range(actualRunCount)
         .map((runIndex) => {
           let mockData;
           let errors = null;

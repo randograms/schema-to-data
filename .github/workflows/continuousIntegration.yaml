@@ -9,6 +9,8 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
+    env:
+      RUN_COUNT: 100
     steps:
       - name: Checkout
         uses: actions/checkout@v1
