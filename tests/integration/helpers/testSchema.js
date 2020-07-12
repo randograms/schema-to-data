@@ -10,25 +10,75 @@ const testSchema = ({
   scenario,
   schema: inputSchema,
   runCount = 10,
-  itAlwaysValidatesAgainst: schemasThatAlwaysValidate = null,
-  itSometimesValidatesAgainst: schemasThatValidateAtLeastOnce = null,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
+  itValidatesAgainst: validationSchemas = null,
   debug = process.env.DEBUG === 'true',
   only = false,
   skip = false,
   ...unsupportedOptions
 } = {}) => {
-  if (!scenario) {
-    throw Error('"testSchema" must be provided a "scenario"');
-  }
+  const hasScenario = scenario !== undefined;
 
-  if (!inputSchema) {
-    throw Error('"testSchema" must be provided a "schema"');
-  }
+  const hasInputSchema = inputSchema !== undefined;
+  const expectedError = hasInputSchema ? inputSchema.itThrowsTheError || null : null;
+  const returnDescriptor = hasInputSchema ? inputSchema.itAlwaysReturns || null : null;
+  const isValidationTest = returnDescriptor !== null && expectedError === null;
+  const isErrorTest = returnDescriptor === null && expectedError !== null;
+  const hasBaseTestAnnotation = isValidationTest || isErrorTest;
 
   const ignoreSchemaValidation = expectedSchemaValidationError !== null;
-  const expectedError = inputSchema.itThrowsTheError || null;
-  const returnDescriptor = inputSchema.itAlwaysReturns || null;
+
+  const hasValidationSchemas = validationSchemas !== null;
+  const isValidationSchemasValid = hasValidationSchemas && _.isArray(validationSchemas) && validationSchemas.length > 0;
+  const areAllValidationSchemasAnnotated = isValidationSchemasValid && validationSchemas.every((schema) => {
+    const hasAlwaysAnnotation = _.isString(schema.itAlwaysReturns);
+    const hasSometimesAnnotation = _.isString(schema.itSometimesReturns);
+
+    return (hasAlwaysAnnotation && !hasSometimesAnnotation) || (!hasAlwaysAnnotation && hasSometimesAnnotation);
+  });
+
+  const wasOnlyCalledWithSupportedOptions = _.isEmpty(unsupportedOptions);
+
+  const reportInvalidTestSetup = () => {
+    if (!hasScenario) {
+      throw Error('"testSchema" must be provided a "scenario"');
+    }
+
+    if (!hasInputSchema) {
+      throw Error('"testSchema" must be provided a "schema"');
+    }
+
+    if (!hasBaseTestAnnotation) {
+      throw Error('"schema" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
+    }
+
+    if (ignoreSchemaValidation) {
+      const isSchemaValid = regularValidator.validateSchema(inputSchema);
+
+      if (isSchemaValid) {
+        throw Error('Expected "schema" to not be a valid json-schema');
+      }
+
+      expect(
+        regularValidator.errorsText(),
+        'Schema failed validation for the wrong reason',
+      ).to.include(expectedSchemaValidationError);
+    }
+
+    if (hasValidationSchemas) {
+      if (!isValidationSchemasValid) {
+        throw Error('"itValidatesAgainst" must be a non empty array');
+      }
+
+      if (!areAllValidationSchemasAnnotated) {
+        throw Error('All schemas in "itValidatesAgainst" must have an "itAlwaysReturns" or "itSometimesReturns" string annotation'); // eslint-disable-line max-len
+      }
+    }
+
+    if (!wasOnlyCalledWithSupportedOptions) {
+      throw Error(`"testSchema" was called with unsupported option(s): ${_.keys(unsupportedOptions)}`);
+    }
+  };
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
@@ -155,32 +205,11 @@ const testSchema = ({
   let contextMethod = only ? context.only : context;
   contextMethod = skip ? context.skip : contextMethod;
 
-  const formattedDescription = debug ? blue(scenario) : scenario;
+  let formattedDescription = scenario || '**Missing scenario description**';
+  formattedDescription = debug ? blue(formattedDescription) : formattedDescription;
   contextMethod(formattedDescription, function () {
+    before(reportInvalidTestSetup);
     before(function () {
-      if (!_.isEmpty(unsupportedOptions)) {
-        throw Error(`"testSchema" was called with unsupported option(s): ${_.keys(unsupportedOptions)}`);
-      }
-
-      if ((!returnDescriptor && !expectedError) || (returnDescriptor && expectedError)) {
-        throw Error('"schema" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
-      }
-
-      if (ignoreSchemaValidation) {
-        const isSchemaValid = regularValidator.validateSchema(inputSchema);
-
-        if (isSchemaValid) {
-          throw Error('Expected schema to be invalid');
-        }
-
-        if (!isSchemaValid) {
-          expect(
-            regularValidator.errorsText(),
-            'Schema failed validation for the wrong reason',
-          ).to.include(expectedSchemaValidationError);
-        }
-      }
-
       if (debug) {
         const singleLineSchema = JSON.stringify(inputSchema, ' ');
         const stringifiedSchema = singleLineSchema.length < 60
@@ -194,38 +223,6 @@ const testSchema = ({
         ].join('\n');
         console.log('      Schema:', formattedSchema); // eslint-disable-line no-console
       }
-
-      if (schemasThatValidateAtLeastOnce !== null) {
-        if (!_.isArray(schemasThatValidateAtLeastOnce) || schemasThatValidateAtLeastOnce.length === 0) {
-          throw Error('"itSometimesValidatesAgainst" must be a non empty array');
-        }
-
-        const allSchemasAreAnnotated = (
-          _(schemasThatValidateAtLeastOnce)
-            .map('itSometimesReturns')
-            .every(_.isString)
-            .valueOf()
-        );
-        if (!allSchemasAreAnnotated) {
-          throw Error('All schemas in "itSometimesValidatesAgainst" must have an "itSometimesReturns" string annotation'); // eslint-disable-line max-len
-        }
-      }
-
-      if (schemasThatAlwaysValidate !== null) {
-        if (!_.isArray(schemasThatAlwaysValidate) || schemasThatAlwaysValidate.length === 0) {
-          throw Error('"itAlwaysValidatesAgainst" must be a non empty array');
-        }
-
-        const allSchemasAreAnnotated = (
-          _(schemasThatAlwaysValidate)
-            .map('itAlwaysReturns')
-            .every(_.isString)
-            .valueOf()
-        );
-        if (!allSchemasAreAnnotated) {
-          throw Error('All schemas in "itAlwaysValidatesAgainst" must have an "itAlwaysReturns" string annotation'); // eslint-disable-line max-len
-        }
-      }
     });
 
     after(function () {
@@ -234,7 +231,12 @@ const testSchema = ({
       }
     });
 
-    if (expectedError !== null) {
+    if (!hasBaseTestAnnotation) {
+      it('**Missing base test annotation**', _.noop);
+      return;
+    }
+
+    if (isErrorTest) {
       itThrowsTheExpectedError();
       return;
     }
@@ -242,12 +244,13 @@ const testSchema = ({
     before(saveResults);
     itAlwaysReturnsValidData();
 
-    if (schemasThatValidateAtLeastOnce !== null) {
-      schemasThatValidateAtLeastOnce.forEach(itSometimesValidatesAgainstTheSchema);
-    }
+    if (areAllValidationSchemasAnnotated) {
+      validationSchemas.forEach((schema) => {
+        const willAlwaysValidate = schema.itAlwaysReturns !== undefined;
 
-    if (schemasThatAlwaysValidate !== null) {
-      schemasThatAlwaysValidate.forEach(itAlwaysValidatesAgainstTheSchema);
+        if (willAlwaysValidate) itAlwaysValidatesAgainstTheSchema(schema);
+        else itSometimesValidatesAgainstTheSchema(schema);
+      });
     }
   });
 };

@@ -7,7 +7,7 @@ describe('number schemas', function () {
       itAlwaysReturns: 'a number',
       type: 'number',
     },
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an integer',
         type: 'integer',

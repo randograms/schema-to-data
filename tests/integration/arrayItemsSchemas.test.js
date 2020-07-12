@@ -18,7 +18,7 @@ describe('array items schemas', function () {
       type: 'array',
     },
     runCount: 30,
-    itSometimesValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
       itSometimesReturns: `an array with ${schemaDescriptor}`,
       contains: basicSchema,
     })),
@@ -40,7 +40,7 @@ describe('array items schemas', function () {
       type: 'array',
       items: { type: ['string', 'boolean'] },
     },
-    itSometimesValidatesAgainst: [
+    itValidatesAgainst: [
       {
         itSometimesReturns: 'an array with an item of the first type',
         contains: { type: 'string' },
