@@ -3,7 +3,7 @@ const faker = require('faker');
 
 // TODO: allow these to be configured
 const minStringLength = 0;
-const maxStringLength = 20;
+const stringLengthRange = 20;
 const minInteger = -100000;
 const maxInteger = 100000;
 const minNumber = minInteger;
@@ -34,6 +34,7 @@ const getSchemaKeysForType = (type) => {
     case 'null': return [
     ];
     case 'string': return [
+      'minLength',
     ];
     case 'number': return [
     ];
@@ -60,7 +61,10 @@ const conformSchemaToType = (typedSchema) => {
     ..._.pick(typedSchema, getSchemaKeysForType(type)),
   };
 
-  if (type === 'array') {
+  if (type === 'string') {
+    singleTypedSchema.minLength = typedSchema.minLength || minStringLength;
+    singleTypedSchema.maxLength = typedSchema.maxLength || (singleTypedSchema.minLength + stringLengthRange);
+  } else if (type === 'array') {
     const itemsDefinition = singleTypedSchema.items || {};
 
     let itemsSchemas;
@@ -91,7 +95,7 @@ const generateData = (singleTypedSchema) => {
   /* eslint-disable no-use-before-define */
   switch (singleTypedSchema.type) {
     case 'null': return null;
-    case 'string': return lib.generateString();
+    case 'string': return lib.generateString(singleTypedSchema);
     case 'number': return lib.generateNumber();
     case 'integer': return lib.generateInteger();
     case 'boolean': return lib.generateBoolean();
@@ -102,8 +106,15 @@ const generateData = (singleTypedSchema) => {
   /* eslint-enable no-use-before-define */
 };
 
-const generateString = () => {
-  const stringLength = _.random(minStringLength, maxStringLength);
+const generateString = (stringSchema) => {
+  // minLength and maxLength will be guaranteed to exist
+  const { minLength, maxLength } = stringSchema;
+
+  if (maxLength < minLength) {
+    throw Error('Cannot generate data for conflicting "minLength" and "maxLength"');
+  }
+
+  const stringLength = _.random(minLength, maxLength);
 
   let generatedLength = 0;
   const randomWords = [];

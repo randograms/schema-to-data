@@ -23,4 +23,14 @@ describe('malformed schemas', function () {
       ...basicSchema,
     })),
   });
+
+  testSchema({
+    scenario: 'when "minLength" and "maxLength" conflict',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minLength" and "maxLength"',
+      type: 'string',
+      minLength: 5,
+      maxLength: 4,
+    },
+  });
 });
