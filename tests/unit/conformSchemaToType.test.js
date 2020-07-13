@@ -102,6 +102,26 @@ describe('conformSchemaToType', function () {
     });
   });
 
+  context('with a string typedSchema', function () {
+    context('when minLength exceeds the default maxLength', function () {
+      before(function () {
+        const typedSchema = generateValidTestSchema({
+          type: ['string'],
+          minLength: 1000,
+        });
+
+        this.result = lib.conformSchemaToType(typedSchema);
+      });
+
+      it('adjusts the maxLength', function () {
+        expect(this.result).to.be.like({
+          minLength: 1000,
+          maxLength: 1020,
+        });
+      });
+    });
+  });
+
   context('with an array typedSchema', function () {
     context('that has an items tuple', function () {
       before(function () {
@@ -177,26 +197,6 @@ describe('conformSchemaToType', function () {
             this.coercedItemSchema2,
             this.coercedItemSchema3,
           ],
-        });
-      });
-    });
-  });
-
-  context('with a string typed schema', function () {
-    context('when minLength exceeds the default maxLength', function () {
-      before(function () {
-        const typedSchema = generateValidTestSchema({
-          type: ['string'],
-          minLength: 1000,
-        });
-
-        this.result = lib.conformSchemaToType(typedSchema);
-      });
-
-      it('adjusts the maxLength', function () {
-        expect(this.result).to.be.like({
-          minLength: 1000,
-          maxLength: 1020,
         });
       });
     });
