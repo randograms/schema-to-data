@@ -29,65 +29,58 @@ const coerceTypes = (schema) => {
   return typedSchema;
 };
 
-const getSchemaKeysForType = (type) => {
-  switch (type) {
-    case 'null': return [
-    ];
-    case 'string': return [
-      'minLength',
-    ];
-    case 'number': return [
-    ];
-    case 'integer': return [
-    ];
-    case 'boolean': return [
-    ];
-    case 'array': return [
-      'items',
-    ];
-    case 'object': return [
-      'properties',
-      'required',
-    ];
-    default: return [];
-  }
-};
-
 const conformSchemaToType = (typedSchema) => {
   const type = _.sample(typedSchema.type);
 
-  const singleTypedSchema = {
-    type,
-    ..._.pick(typedSchema, getSchemaKeysForType(type)),
-  };
+  const singleTypedSchema = { type };
 
-  if (type === 'string') {
-    singleTypedSchema.minLength = typedSchema.minLength || defaultMinStringLength;
-    singleTypedSchema.maxLength = typedSchema.maxLength || (singleTypedSchema.minLength + stringLengthRange);
-  } else if (type === 'array') {
-    const itemsDefinition = singleTypedSchema.items || {};
+  switch (type) {
+    case 'string': {
+      const minLength = typedSchema.minLength || defaultMinStringLength;
+      const maxLength = typedSchema.maxLength || (minLength + stringLengthRange);
 
-    let itemsSchemas;
-    if (_.isArray(itemsDefinition)) itemsSchemas = itemsDefinition;
-    else {
-      const itemSchema = itemsDefinition;
-      const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
-      itemsSchemas = _.times(length, () => itemSchema);
+      return {
+        ...singleTypedSchema,
+        minLength,
+        maxLength,
+      };
     }
+    case 'array': {
+      const itemsDefinition = typedSchema.items || {};
 
-    singleTypedSchema.items = itemsSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
-  } else if (type === 'object') {
-    const propertyDefinitions = { ...singleTypedSchema.properties } || {};
-    singleTypedSchema.required = singleTypedSchema.required || [];
+      let itemSchemas;
+      if (_.isArray(itemsDefinition)) itemSchemas = itemsDefinition;
+      else {
+        const itemSchema = itemsDefinition;
+        const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
+        itemSchemas = _.times(length, () => itemSchema);
+      }
 
-    singleTypedSchema.required.forEach((propertyName) => {
-      propertyDefinitions[propertyName] = propertyDefinitions[propertyName] || {};
-    });
+      const coercedItemSchemas = itemSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
 
-    singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
+      return {
+        ...singleTypedSchema,
+        items: coercedItemSchemas,
+      };
+    }
+    case 'object': {
+      const propertySchemasCopy = { ...typedSchema.properties } || {};
+      const required = typedSchema.required || [];
+
+      required.forEach((propertyName) => {
+        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || {};
+      });
+
+      const coercedPropertySchemas = _.mapValues(propertySchemasCopy, lib.coerceSchema); // eslint-disable-line no-use-before-define
+
+      return {
+        ...singleTypedSchema,
+        properties: coercedPropertySchemas,
+        required,
+      };
+    }
+    default: return singleTypedSchema;
   }
-
-  return singleTypedSchema;
 };
 
 const generateData = (singleTypedSchema) => {
