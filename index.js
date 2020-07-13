@@ -12,6 +12,7 @@ const numberIntegerChance = 0.5;
 const defaultMinArrayItems = 0;
 const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
+const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
   const typedSchema = coerceTypes(schema); // eslint-disable-line no-use-before-define
@@ -20,11 +21,25 @@ const coerceSchema = (schema) => {
 };
 
 const coerceTypes = (schema) => {
-  const typedSchema = { ...schema };
+  const inputTypes = _.castArray(schema.type);
+  let coercedTypes = _.intersection(inputTypes, supportedInputTypes);
 
-  if (_.isString(schema.type)) typedSchema.type = [schema.type];
-  else if (_.isArray(schema.type)) typedSchema.type = [...schema.type];
-  else typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
+  const numberIndex = coercedTypes.indexOf('number');
+  const hasNumber = numberIndex !== -1;
+  if (hasNumber) {
+    const hasInteger = coercedTypes.includes('integer');
+    const expandedTypes = hasInteger ? ['decimal'] : ['decimal', 'integer'];
+    coercedTypes.splice(numberIndex, 1, ...expandedTypes);
+  }
+
+  if (_.isEmpty(coercedTypes)) {
+    coercedTypes = ['null', 'string', 'decimal', 'integer', 'boolean', 'array', 'object'];
+  }
+
+  const typedSchema = {
+    ...schema,
+    type: coercedTypes,
+  };
 
   return typedSchema;
 };

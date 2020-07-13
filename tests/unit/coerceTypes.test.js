@@ -35,7 +35,7 @@ describe('coerceTypes', function () {
       expect(this.result.type).to.eql([
         'null',
         'string',
-        'number',
+        'decimal',
         'integer',
         'boolean',
         'array',
@@ -55,14 +55,49 @@ describe('coerceTypes', function () {
     });
   });
 
+  context('when the schema has a "number" type', function () {
+    before(buildSetupResultForSchemaWithType('number'));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with a "decimal" and "integer" data type', function () {
+      expect(this.result.type).to.eql(['decimal', 'integer']);
+    });
+  });
+
   context('when the schema has a type array', function () {
-    before(buildSetupResultForSchemaWithType(['number', 'boolean']));
+    before(buildSetupResultForSchemaWithType(['array', 'boolean']));
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
 
     it('returns a schema with a copy of the data types', function () {
-      expect(this.result.type).to.eql(['number', 'boolean']);
+      expect(this.result.type).to.eql(['array', 'boolean']);
+      expect(this.result.type).to.not.equal(this.schema.type);
+    });
+  });
+
+  context('when the schema has a type array that includes "number"', function () {
+    before(buildSetupResultForSchemaWithType(['number', 'boolean']));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with a copy of the expanded data types', function () {
+      expect(this.result.type).to.eql(['decimal', 'integer', 'boolean']);
+      expect(this.result.type).to.not.equal(this.schema.type);
+    });
+  });
+
+  context('when the schema has a type array that includes "number" and "integer"', function () {
+    before(buildSetupResultForSchemaWithType(['integer', 'number']));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with a copy of the unique expanded types', function () {
+      expect(this.result.type).to.eql(['integer', 'decimal']);
       expect(this.result.type).to.not.equal(this.schema.type);
     });
   });
@@ -77,7 +112,7 @@ describe('coerceTypes', function () {
       expect(this.result.type).to.eql([
         'null',
         'string',
-        'number',
+        'decimal',
         'integer',
         'boolean',
         'array',
