@@ -29,62 +29,49 @@ const coerceTypes = (schema) => {
   return typedSchema;
 };
 
-const getSchemaKeysForType = (type) => {
-  switch (type) {
-    case 'null': return [
-    ];
-    case 'string': return [
-      'minLength',
-    ];
-    case 'number': return [
-    ];
-    case 'integer': return [
-    ];
-    case 'boolean': return [
-    ];
-    case 'array': return [
-      'items',
-    ];
-    case 'object': return [
-      'properties',
-      'required',
-    ];
-    default: return [];
-  }
-};
-
 const conformSchemaToType = (typedSchema) => {
   const type = _.sample(typedSchema.type);
 
-  const singleTypedSchema = {
-    type,
-    ..._.pick(typedSchema, getSchemaKeysForType(type)),
-  };
+  const singleTypedSchema = { type };
 
   if (type === 'string') {
-    singleTypedSchema.minLength = typedSchema.minLength || defaultMinStringLength;
-    singleTypedSchema.maxLength = typedSchema.maxLength || (singleTypedSchema.minLength + stringLengthRange);
-  } else if (type === 'array') {
-    const itemsDefinition = singleTypedSchema.items || {};
+    const minLength = typedSchema.minLength || defaultMinStringLength;
+    const maxLength = typedSchema.maxLength || (minLength + stringLengthRange);
 
-    let itemsSchemas;
-    if (_.isArray(itemsDefinition)) itemsSchemas = itemsDefinition;
+    _.assign(singleTypedSchema, {
+      minLength,
+      maxLength,
+    });
+  } else if (type === 'array') {
+    const itemsDefinition = typedSchema.items || {};
+
+    let itemSchemas;
+    if (_.isArray(itemsDefinition)) itemSchemas = itemsDefinition;
     else {
       const itemSchema = itemsDefinition;
       const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
-      itemsSchemas = _.times(length, () => itemSchema);
+      itemSchemas = _.times(length, () => itemSchema);
     }
 
-    singleTypedSchema.items = itemsSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
-  } else if (type === 'object') {
-    const propertyDefinitions = { ...singleTypedSchema.properties } || {};
-    singleTypedSchema.required = singleTypedSchema.required || [];
+    const coercedItemSchemas = itemSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
 
-    singleTypedSchema.required.forEach((propertyName) => {
-      propertyDefinitions[propertyName] = propertyDefinitions[propertyName] || {};
+    _.assign(singleTypedSchema, {
+      items: coercedItemSchemas,
+    });
+  } else if (type === 'object') {
+    const propertySchemasCopy = { ...typedSchema.properties } || {};
+    const required = typedSchema.required || [];
+
+    required.forEach((propertyName) => {
+      propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || {};
     });
 
-    singleTypedSchema.properties = _.mapValues(propertyDefinitions, lib.coerceSchema); // eslint-disable-line no-use-before-define
+    const coercedPropertySchemas = _.mapValues(propertySchemasCopy, lib.coerceSchema); // eslint-disable-line no-use-before-define
+
+    _.assign(singleTypedSchema, {
+      properties: coercedPropertySchemas,
+      required,
+    });
   }
 
   return singleTypedSchema;
