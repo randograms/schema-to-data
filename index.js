@@ -8,7 +8,6 @@ const defaultMinInteger = -100000;
 const defaultMaxInteger = 100000;
 const defaultMinNumber = defaultMinInteger;
 const defaultMaxNumber = defaultMaxInteger;
-const numberIntegerChance = 0.5;
 const defaultMinArrayItems = 0;
 const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
@@ -103,8 +102,8 @@ const generateData = (singleTypedSchema) => {
   switch (singleTypedSchema.type) {
     case 'null': return null;
     case 'string': return lib.generateString(singleTypedSchema);
-    case 'number': return lib.generateNumber();
-    case 'integer': return lib.generateInteger();
+    case 'decimal': return lib.generateNumber(singleTypedSchema);
+    case 'integer': return lib.generateNumber(singleTypedSchema);
     case 'boolean': return lib.generateBoolean();
     case 'array': return lib.generateArray(singleTypedSchema);
     case 'object': return lib.generateObject(singleTypedSchema);
@@ -145,15 +144,12 @@ const generateString = (stringSchema) => {
   return randomString;
 };
 
-const generateNumber = () => {
-  const isFloat = Math.random() < numberIntegerChance;
+const generateNumber = (numberSchema) => {
+  // schema is guaranteed to have a "decimal" or "integer" type
+  const { type } = numberSchema;
+  const isDecimal = type === 'decimal';
 
-  return _.random(defaultMinNumber, defaultMaxNumber, isFloat);
-};
-
-const generateInteger = () => {
-  const randomInteger = _.random(defaultMinInteger, defaultMaxInteger);
-  return randomInteger;
+  return _.random(defaultMinNumber, defaultMaxNumber, isDecimal);
 };
 
 const generateBoolean = () => faker.random.boolean();
@@ -194,7 +190,6 @@ const lib = {
   generateData,
   generateString,
   generateNumber,
-  generateInteger,
   generateBoolean,
   generateArray,
   generateObject,

@@ -18,6 +18,7 @@ const testSchema = ({
   schema: inputSchema,
   runCount = defaultRunCount,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
+  alternateBaseValidationSchema = null, // use if the edgeCaseValidator still throws an error
   itValidatesAgainst: validationSchemas = null,
   debug = process.env.DEBUG === 'true',
   only = false,
@@ -183,10 +184,11 @@ const testSchema = ({
 
   const itAlwaysReturnsValidData = () => {
     it(`always returns ${returnDescriptor}`, function () {
+      const schema = alternateBaseValidationSchema === null ? inputSchema : alternateBaseValidationSchema;
       const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
 
       reportResults({
-        customizedResults: getSchemaValidationResults(this.results, validator, inputSchema),
+        customizedResults: getSchemaValidationResults(this.results, validator, schema),
         allMustPass: true,
       });
     });
