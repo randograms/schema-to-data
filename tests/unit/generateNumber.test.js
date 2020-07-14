@@ -1,18 +1,38 @@
 const _ = require('lodash');
 const { lib } = require('../..');
 
+const generateValidTestSchema = ({ type } = {}) => ({ type });
+
 describe('generateNumber', function () {
-  it('returns a number', function () {
-    expect(lib.generateNumber()).to.be.a('number');
+  context('when type is "decimal"', function () {
+    before(function () {
+      const schema = generateValidTestSchema({ type: 'decimal' });
+
+      this.results = _.times(10, () => lib.generateNumber(schema));
+    });
+
+    it('always returns a number', function () {
+      expect(this.results).to.all.satisfy(_.isNumber);
+    });
+
+    it('always returns a decimal', function () {
+      expect(this.results).to.all.satisfy(_.negate(_.isInteger));
+    });
   });
 
-  it('sometimes returns a decimal', function () {
-    const results = _.times(10, lib.generateNumber);
-    expect(results).to.include.something.that.satisfies(_.negate(_.isInteger));
-  });
+  context('when type is "integer"', function () {
+    before(function () {
+      const schema = generateValidTestSchema({ type: 'integer' });
 
-  it('sometimes returns an integer', function () {
-    const results = _.times(10, lib.generateNumber);
-    expect(results).to.include.something.that.satisfies(_.isInteger);
+      this.results = _.times(10, () => lib.generateNumber(schema));
+    });
+
+    it('always returns a number', function () {
+      expect(this.results).to.all.satisfy(_.isNumber);
+    });
+
+    it('always returns an integer', function () {
+      expect(this.results).to.all.satisfy(_.isInteger);
+    });
   });
 });

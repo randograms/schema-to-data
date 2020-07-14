@@ -4,14 +4,13 @@ const faker = require('faker');
 // TODO: allow these to be configured
 const defaultMinStringLength = 0;
 const stringLengthRange = 20;
-const defaultMinInteger = -100000;
-const defaultMaxInteger = 100000;
-const defaultMinNumber = defaultMinInteger;
-const defaultMaxNumber = defaultMaxInteger;
-const numberIntegerChance = 0.5;
+const defaultMinNumber = -100000;
+const defaultMaxNumber = 100000;
+const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
 const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
+const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
   const typedSchema = coerceTypes(schema); // eslint-disable-line no-use-before-define
@@ -20,11 +19,25 @@ const coerceSchema = (schema) => {
 };
 
 const coerceTypes = (schema) => {
-  const typedSchema = { ...schema };
+  const inputTypes = _.castArray(schema.type);
+  let coercedTypes = _.intersection(inputTypes, supportedInputTypes);
 
-  if (_.isString(schema.type)) typedSchema.type = [schema.type];
-  else if (_.isArray(schema.type)) typedSchema.type = [...schema.type];
-  else typedSchema.type = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
+  const numberIndex = coercedTypes.indexOf('number');
+  const hasNumber = numberIndex !== -1;
+  if (hasNumber) {
+    const hasInteger = coercedTypes.includes('integer');
+    const expandedTypes = hasInteger ? ['decimal'] : ['decimal', 'integer'];
+    coercedTypes.splice(numberIndex, 1, ...expandedTypes);
+  }
+
+  if (_.isEmpty(coercedTypes)) {
+    coercedTypes = ['null', 'string', 'decimal', 'integer', 'boolean', 'array', 'object'];
+  }
+
+  const typedSchema = {
+    ...schema,
+    type: coercedTypes,
+  };
 
   return typedSchema;
 };
@@ -43,6 +56,33 @@ const conformSchemaToType = (typedSchema) => {
         ...singleTypedSchema,
         minLength,
         maxLength,
+      };
+    }
+    case 'decimal':
+    case 'integer': {
+      let {
+        minimum,
+        maximum,
+      } = typedSchema;
+
+      if (minimum === undefined && maximum === undefined) {
+        minimum = defaultMinNumber;
+        maximum = defaultMaxNumber;
+      } else if (minimum !== undefined && maximum === undefined) {
+        maximum = (minimum + numberRange);
+      } else if (minimum === undefined && maximum !== undefined) {
+        minimum = maximum - numberRange;
+      }
+
+      if (type === 'integer') {
+        minimum = Math.ceil(minimum);
+        maximum = Math.floor(maximum);
+      }
+
+      return {
+        ...singleTypedSchema,
+        minimum,
+        maximum,
       };
     }
     case 'array': {
@@ -88,8 +128,8 @@ const generateData = (singleTypedSchema) => {
   switch (singleTypedSchema.type) {
     case 'null': return null;
     case 'string': return lib.generateString(singleTypedSchema);
-    case 'number': return lib.generateNumber();
-    case 'integer': return lib.generateInteger();
+    case 'decimal': return lib.generateNumber(singleTypedSchema);
+    case 'integer': return lib.generateNumber(singleTypedSchema);
     case 'boolean': return lib.generateBoolean();
     case 'array': return lib.generateArray(singleTypedSchema);
     case 'object': return lib.generateObject(singleTypedSchema);
@@ -130,15 +170,17 @@ const generateString = (stringSchema) => {
   return randomString;
 };
 
-const generateNumber = () => {
-  const isFloat = Math.random() < numberIntegerChance;
+const generateNumber = (numberSchema) => {
+  // schema is guaranteed to have a "decimal" or "integer" type
+  // minimum and maximum are guaranteed to exist
+  const {
+    type,
+    minimum,
+    maximum,
+  } = numberSchema;
+  const isDecimal = type === 'decimal';
 
-  return _.random(defaultMinNumber, defaultMaxNumber, isFloat);
-};
-
-const generateInteger = () => {
-  const randomInteger = _.random(defaultMinInteger, defaultMaxInteger);
-  return randomInteger;
+  return _.random(minimum, maximum, isDecimal);
 };
 
 const generateBoolean = () => faker.random.boolean();
@@ -179,7 +221,6 @@ const lib = {
   generateData,
   generateString,
   generateNumber,
-  generateInteger,
   generateBoolean,
   generateArray,
   generateObject,

@@ -4,10 +4,16 @@ describe('malformed schemas', function () {
   testSchema({
     scenario: 'when type is an empty array',
     schema: {
-      itThrowsTheError: 'Expected schema to have a known type but got "undefined"',
+      itAlwaysReturns: 'data',
       type: [],
     },
+    alternateBaseValidationSchema: {},
+    runCount: 40,
     theSchemaIsInvalidBecause: 'data.type should be equal to one of the allowed values',
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `${schemaDescriptor}`,
+      ...basicSchema,
+    })),
   });
 
   testSchema({
