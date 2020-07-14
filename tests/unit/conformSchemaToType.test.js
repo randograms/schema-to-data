@@ -9,7 +9,7 @@ describe('conformSchemaToType', function () {
   context('with a typedSchema with a single type', function () {
     before(function () {
       const typedSchema = generateValidTestSchema({
-        type: ['number'],
+        type: ['integer'],
         unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
       });
 
@@ -17,7 +17,7 @@ describe('conformSchemaToType', function () {
     });
 
     it('returns a schema with a single string type', function () {
-      expect(this.result.type).to.be.a('string').and.to.equal('number');
+      expect(this.result.type).to.be.a('string').and.to.equal('integer');
     });
 
     it('returns a schema without unsupported keys', function () {
@@ -33,7 +33,7 @@ describe('conformSchemaToType', function () {
         type: [
           'null',
           'string',
-          'number',
+          'decimal',
           'integer',
           'boolean',
           'array',
@@ -68,15 +68,19 @@ describe('conformSchemaToType', function () {
       });
     });
 
-    it('can return a number schema with only relevant keys', function () {
+    it('can return a decimal schema with only relevant keys', function () {
       expect(this.results).to.include.something.that.eqls({
-        type: 'number',
+        type: 'decimal',
+        minimum: -100000,
+        maximum: 100000,
       });
     });
 
     it('can return an integer schema with only relevant keys', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'integer',
+        minimum: -100000,
+        maximum: 100000,
       });
     });
 
@@ -117,6 +121,74 @@ describe('conformSchemaToType', function () {
         expect(this.result).to.be.like({
           minLength: 1000,
           maxLength: 1020,
+        });
+      });
+    });
+  });
+
+  describe('number typedSchemas', function () {
+    const testCommonBehavior = (type) => {
+      context('when "minimum" exceeds the default maximum', function () {
+        before(function () {
+          const schema = generateValidTestSchema({
+            type: [type],
+            minimum: 200000,
+          });
+
+          this.result = lib.conformSchemaToType(schema);
+        });
+
+        it('adjusts the maximum', function () {
+          expect(this.result).to.be.like({
+            minimum: 200000,
+            maximum: 400000,
+          });
+        });
+      });
+
+      context('when "maximum" is less than the default minimum', function () {
+        before(function () {
+          const schema = generateValidTestSchema({
+            type: [type],
+            maximum: -200000,
+          });
+
+          this.result = lib.conformSchemaToType(schema);
+        });
+
+        it('adjusts the minimum', function () {
+          expect(this.result).to.be.like({
+            minimum: -400000,
+            maximum: -200000,
+          });
+        });
+      });
+    };
+
+    context('with a "decimal" typedSchema', function () {
+      testCommonBehavior('decimal');
+    });
+
+    context('with an "integer" typedSchema', function () {
+      testCommonBehavior('integer');
+
+      context('when minimum and maximum are decimals', function () {
+        before(function () {
+          const schema = generateValidTestSchema({
+            type: ['integer'],
+            minimum: -5.3,
+            maximum: 2.1,
+          });
+
+          this.result = lib.conformSchemaToType(schema);
+        });
+
+        it('adjusts them to be integers', function () {
+          expect(this.result).to.eql({
+            type: 'integer',
+            minimum: -5,
+            maximum: 2,
+          });
         });
       });
     });

@@ -4,10 +4,9 @@ const faker = require('faker');
 // TODO: allow these to be configured
 const defaultMinStringLength = 0;
 const stringLengthRange = 20;
-const defaultMinInteger = -100000;
-const defaultMaxInteger = 100000;
-const defaultMinNumber = defaultMinInteger;
-const defaultMaxNumber = defaultMaxInteger;
+const defaultMinNumber = -100000;
+const defaultMaxNumber = 100000;
+const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
 const defaultMaxArrayItems = 5;
 const optionalPropertyChance = 0.8;
@@ -57,6 +56,33 @@ const conformSchemaToType = (typedSchema) => {
         ...singleTypedSchema,
         minLength,
         maxLength,
+      };
+    }
+    case 'decimal':
+    case 'integer': {
+      let {
+        minimum,
+        maximum,
+      } = typedSchema;
+
+      if (minimum === undefined && maximum === undefined) {
+        minimum = defaultMinNumber;
+        maximum = defaultMaxNumber;
+      } else if (minimum !== undefined && maximum === undefined) {
+        maximum = (minimum + numberRange);
+      } else if (minimum === undefined && maximum !== undefined) {
+        minimum = maximum - numberRange;
+      }
+
+      if (type === 'integer') {
+        minimum = Math.ceil(minimum);
+        maximum = Math.floor(maximum);
+      }
+
+      return {
+        ...singleTypedSchema,
+        minimum,
+        maximum,
       };
     }
     case 'array': {
@@ -146,10 +172,15 @@ const generateString = (stringSchema) => {
 
 const generateNumber = (numberSchema) => {
   // schema is guaranteed to have a "decimal" or "integer" type
-  const { type } = numberSchema;
+  // minimum and maximum are guaranteed to exist
+  const {
+    type,
+    minimum,
+    maximum,
+  } = numberSchema;
   const isDecimal = type === 'decimal';
 
-  return _.random(defaultMinNumber, defaultMaxNumber, isDecimal);
+  return _.random(minimum, maximum, isDecimal);
 };
 
 const generateBoolean = () => faker.random.boolean();
