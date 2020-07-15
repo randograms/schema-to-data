@@ -39,4 +39,14 @@ describe('malformed schemas', function () {
       maxLength: 4,
     },
   });
+
+  testSchema({
+    scenario: 'when "minimum" and "maximum" conflict',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minimum" and "maximum"',
+      type: 'number',
+      minimum: 5,
+      maximum: 4,
+    },
+  });
 });
