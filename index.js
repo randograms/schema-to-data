@@ -180,6 +180,10 @@ const generateNumber = (numberSchema) => {
   } = numberSchema;
   const isDecimal = type === 'decimal';
 
+  if (maximum < minimum) {
+    throw Error('Cannot generate data for conflicting "minimum" and "maximum"');
+  }
+
   return _.random(minimum, maximum, isDecimal);
 };
 
