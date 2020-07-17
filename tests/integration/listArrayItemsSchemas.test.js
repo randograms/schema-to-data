@@ -1,21 +1,12 @@
 const { mapBasicSchemas } = require('./helpers/commonSchemas');
 
-describe('array items schemas', function () {
-  // TODO: test that the generated array does not have to have every item
-  testSchema({
-    scenario: 'when items is a tuple',
-    schema: {
-      itAlwaysReturns: 'an array',
-      type: 'array',
-      items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-    },
-  });
-
+describe('list array items schemas', function () {
   testSchema({
     scenario: 'with typeless items',
     schema: {
       itAlwaysReturns: 'an array',
       type: 'array',
+      items: {},
     },
     runCount: 30,
     itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({

@@ -89,8 +89,10 @@ const conformSchemaToType = (typedSchema) => {
       const itemsDefinition = typedSchema.items || {};
 
       let itemSchemas;
-      if (_.isArray(itemsDefinition)) itemSchemas = itemsDefinition;
-      else {
+      if (_.isArray(itemsDefinition)) {
+        const length = _.random(defaultMinArrayItems, itemsDefinition.length);
+        itemSchemas = itemsDefinition.slice(0, length);
+      } else {
         const itemSchema = itemsDefinition;
         const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
         itemSchemas = _.times(length, () => itemSchema);
