@@ -120,4 +120,23 @@ describe('coerceTypes', function () {
       ]);
     });
   });
+
+  context('when the schemas type field is an empty array', function () {
+    before(buildSetupResultForSchemaWithType([]));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with all data types', function () {
+      expect(this.result.type).to.eql([
+        'null',
+        'string',
+        'decimal',
+        'integer',
+        'boolean',
+        'array',
+        'object',
+      ]);
+    });
+  });
 });
