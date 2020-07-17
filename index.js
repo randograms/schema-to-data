@@ -54,6 +54,16 @@ const selectType = (typedSchema) => {
     type,
   };
 
+  if (type === 'array') {
+    const itemsDefinition = typedSchema.items || {};
+
+    const itemSchemas = _.castArray(itemsDefinition);
+    const additionalItemsSchema = _.isArray(itemsDefinition) ? {} : itemsDefinition;
+
+    singleTypedSchema.items = itemSchemas;
+    singleTypedSchema.additionalItems = additionalItemsSchema;
+  }
+
   return singleTypedSchema;
 };
 
@@ -100,18 +110,17 @@ const conformSchemaToType = (singleTypedSchema) => {
       };
     }
     case 'array': {
-      const itemsDefinition = singleTypedSchema.items || {};
+      // items is guaranteed to be an array
+      // additionalItems is guaranteed to be a schema
+      const { items, additionalItems } = singleTypedSchema;
 
-      let itemSchemas;
-      if (_.isArray(itemsDefinition)) {
-        const length = _.random(defaultMinArrayItems, itemsDefinition.length);
-        itemSchemas = itemsDefinition.slice(0, length);
-      } else {
-        const itemSchema = itemsDefinition;
-        const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
-        itemSchemas = _.times(length, () => itemSchema);
-      }
+      // assumes defaultMaxArrayItems is always greater than items.length (for now)
+      const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
+      const needsAdditionalItems = length > items.length;
 
+      const itemSchemas = needsAdditionalItems
+        ? [...items, ..._.times(length - items.length, () => additionalItems)]
+        : items.slice(0, length);
       const coercedItemSchemas = itemSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
       return {
         ...conformedSchema,

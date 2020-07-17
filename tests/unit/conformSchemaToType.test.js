@@ -121,71 +121,70 @@ describe('conformSchemaToType', function () {
 
   context('with an array singleTypedSchema', function () {
     this.retries(30);
-    const itemSchema1 = Symbol('itemSchema1');
-    const itemSchema2 = Symbol('itemSchema2');
-    const itemSchema3 = Symbol('itemSchema3');
-
-    const coercedAnySchema = Symbol('coercedAnySchema');
-    const coercedItemSchema1 = Symbol('coercedItemSchema1');
-    const coercedItemSchema2 = Symbol('coercedItemSchema2');
-    const coercedItemSchema3 = Symbol('coercedItemSchema3');
 
     before(function () {
+      this.itemSchema1 = Symbol('itemSchema1');
+      this.itemSchema2 = Symbol('itemSchema2');
+      this.itemSchema3 = Symbol('itemSchema3');
+      this.additionalItemsSchema = Symbol('additionalItemsSchema');
+
+      this.coercedItemSchema1 = Symbol('coercedItemSchema1');
+      this.coercedItemSchema2 = Symbol('coercedItemSchema2');
+      this.coercedItemSchema3 = Symbol('coercedItemSchema3');
+      this.coercedAdditionalItemsSchema = Symbol('coercedAdditionalItemsSchema');
+
       const stub = sandbox.stub(lib, 'coerceSchema');
-      stub.withArgs({}).returns(coercedAnySchema);
-      stub.withArgs(itemSchema1).returns(coercedItemSchema1);
-      stub.withArgs(itemSchema2).returns(coercedItemSchema2);
-      stub.withArgs(itemSchema3).returns(coercedItemSchema3);
+      stub.withArgs(this.itemSchema1).returns(this.coercedItemSchema1);
+      stub.withArgs(this.itemSchema2).returns(this.coercedItemSchema2);
+      stub.withArgs(this.itemSchema3).returns(this.coercedItemSchema3);
+      stub.withArgs(this.additionalItemsSchema).returns(this.coercedAdditionalItemsSchema);
     });
     after(sandbox.restore);
 
-    const buildSaveResultForItems = (items) => function () {
+    beforeEach(function () {
       const typedSchema = generateValidTestSchema({
         type: 'array',
-        items,
+        items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
+        additionalItems: this.additionalItemsSchema,
       });
 
       this.result = lib.conformSchemaToType(typedSchema);
-    };
-
-    const itSometimesReturnsASchemaWithAnEmptyItemsTuple = () => {
-      it('sometimes returns a schema with an empty items tuple', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [],
-        });
-      });
-    };
-
-    const itSometimesReturnsASchemaWithAnItemsTupleWithOneItem = (expectedItemSchema) => {
-      it('sometimes returns a schema with an items tuple with one item', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [expectedItemSchema],
-        });
-      });
-    };
-
-    const itSometimesReturnsASchemaWithAnItemsTupleWithMultipleItems = (
-      expectedItemSchemaA,
-      expectedItemSchemaB,
-      expectedItemSchemaC,
-    ) => {
-      it('sometimes returns a schema with an items tuple with multiple items', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [expectedItemSchemaA, expectedItemSchemaB, expectedItemSchemaC],
-        });
-      });
-    };
-
-    context('that does not have an items definition', function () {
-      beforeEach(buildSaveResultForItems(undefined));
-
-      itSometimesReturnsASchemaWithAnEmptyItemsTuple();
-      itSometimesReturnsASchemaWithAnItemsTupleWithOneItem(coercedAnySchema);
-      itSometimesReturnsASchemaWithAnItemsTupleWithMultipleItems(coercedAnySchema, coercedAnySchema, coercedAnySchema);
     });
+
+    it('sometimes returns a schema with an empty items tuple', function () {
+      expect(this.result).to.eql({
+        type: 'array',
+        items: [],
+      });
+    });
+
+    it('sometimes returns a schema with an items tuple with one item', function () {
+      expect(this.result).to.eql({
+        type: 'array',
+        items: [this.coercedItemSchema1],
+      });
+    });
+
+    it('sometimes returns a schema with all tuple items', function () {
+      expect(this.result).to.eql({
+        type: 'array',
+        items: [this.coercedItemSchema1, this.coercedItemSchema2, this.coercedItemSchema3],
+      });
+    });
+
+    it('sometimes returns a schema with additional items', function () {
+      expect(this.result).to.eql({
+        type: 'array',
+        items: [
+          this.coercedItemSchema1,
+          this.coercedItemSchema2,
+          this.coercedItemSchema3,
+          this.coercedAdditionalItemsSchema,
+          this.coercedAdditionalItemsSchema,
+        ],
+      });
+    });
+  });
 
   context('with an object singleTypedSchema', function () {
     context('by default', function () {

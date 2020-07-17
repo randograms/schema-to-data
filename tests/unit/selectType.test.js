@@ -79,12 +79,77 @@ describe('selectType', function () {
     it('can return an array schema with a default items tuple and additionalItems definition', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
+        items: [{}],
+        additionalItems: {},
       });
     });
 
     it('can return an object schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'object',
+      });
+    });
+  });
+
+  context('with an array typedSchema', function () {
+    context('that has a list items definition', function () {
+      before(function () {
+        this.itemSchema = Symbol('itemSchema');
+
+        const typedSchema = generateValidTestSchema({
+          type: ['array'],
+          items: this.itemSchema,
+        });
+
+        this.result = lib.selectType(typedSchema);
+      });
+
+      it('returns a schema with the item schema as the items tuple and the additionalItems', function () {
+        expect(this.result).to.eql({
+          type: 'array',
+          items: [this.itemSchema],
+          additionalItems: this.itemSchema,
+        });
+      });
+    });
+
+    context('that has a tuple items definition', function () {
+      before(function () {
+        this.itemSchema1 = Symbol('itemSchema1');
+        this.itemSchema2 = Symbol('itemSchema2');
+        this.itemSchema3 = Symbol('itemSchema3');
+
+        const typedSchema = generateValidTestSchema({
+          type: ['array'],
+          items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
+        });
+
+        this.result = lib.selectType(typedSchema);
+      });
+
+      it('returns a schema with tuple items and a default additionalItems', function () {
+        expect(this.result).to.eql({
+          type: 'array',
+          items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
+          additionalItems: {},
+        });
+      });
+    });
+  });
+
+  context('with a typedSchema with a malformed type', function () {
+    it('returns a copy of the schema with a single type', function () {
+      const additionalSchemaKeys = Symbol('additionalSchemaKeys');
+      const typedSchema = generateValidTestSchema({
+        type: ['whoops'],
+        additionalSchemaKeys,
+      });
+
+      const result = lib.selectType(typedSchema);
+      expect(result).to.not.equal(typedSchema);
+      expect(result).to.eql({
+        type: 'whoops',
+        additionalSchemaKeys,
       });
     });
   });

@@ -55,6 +55,10 @@ describe('tuple array items schemas', function () {
         minItems: 3,
         maxItems: 3,
       },
+      {
+        itSometimesReturns: 'an array with additional items',
+        minItems: 4,
+      },
     ],
   });
 });
