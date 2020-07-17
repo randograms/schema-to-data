@@ -1,116 +1,30 @@
-const _ = require('lodash');
 const { lib } = require('../..');
 
 const sandbox = sinon.createSandbox();
 
-const generateValidTestSchema = ({ type = [], ...additionalSchemaKeys } = {}) => ({ type, ...additionalSchemaKeys });
+const generateValidTestSchema = ({ type = '', ...additionalSchemaKeys } = {}) => ({
+  type,
+  ...additionalSchemaKeys,
+  unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
+});
 
 describe('conformSchemaToType', function () {
-  context('with a typedSchema with a single type', function () {
-    before(function () {
-      const typedSchema = generateValidTestSchema({
-        type: ['integer'],
-        unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
-      });
-
-      this.result = lib.conformSchemaToType(typedSchema);
-    });
-
-    it('returns a schema with a single string type', function () {
-      expect(this.result.type).to.be.a('string').and.to.equal('integer');
-    });
-
-    it('returns a schema without unsupported keys', function () {
-      expect(this.result.unsupportedSchemaKey).to.be.undefined;
-    });
-  });
-
-  context('with a typedSchema with multiple types', function () {
-    this.retries(20);
-
-    beforeEach(function () {
-      this.typedSchema = {
-        type: [
-          'null',
-          'string',
-          'decimal',
-          'integer',
-          'boolean',
-          'array',
-          'object',
-        ],
-        unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
-      };
-      const typedSchema = generateValidTestSchema(this.typedSchema);
-
-      this.results = _.times(10, () => lib.conformSchemaToType(typedSchema));
-    });
-
-    it('always returns a schema with a single type', function () {
-      expect(this.results).to.all.satisfy((data) => _.isString(data.type));
-    });
-
-    it('always returns a copy of the schema', function () {
-      expect(this.results).to.not.include.something.that.equals(this.typedSchema);
-    });
-
-    it('can return a null schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'null',
+  context('with a string singleTypedSchema', function () {
+    context('by default', function () {
+      it('returns a schema with relevant keys', function () {
+        const singleTypedSchema = generateValidTestSchema({ type: 'string' });
+        expect(lib.conformSchemaToType(singleTypedSchema)).to.eql({
+          type: 'string',
+          minLength: 0,
+          maxLength: 20,
+        });
       });
     });
 
-    it('can return a string schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'string',
-        minLength: 0,
-        maxLength: 20,
-      });
-    });
-
-    it('can return a decimal schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'decimal',
-        minimum: -100000,
-        maximum: 100000,
-      });
-    });
-
-    it('can return an integer schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'integer',
-        minimum: -100000,
-        maximum: 100000,
-      });
-    });
-
-    it('can return a boolean schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'boolean',
-      });
-    });
-
-    it('can return an array schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'array',
-        items: [],
-      });
-    });
-
-    it('can return an object schema with only relevant keys', function () {
-      expect(this.results).to.include.something.that.eqls({
-        type: 'object',
-        properties: {},
-        required: [],
-      });
-    });
-  });
-
-  context('with a string typedSchema', function () {
     context('when minLength exceeds the default maxLength', function () {
       before(function () {
         const typedSchema = generateValidTestSchema({
-          type: ['string'],
+          type: 'string',
           minLength: 1000,
         });
 
@@ -126,12 +40,23 @@ describe('conformSchemaToType', function () {
     });
   });
 
-  describe('number typedSchemas', function () {
+  describe('number singleTypedSchema', function () {
     const testCommonBehavior = (type) => {
+      context('by default', function () {
+        it('returns a schema with relevant keys', function () {
+          const singleTypedSchema = generateValidTestSchema({ type });
+          expect(lib.conformSchemaToType(singleTypedSchema)).to.eql({
+            type,
+            minimum: -100000,
+            maximum: 100000,
+          });
+        });
+      });
+
       context('when "minimum" exceeds the default maximum', function () {
         before(function () {
           const schema = generateValidTestSchema({
-            type: [type],
+            type,
             minimum: 200000,
           });
 
@@ -149,7 +74,7 @@ describe('conformSchemaToType', function () {
       context('when "maximum" is less than the default minimum', function () {
         before(function () {
           const schema = generateValidTestSchema({
-            type: [type],
+            type,
             maximum: -200000,
           });
 
@@ -175,7 +100,7 @@ describe('conformSchemaToType', function () {
       context('when minimum and maximum are decimals', function () {
         before(function () {
           const schema = generateValidTestSchema({
-            type: ['integer'],
+            type: 'integer',
             minimum: -5.3,
             maximum: 2.1,
           });
@@ -194,7 +119,7 @@ describe('conformSchemaToType', function () {
     });
   });
 
-  context('with an array typedSchema', function () {
+  context('with an array singleTypedSchema', function () {
     this.retries(30);
     const itemSchema1 = Symbol('itemSchema1');
     const itemSchema2 = Symbol('itemSchema2');
@@ -216,7 +141,7 @@ describe('conformSchemaToType', function () {
 
     const buildSaveResultForItems = (items) => function () {
       const typedSchema = generateValidTestSchema({
-        type: ['array'],
+        type: 'array',
         items,
       });
 
@@ -262,32 +187,18 @@ describe('conformSchemaToType', function () {
       itSometimesReturnsASchemaWithAnItemsTupleWithMultipleItems(coercedAnySchema, coercedAnySchema, coercedAnySchema);
     });
 
-    context('that has a single item schema', function () {
-      beforeEach(buildSaveResultForItems(itemSchema1));
-
-      itSometimesReturnsASchemaWithAnEmptyItemsTuple();
-      itSometimesReturnsASchemaWithAnItemsTupleWithOneItem(coercedItemSchema1);
-      itSometimesReturnsASchemaWithAnItemsTupleWithMultipleItems(
-        coercedItemSchema1,
-        coercedItemSchema1,
-        coercedItemSchema1,
-      );
+  context('with an object singleTypedSchema', function () {
+    context('by default', function () {
+      it('returns a schema with relevant keys', function () {
+        const singleTypedSchema = generateValidTestSchema({ type: 'object' });
+        expect(lib.conformSchemaToType(singleTypedSchema)).to.eql({
+          type: 'object',
+          properties: {},
+          required: [],
+        });
+      });
     });
 
-    context('that has an items tuple', function () {
-      beforeEach(buildSaveResultForItems([itemSchema1, itemSchema2, itemSchema3]));
-
-      itSometimesReturnsASchemaWithAnEmptyItemsTuple();
-      itSometimesReturnsASchemaWithAnItemsTupleWithOneItem(coercedItemSchema1);
-      itSometimesReturnsASchemaWithAnItemsTupleWithMultipleItems(
-        coercedItemSchema1,
-        coercedItemSchema2,
-        coercedItemSchema3,
-      );
-    });
-  });
-
-  context('with an object typedSchema', function () {
     context('that has "properties"', function () {
       before(function () {
         const propertySchema1 = Symbol('propertySchema1');
@@ -300,7 +211,7 @@ describe('conformSchemaToType', function () {
         stub.withArgs(propertySchema2).returns(this.coercedPropertySchema2);
 
         const typedSchema = generateValidTestSchema({
-          type: ['object'],
+          type: 'object',
           properties: {
             property1: propertySchema1,
             property2: propertySchema2,
@@ -327,7 +238,7 @@ describe('conformSchemaToType', function () {
         sandbox.stub(lib, 'coerceSchema').withArgs({}).returns(this.coercedPropertySchema);
 
         const typedSchema = generateValidTestSchema({
-          type: ['object'],
+          type: 'object',
           required: ['property'],
         });
 
@@ -346,21 +257,15 @@ describe('conformSchemaToType', function () {
     });
   });
 
-  context('with a typedSchema with an empty type set', function () {
-    it('returns a copy of the schema', function () {
-      const typedSchema = generateValidTestSchema({ type: [], unsupportedSchemaKey: Symbol('unsupportedSchemaKey') });
-      const result = lib.conformSchemaToType(typedSchema);
-      expect(result).to.eql({ type: undefined });
-    });
-  });
-
-  context('with a typedSchema with a malformed type', function () {
-    it('returns a copy of the schema', function () {
-      const typedSchema = generateValidTestSchema({
-        type: ['whoops'],
+  context('with a singleTypedSchema with a malformed type', function () {
+    it('returns a schema with just the type', function () {
+      const singleTypedSchema = generateValidTestSchema({
+        type: 'whoops',
         unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
       });
-      const result = lib.conformSchemaToType(typedSchema);
+
+      const result = lib.conformSchemaToType(singleTypedSchema);
+      expect(result).to.not.equal(singleTypedSchema);
       expect(result).to.eql({ type: 'whoops' });
     });
   });
