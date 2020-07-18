@@ -92,7 +92,13 @@ const testSchema = ({
 
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
-      const testSchemaToData = () => schemaToData(inputSchema);
+      const testSchemaToData = () => {
+        const mockData = schemaToData(inputSchema);
+
+        if (debug) {
+          console.log('    Expected error, but got data:', JSON.stringify(mockData, null)); // eslint-disable-line no-console
+        }
+      };
       expect(testSchemaToData).to.throw(expectedError);
     });
   };
