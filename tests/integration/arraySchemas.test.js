@@ -5,7 +5,7 @@ describe('array schemas', function () {
       itAlwaysReturns: 'an array',
       type: 'array',
     },
-    runCount: 30,
+    runCount: 100,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty array',

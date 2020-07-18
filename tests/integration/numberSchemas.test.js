@@ -48,6 +48,7 @@ describe('number schemas', function () {
       minimum: 2.5,
       maximum: 3.5,
     },
+    runCount: 30,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an integer',

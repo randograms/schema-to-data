@@ -6,7 +6,7 @@ describe('tuple array items schemas', function () {
       type: 'array',
       items: [{}, {}, {}],
     },
-    runCount: 30,
+    runCount: 100,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty array',
@@ -31,6 +31,7 @@ describe('tuple array items schemas', function () {
       type: 'array',
       items: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
     },
+    runCount: 100,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty array',
