@@ -3,18 +3,22 @@ const faker = require('faker');
 
 // TODO: allow these to be configured
 const defaultMinStringLength = 0;
-const stringLengthRange = 20;
+const defaultStringLengthRange = 20;
 const defaultMinNumber = -100000;
 const defaultMaxNumber = 100000;
 const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
-const defaultMaxArrayItems = 5;
+const defaultArrayLengthRange = 20;
 const optionalPropertyChance = 0.8;
 const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
-  const typedSchema = coerceTypes(schema); // eslint-disable-line no-use-before-define
-  const conformedSchema = conformSchemaToType(typedSchema); // eslint-disable-line no-use-before-define
+  /* eslint-disable no-use-before-define */
+  const typedSchema = coerceTypes(schema);
+  const singleTypedSchema = selectType(typedSchema);
+  const conformedSchema = conformSchemaToType(singleTypedSchema);
+  /* eslint-enable no-use-before-define */
+
   return conformedSchema;
 };
 
@@ -42,18 +46,44 @@ const coerceTypes = (schema) => {
   return typedSchema;
 };
 
-const conformSchemaToType = (typedSchema) => {
+const generateDefaultNestedSchema = () => ({
+  items: { type: ['null', 'string', 'number', 'boolean'] },
+  minItems: 0,
+  maxItems: 5,
+});
+
+const selectType = (typedSchema) => {
   const type = _.sample(typedSchema.type);
 
-  const singleTypedSchema = { type };
+  const singleTypedSchema = {
+    ...typedSchema,
+    type,
+  };
+
+  if (type === 'array') {
+    const itemsDefinition = typedSchema.items || generateDefaultNestedSchema();
+
+    const itemSchemas = _.castArray(itemsDefinition);
+    const additionalItemsSchema = _.isArray(itemsDefinition) ? generateDefaultNestedSchema() : itemsDefinition;
+
+    singleTypedSchema.items = itemSchemas;
+    singleTypedSchema.additionalItems = additionalItemsSchema;
+  }
+
+  return singleTypedSchema;
+};
+
+const conformSchemaToType = (singleTypedSchema) => {
+  const { type } = singleTypedSchema;
+  const conformedSchema = { type };
 
   switch (type) {
     case 'string': {
-      const minLength = typedSchema.minLength || defaultMinStringLength;
-      const maxLength = typedSchema.maxLength || (minLength + stringLengthRange);
+      const minLength = singleTypedSchema.minLength || defaultMinStringLength;
+      const maxLength = singleTypedSchema.maxLength || (minLength + defaultStringLengthRange);
 
       return {
-        ...singleTypedSchema,
+        ...conformedSchema,
         minLength,
         maxLength,
       };
@@ -63,7 +93,7 @@ const conformSchemaToType = (typedSchema) => {
       let {
         minimum,
         maximum,
-      } = typedSchema;
+      } = singleTypedSchema;
 
       if (minimum === undefined && maximum === undefined) {
         minimum = defaultMinNumber;
@@ -80,46 +110,58 @@ const conformSchemaToType = (typedSchema) => {
       }
 
       return {
-        ...singleTypedSchema,
+        ...conformedSchema,
         minimum,
         maximum,
       };
     }
     case 'array': {
-      const itemsDefinition = typedSchema.items || {};
+      // items is guaranteed to be an array
+      // additionalItems is guaranteed to be a schema
+      const {
+        items,
+        additionalItems,
+        minItems = defaultMinArrayItems,
+        maxItems = (minItems + defaultArrayLengthRange),
+      } = singleTypedSchema;
 
-      let itemSchemas;
-      if (_.isArray(itemsDefinition)) itemSchemas = itemsDefinition;
-      else {
-        const itemSchema = itemsDefinition;
-        const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
-        itemSchemas = _.times(length, () => itemSchema);
+      if (maxItems < minItems) {
+        throw Error('Cannot generate data for conflicting "minItems" and "maxItems"');
       }
 
-      const coercedItemSchemas = itemSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
+      // assumes defaultMaxArrayItems is always greater than items.length (for now)
+      const length = _.random(minItems, maxItems);
+      const needsAdditionalItems = length > items.length;
 
+      const itemSchemas = needsAdditionalItems
+        ? [...items, ..._.times(length - items.length, () => additionalItems)]
+        : items.slice(0, length);
+      const coercedItemSchemas = itemSchemas.map((itemSchema) => {
+        const coercedItemSchema = lib.coerceSchema(itemSchema); // eslint-disable-line no-use-before-define
+        return coercedItemSchema;
+      });
       return {
-        ...singleTypedSchema,
+        ...conformedSchema,
         items: coercedItemSchemas,
       };
     }
     case 'object': {
-      const propertySchemasCopy = { ...typedSchema.properties } || {};
-      const required = typedSchema.required || [];
+      const propertySchemasCopy = { ...singleTypedSchema.properties } || {};
+      const required = singleTypedSchema.required || [];
 
       required.forEach((propertyName) => {
-        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || {};
+        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || generateDefaultNestedSchema();
       });
 
       const coercedPropertySchemas = _.mapValues(propertySchemasCopy, lib.coerceSchema); // eslint-disable-line no-use-before-define
 
       return {
-        ...singleTypedSchema,
+        ...conformedSchema,
         properties: coercedPropertySchemas,
         required,
       };
     }
-    default: return singleTypedSchema;
+    default: return conformedSchema;
   }
 };
 
@@ -221,6 +263,8 @@ const schemaToData = (schema) => {
 const lib = {
   coerceSchema,
   coerceTypes,
+  generateDefaultNestedSchema,
+  selectType,
   conformSchemaToType,
   generateData,
   generateString,

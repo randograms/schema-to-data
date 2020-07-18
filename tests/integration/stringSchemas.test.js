@@ -5,7 +5,7 @@ describe('string schemas', function () {
       itAlwaysReturns: 'a string',
       type: 'string',
     },
-    runCount: 30,
+    runCount: 100,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an empty string',
