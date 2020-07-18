@@ -362,7 +362,8 @@ describe('conformSchemaToType', function () {
     context('that has a required property without a schema', function () {
       before(function () {
         this.coercedPropertySchema = Symbol('coercedPropertySchema');
-        sandbox.stub(lib, 'coerceSchema').withArgs({}).returns(this.coercedPropertySchema);
+        const defaultNestedSchema = lib.generateDefaultNestedSchema();
+        sandbox.stub(lib, 'coerceSchema').withArgs(defaultNestedSchema).returns(this.coercedPropertySchema);
 
         const typedSchema = generateValidTestSchema({
           type: 'object',

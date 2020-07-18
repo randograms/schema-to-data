@@ -79,8 +79,16 @@ describe('selectType', function () {
     it('can return an array schema with a default items tuple and additionalItems definition', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
-        items: [{}],
-        additionalItems: {},
+        items: [{
+          items: { type: ['null', 'string', 'number', 'boolean'] },
+          minItems: 0,
+          maxItems: 5,
+        }],
+        additionalItems: {
+          items: { type: ['null', 'string', 'number', 'boolean'] },
+          minItems: 0,
+          maxItems: 5,
+        },
       });
     });
 
@@ -131,7 +139,11 @@ describe('selectType', function () {
         expect(this.result).to.eql({
           type: 'array',
           items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-          additionalItems: {},
+          additionalItems: {
+            items: { type: ['null', 'string', 'number', 'boolean'] },
+            minItems: 0,
+            maxItems: 5,
+          },
         });
       });
     });

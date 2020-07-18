@@ -46,6 +46,12 @@ const coerceTypes = (schema) => {
   return typedSchema;
 };
 
+const generateDefaultNestedSchema = () => ({
+  items: { type: ['null', 'string', 'number', 'boolean'] },
+  minItems: 0,
+  maxItems: 5,
+});
+
 const selectType = (typedSchema) => {
   const type = _.sample(typedSchema.type);
 
@@ -55,10 +61,10 @@ const selectType = (typedSchema) => {
   };
 
   if (type === 'array') {
-    const itemsDefinition = typedSchema.items || {};
+    const itemsDefinition = typedSchema.items || generateDefaultNestedSchema();
 
     const itemSchemas = _.castArray(itemsDefinition);
-    const additionalItemsSchema = _.isArray(itemsDefinition) ? {} : itemsDefinition;
+    const additionalItemsSchema = _.isArray(itemsDefinition) ? generateDefaultNestedSchema() : itemsDefinition;
 
     singleTypedSchema.items = itemSchemas;
     singleTypedSchema.additionalItems = additionalItemsSchema;
@@ -140,7 +146,7 @@ const conformSchemaToType = (singleTypedSchema) => {
       const required = singleTypedSchema.required || [];
 
       required.forEach((propertyName) => {
-        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || {};
+        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || generateDefaultNestedSchema();
       });
 
       const coercedPropertySchemas = _.mapValues(propertySchemasCopy, lib.coerceSchema); // eslint-disable-line no-use-before-define
@@ -253,6 +259,7 @@ const schemaToData = (schema) => {
 const lib = {
   coerceSchema,
   coerceTypes,
+  generateDefaultNestedSchema,
   selectType,
   conformSchemaToType,
   generateData,
