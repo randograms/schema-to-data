@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { lib } = require('../..');
 
 const sandbox = sinon.createSandbox();
@@ -120,8 +121,6 @@ describe('conformSchemaToType', function () {
   });
 
   context('with an array singleTypedSchema', function () {
-    this.retries(30);
-
     before(function () {
       this.itemSchema1 = Symbol('itemSchema1');
       this.itemSchema2 = Symbol('itemSchema2');
@@ -141,47 +140,176 @@ describe('conformSchemaToType', function () {
     });
     after(sandbox.restore);
 
-    beforeEach(function () {
-      const typedSchema = generateValidTestSchema({
-        type: 'array',
-        items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-        additionalItems: this.additionalItemsSchema,
+    context('by default', function () {
+      this.retries(50);
+
+      beforeEach(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type: 'array',
+          items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
+          additionalItems: this.additionalItemsSchema,
+        });
+
+        this.result = lib.conformSchemaToType(singleTypedSchema);
       });
 
-      this.result = lib.conformSchemaToType(typedSchema);
-    });
+      it('sometimes returns a schema with an empty items tuple', function () {
+        expect(this.result).to.eql({
+          type: 'array',
+          items: [],
+        });
+      });
 
-    it('sometimes returns a schema with an empty items tuple', function () {
-      expect(this.result).to.eql({
-        type: 'array',
-        items: [],
+      it('sometimes returns a schema with just the defined items', function () {
+        expect([
+          {
+            type: 'array',
+            items: [this.coercedItemSchema1],
+          },
+          {
+            type: 'array',
+            items: [this.coercedItemSchema1, this.coercedItemSchema2],
+          },
+          {
+            type: 'array',
+            items: [this.coercedItemSchema1, this.coercedItemSchema2, this.coercedItemSchema3],
+          },
+        ]).to.include.something.that.eqls(this.result);
+      });
+
+      it('sometimes returns a schema with additional items', function () {
+        expect(this.result).to.eql({
+          type: 'array',
+          items: [
+            this.coercedItemSchema1,
+            this.coercedItemSchema2,
+            this.coercedItemSchema3,
+            this.coercedAdditionalItemsSchema,
+            this.coercedAdditionalItemsSchema,
+          ],
+        });
       });
     });
 
-    it('sometimes returns a schema with an items tuple with one item', function () {
-      expect(this.result).to.eql({
-        type: 'array',
-        items: [this.coercedItemSchema1],
+    context('that has "minItems"', function () {
+      beforeEach(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type: 'array',
+          items: [this.itemSchema1],
+          additionalItems: this.additionalItemsSchema,
+          minItems: 5,
+        });
+
+        this.results = _.times(50, () => lib.conformSchemaToType(singleTypedSchema));
+      });
+
+      it('always returns a conformedSchema with at least "minItems" item schemas', function () {
+        expect(this.results).to.all.satisfy((conformedSchema) => conformedSchema.items.length >= 5);
+      });
+
+      it('sometimes returns a conformedSchema with "minItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 5);
+      });
+
+      it('sometimes returns a conformedSchema with more than "minItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length > 5);
       });
     });
 
-    it('sometimes returns a schema with all tuple items', function () {
-      expect(this.result).to.eql({
-        type: 'array',
-        items: [this.coercedItemSchema1, this.coercedItemSchema2, this.coercedItemSchema3],
+    context('that has "minItems" which exceeds the default "maxItems"', function () {
+      beforeEach(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type: 'array',
+          items: [this.itemSchema1],
+          additionalItems: this.additionalItemsSchema,
+          minItems: 100,
+        });
+
+        this.results = _.times(50, () => lib.conformSchemaToType(singleTypedSchema));
+      });
+
+      it('always returns a conformedSchema with at least "minItems" item schemas', function () {
+        expect(this.results).to.all.satisfy((conformedSchema) => conformedSchema.items.length >= 100);
+      });
+
+      it('sometimes returns a conformedSchema with "minItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 100);
+      });
+
+      it('sometimes returns a conformedSchema with more than "minItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length > 100);
       });
     });
 
-    it('sometimes returns a schema with additional items', function () {
-      expect(this.result).to.eql({
-        type: 'array',
-        items: [
-          this.coercedItemSchema1,
-          this.coercedItemSchema2,
-          this.coercedItemSchema3,
-          this.coercedAdditionalItemsSchema,
-          this.coercedAdditionalItemsSchema,
-        ],
+    context('that has "maxItems"', function () {
+      beforeEach(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type: 'array',
+          items: [this.itemSchema1],
+          additionalItems: this.additionalItemsSchema,
+          maxItems: 3,
+        });
+
+        this.results = _.times(50, () => lib.conformSchemaToType(singleTypedSchema));
+      });
+
+      it('always returns a conformedSchema with items with length less than or equal to "maxItems"', function () {
+        expect(this.results).to.all.satisfy((conformedSchema) => conformedSchema.items.length <= 3);
+      });
+
+      it('sometimes returns a conformedSchema with zero items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 0);
+      });
+
+      it('sometimes returns a conformedSchema with "maxItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 3);
+      });
+
+      it('sometimes returns a conformedSchema with items with length between zero and "maxItems"', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length > 0 && conformedSchema.items.length < 5);
+      });
+    });
+
+    context('that has "minItems" and "maxItems"', function () {
+      beforeEach(function () {
+        const typedSchema = generateValidTestSchema({
+          type: 'array',
+          items: [this.itemSchema1],
+          additionalItems: this.additionalItemsSchema,
+          minItems: 3,
+          maxItems: 7,
+        });
+
+        this.results = _.times(50, () => lib.conformSchemaToType(typedSchema));
+      });
+
+      it('always returns a conformedSchema with items with length between "minItems" and "maxItems"', function () {
+        expect(this.results).to.all.satisfy((conformedSchema) => (
+          conformedSchema.items.length >= 3
+          && conformedSchema.items.length <= 7
+        ));
+      });
+
+      it('sometimes returns a conformedSchema with "minItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 3);
+      });
+
+      it('sometimes returns a conformedSchema with "maxItems" items', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length === 7);
+      });
+
+      it('sometimes returns a conformedSchema with items with length between "minItems" and "maxItems"', function () {
+        expect(this.results).to.include.something
+          .that.satisfies((conformedSchema) => conformedSchema.items.length > 3 && conformedSchema.items.length < 7);
       });
     });
   });

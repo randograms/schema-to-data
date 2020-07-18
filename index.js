@@ -3,12 +3,12 @@ const faker = require('faker');
 
 // TODO: allow these to be configured
 const defaultMinStringLength = 0;
-const stringLengthRange = 20;
+const defaultStringLengthRange = 20;
 const defaultMinNumber = -100000;
 const defaultMaxNumber = 100000;
 const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
-const defaultMaxArrayItems = 5;
+const defaultArrayLengthRange = 20;
 const optionalPropertyChance = 0.8;
 const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
@@ -74,7 +74,7 @@ const conformSchemaToType = (singleTypedSchema) => {
   switch (type) {
     case 'string': {
       const minLength = singleTypedSchema.minLength || defaultMinStringLength;
-      const maxLength = singleTypedSchema.maxLength || (minLength + stringLengthRange);
+      const maxLength = singleTypedSchema.maxLength || (minLength + defaultStringLengthRange);
 
       return {
         ...conformedSchema,
@@ -112,16 +112,24 @@ const conformSchemaToType = (singleTypedSchema) => {
     case 'array': {
       // items is guaranteed to be an array
       // additionalItems is guaranteed to be a schema
-      const { items, additionalItems } = singleTypedSchema;
+      const {
+        items,
+        additionalItems,
+        minItems = defaultMinArrayItems,
+        maxItems = (minItems + defaultArrayLengthRange),
+      } = singleTypedSchema;
 
       // assumes defaultMaxArrayItems is always greater than items.length (for now)
-      const length = _.random(defaultMinArrayItems, defaultMaxArrayItems);
+      const length = _.random(minItems, maxItems);
       const needsAdditionalItems = length > items.length;
 
       const itemSchemas = needsAdditionalItems
         ? [...items, ..._.times(length - items.length, () => additionalItems)]
         : items.slice(0, length);
-      const coercedItemSchemas = itemSchemas.map(lib.coerceSchema); // eslint-disable-line no-use-before-define
+      const coercedItemSchemas = itemSchemas.map((itemSchema) => {
+        const coercedItemSchema = lib.coerceSchema(itemSchema); // eslint-disable-line no-use-before-define
+        return coercedItemSchema;
+      });
       return {
         ...conformedSchema,
         items: coercedItemSchemas,
