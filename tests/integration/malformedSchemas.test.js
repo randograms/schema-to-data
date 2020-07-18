@@ -49,4 +49,14 @@ describe('malformed schemas', function () {
       maximum: 4,
     },
   });
+
+  testSchema({
+    scenario: 'when "minItems" and "maxItems" conflict',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minItems" and "maxItems"',
+      type: 'array',
+      minItems: 7,
+      maxItems: 6,
+    },
+  });
 });

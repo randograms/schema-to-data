@@ -312,6 +312,22 @@ describe('conformSchemaToType', function () {
           .that.satisfies((conformedSchema) => conformedSchema.items.length > 3 && conformedSchema.items.length < 7);
       });
     });
+
+    context('that has conflicting "minItems" and "maxItems"', function () {
+      it('throws an error', function () {
+        const testFn = () => {
+          const singleTypedSchema = generateValidTestSchema({
+            type: 'array',
+            items: [],
+            minItems: 15,
+            maxItems: 13,
+          });
+          lib.conformSchemaToType(singleTypedSchema);
+        };
+
+        expect(testFn).to.throw('Cannot generate data for conflicting "minItems" and "maxItems"');
+      });
+    });
   });
 
   context('with an object singleTypedSchema', function () {

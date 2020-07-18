@@ -125,6 +125,10 @@ const conformSchemaToType = (singleTypedSchema) => {
         maxItems = (minItems + defaultArrayLengthRange),
       } = singleTypedSchema;
 
+      if (maxItems < minItems) {
+        throw Error('Cannot generate data for conflicting "minItems" and "maxItems"');
+      }
+
       // assumes defaultMaxArrayItems is always greater than items.length (for now)
       const length = _.random(minItems, maxItems);
       const needsAdditionalItems = length > items.length;
