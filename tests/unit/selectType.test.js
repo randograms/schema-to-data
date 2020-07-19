@@ -1,9 +1,17 @@
 const _ = require('lodash');
 const { lib } = require('../..');
 
+const sandbox = sinon.createSandbox();
+
 const generateValidTestSchema = ({ type = [], ...additionalSchemaKeys } = {}) => ({ type, ...additionalSchemaKeys });
 
 describe('selectType', function () {
+  before(function () {
+    this.defaultNestedSchema = Symbol('defaultNestedSchema');
+    sandbox.stub(lib, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
+  });
+  after(sandbox.restore);
+
   context('with a typedSchema with a single type', function () {
     before(function () {
       const typedSchema = generateValidTestSchema({
@@ -79,16 +87,8 @@ describe('selectType', function () {
     it('can return an array schema with a default items tuple and additionalItems definition', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
-        items: [{
-          items: { type: ['null', 'string', 'number', 'boolean'] },
-          minItems: 0,
-          maxItems: 5,
-        }],
-        additionalItems: {
-          items: { type: ['null', 'string', 'number', 'boolean'] },
-          minItems: 0,
-          maxItems: 5,
-        },
+        items: [this.defaultNestedSchema],
+        additionalItems: this.defaultNestedSchema,
       });
     });
 
@@ -139,11 +139,7 @@ describe('selectType', function () {
         expect(this.result).to.eql({
           type: 'array',
           items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-          additionalItems: {
-            items: { type: ['null', 'string', 'number', 'boolean'] },
-            minItems: 0,
-            maxItems: 5,
-          },
+          additionalItems: this.defaultNestedSchema,
         });
       });
     });

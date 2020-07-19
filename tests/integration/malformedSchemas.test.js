@@ -59,4 +59,24 @@ describe('malformed schemas', function () {
       maxItems: 6,
     },
   });
+
+  testSchema({
+    scenario: 'when "minProperties" and "maxProperties" conflict',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minProperties" and "maxProperties"',
+      type: 'object',
+      minProperties: 7,
+      maxProperties: 6,
+    },
+  });
+
+  testSchema({
+    scenario: 'when the "maxProperties" and the length of "required" conflict',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "required" and "maxProperties"',
+      type: 'object',
+      maxProperties: 2,
+      required: ['property1', 'property2', 'property3'],
+    },
+  });
 });
