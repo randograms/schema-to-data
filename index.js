@@ -9,7 +9,7 @@ const defaultMaxNumber = 100000;
 const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
 const defaultArrayLengthRange = 20;
-const optionalPropertyChance = 0.8;
+const defaultPotentialExtraProperties = 3;
 const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
@@ -50,6 +50,8 @@ const generateDefaultNestedSchema = () => ({
   items: { type: ['null', 'string', 'number', 'boolean'] },
   minItems: 0,
   maxItems: 5,
+  minProperties: 0,
+  maxProperties: 3,
 });
 
 const selectType = (typedSchema) => {
@@ -61,16 +63,102 @@ const selectType = (typedSchema) => {
   };
 
   if (type === 'array') {
-    const itemsDefinition = typedSchema.items || generateDefaultNestedSchema();
+    const itemsDefinition = typedSchema.items || lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
 
     const itemSchemas = _.castArray(itemsDefinition);
-    const additionalItemsSchema = _.isArray(itemsDefinition) ? generateDefaultNestedSchema() : itemsDefinition;
+    const additionalItemsSchema = _.isArray(itemsDefinition) ? lib.generateDefaultNestedSchema() : itemsDefinition; // eslint-disable-line no-use-before-define
 
     singleTypedSchema.items = itemSchemas;
     singleTypedSchema.additionalItems = additionalItemsSchema;
   }
 
   return singleTypedSchema;
+};
+
+const createPseudoObjectSchema = (singleTypedSchema) => {
+  const propertiesSchemas = { ...singleTypedSchema.properties };
+  const requiredPropertyNames = singleTypedSchema.required || [];
+
+  // It's ok if minProperties is less than required.length. It makes error handling easier
+  const { minProperties = 0 } = singleTypedSchema;
+
+  const allDefinedPropertyNames = _.keys(propertiesSchemas);
+  const optionalPropertyNames = _.difference(allDefinedPropertyNames, requiredPropertyNames);
+
+  const totalProperties = optionalPropertyNames.length + requiredPropertyNames.length;
+
+  const {
+    maxProperties = _.max([totalProperties, minProperties]) + defaultPotentialExtraProperties,
+  } = singleTypedSchema;
+
+  if (maxProperties < requiredPropertyNames.length) {
+    throw Error('Cannot generate data for conflicting "required" and "maxProperties"');
+  }
+
+  if (minProperties > maxProperties) {
+    throw Error('Cannot generate data for conflicting "minProperties" and "maxProperties"');
+  }
+
+  return {
+    propertiesSchemas,
+    propertyNamesToGenerate: [...requiredPropertyNames],
+    shuffledOptionalPropertyNames: _.shuffle(optionalPropertyNames),
+    additionalPropertiesSchema: lib.generateDefaultNestedSchema(), // eslint-disable-line no-use-before-define
+    minProperties,
+    maxProperties,
+  };
+};
+
+const guaranteeRequiredPropertiesHaveSchemas = (pseudoObjectSchema) => {
+  const {
+    propertiesSchemas,
+    propertyNamesToGenerate,
+    additionalPropertiesSchema,
+  } = pseudoObjectSchema;
+
+  propertyNamesToGenerate.forEach((propertyName) => {
+    propertiesSchemas[propertyName] = propertiesSchemas[propertyName] || additionalPropertiesSchema;
+  });
+};
+
+const generateAdditionalPropertyName = () => faker.lorem.word();
+
+const fillOutPropertiesToGenerate = (pseudoObjectSchema) => {
+  const {
+    propertiesSchemas,
+    propertyNamesToGenerate,
+    shuffledOptionalPropertyNames,
+    additionalPropertiesSchema,
+    minProperties,
+    maxProperties,
+  } = pseudoObjectSchema;
+
+  const size = _.random(minProperties, maxProperties);
+
+  while (propertyNamesToGenerate.length < size && shuffledOptionalPropertyNames.length > 0) {
+    const optionalPropertyName = shuffledOptionalPropertyNames.shift();
+    propertyNamesToGenerate.push(optionalPropertyName);
+  }
+
+  while (propertyNamesToGenerate.length < size) {
+    const additionalPropertyName = lib.generateAdditionalPropertyName(); // eslint-disable-line no-use-before-define
+    propertiesSchemas[additionalPropertyName] = additionalPropertiesSchema; // eslint-disable-line no-use-before-define
+    propertyNamesToGenerate.push(additionalPropertyName);
+  }
+};
+
+const getCoercedPropertiesSchemas = (pseudoObjectSchema) => {
+  const {
+    propertiesSchemas,
+    propertyNamesToGenerate,
+  } = pseudoObjectSchema;
+
+  const coercedPropertiesSchemas = _(propertiesSchemas)
+    .pick(propertyNamesToGenerate)
+    .mapValues(lib.coerceSchema) // eslint-disable-line no-use-before-define
+    .value();
+
+  return coercedPropertiesSchemas;
 };
 
 const conformSchemaToType = (singleTypedSchema) => {
@@ -146,19 +234,14 @@ const conformSchemaToType = (singleTypedSchema) => {
       };
     }
     case 'object': {
-      const propertySchemasCopy = { ...singleTypedSchema.properties } || {};
-      const required = singleTypedSchema.required || [];
-
-      required.forEach((propertyName) => {
-        propertySchemasCopy[propertyName] = propertySchemasCopy[propertyName] || generateDefaultNestedSchema();
-      });
-
-      const coercedPropertySchemas = _.mapValues(propertySchemasCopy, lib.coerceSchema); // eslint-disable-line no-use-before-define
+      const pseudoObjectSchema = createPseudoObjectSchema(singleTypedSchema);
+      guaranteeRequiredPropertiesHaveSchemas(pseudoObjectSchema);
+      fillOutPropertiesToGenerate(pseudoObjectSchema);
+      const coercedPropertiesSchemas = getCoercedPropertiesSchemas(pseudoObjectSchema);
 
       return {
         ...conformedSchema,
-        properties: coercedPropertySchemas,
-        required,
+        properties: coercedPropertiesSchemas,
       };
     }
     default: return conformedSchema;
@@ -238,18 +321,10 @@ const generateArray = (arraySchema) => {
 };
 
 const generateObject = (objectSchema) => {
-  // properties will have been coerced to always have a schema for required properties
-  const { properties, required: requiredPropertyNames } = objectSchema;
+  // "properties" will have been coerced to only have properties that should be generated
+  const { properties } = objectSchema;
 
-  const allPropertyNames = _.keys(properties);
-  const optionalPropertyNames = _.difference(allPropertyNames, requiredPropertyNames);
-  const optionalPropertyNamesToGenerate = _.filter(optionalPropertyNames, () => Math.random() < optionalPropertyChance);
-
-  const mockObject = _(properties)
-    .pick([...requiredPropertyNames, ...optionalPropertyNamesToGenerate])
-    .mapValues(lib.generateData) // eslint-disable-line no-use-before-define
-    .value();
-
+  const mockObject = _.mapValues(properties, lib.generateData); // eslint-disable-line no-use-before-define
   return mockObject;
 };
 
@@ -265,6 +340,11 @@ const lib = {
   coerceTypes,
   generateDefaultNestedSchema,
   selectType,
+  createPseudoObjectSchema,
+  guaranteeRequiredPropertiesHaveSchemas,
+  generateAdditionalPropertyName,
+  fillOutPropertiesToGenerate,
+  getCoercedPropertiesSchemas,
   conformSchemaToType,
   generateData,
   generateString,
