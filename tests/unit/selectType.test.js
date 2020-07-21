@@ -84,100 +84,15 @@ describe('selectType', function () {
       });
     });
 
-    it('can return an array schema with a default items tuple and additionalItems definition', function () {
+    it('can return an array schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
-        items: [this.defaultNestedSchema],
-        additionalItems: this.defaultNestedSchema,
       });
     });
 
     it('can return an object schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'object',
-      });
-    });
-  });
-
-  context('with an array typedSchema', function () {
-    context('that has a list items definition', function () {
-      before(function () {
-        this.itemSchema = Symbol('itemSchema');
-
-        const typedSchema = generateValidTestSchema({
-          type: ['array'],
-          items: this.itemSchema,
-        });
-
-        this.result = lib.selectType(typedSchema);
-      });
-
-      it('returns a schema with the item schema as the items tuple and the additionalItems', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [this.itemSchema],
-          additionalItems: this.itemSchema,
-        });
-      });
-    });
-
-    context('that has a tuple items definition', function () {
-      before(function () {
-        this.itemSchema1 = Symbol('itemSchema1');
-        this.itemSchema2 = Symbol('itemSchema2');
-        this.itemSchema3 = Symbol('itemSchema3');
-
-        const typedSchema = generateValidTestSchema({
-          type: ['array'],
-          items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-        });
-
-        this.result = lib.selectType(typedSchema);
-      });
-
-      it('returns a schema with tuple items and a default additionalItems', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-          additionalItems: this.defaultNestedSchema,
-        });
-      });
-    });
-
-    context('that has a "false" literal items schema', function () {
-      before(function () {
-        const typedSchema = generateValidTestSchema({
-          type: ['array'],
-          items: false,
-        });
-
-        this.result = lib.selectType(typedSchema);
-      });
-
-      it('returns a schema with an empty items tuple and restricted length', function () {
-        expect(this.result).to.eql({
-          type: 'array',
-          items: [],
-          minItems: 0,
-          maxItems: 0,
-          additionalItems: false,
-        });
-      });
-    });
-
-    context('that has a "false" literal items schema and non-zero "minItems"', function () {
-      it('throws an error', function () {
-        const typedSchema = generateValidTestSchema({
-          type: ['array'],
-          items: false,
-          minItems: 1,
-        });
-
-        const testFn = () => {
-          lib.selectType(typedSchema);
-        };
-
-        expect(testFn).to.throw('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
       });
     });
   });
