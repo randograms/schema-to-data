@@ -67,13 +67,22 @@ const selectType = (typedSchema) => {
   };
 
   if (type === 'array') {
-    const itemsDefinition = typedSchema.items || lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
+    const itemsDefinition = typedSchema.items !== undefined ? typedSchema.items : lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
 
-    const itemSchemas = _.castArray(itemsDefinition);
+    const isItemsTheFalseSchema = itemsDefinition === false;
+    const itemSchemas = isItemsTheFalseSchema ? [] : _.castArray(itemsDefinition);
     const additionalItemsSchema = _.isArray(itemsDefinition) ? lib.generateDefaultNestedSchema() : itemsDefinition; // eslint-disable-line no-use-before-define
 
     singleTypedSchema.items = itemSchemas;
     singleTypedSchema.additionalItems = additionalItemsSchema;
+    if (isItemsTheFalseSchema) {
+      if (typedSchema.minItems > 0) {
+        throw Error('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
+      }
+
+      singleTypedSchema.minItems = 0;
+      singleTypedSchema.maxItems = 0;
+    }
   }
 
   return singleTypedSchema;

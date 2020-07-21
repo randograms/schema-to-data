@@ -1,3 +1,5 @@
+const { mapBasicSchemas } = require('./helpers/commonSchemas');
+
 describe('tuple array items schemas', function () {
   testSchema({
     scenario: 'by default',
@@ -21,6 +23,28 @@ describe('tuple array items schemas', function () {
         itSometimesReturns: 'an array with multiple items',
         minItems: 3,
       },
+    ],
+  });
+
+  testSchema({
+    scenario: 'with typeless items',
+    schema: {
+      itAlwaysReturns: 'an array',
+      type: 'array',
+      items: [{}, true],
+    },
+    runCount: 100,
+    itValidatesAgainst: [
+      ...mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+        itSometimesReturns: `an array with ${schemaDescriptor} for the first item`,
+        items: [basicSchema],
+        minItems: 2,
+      })),
+      ...mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+        itSometimesReturns: `an array with ${schemaDescriptor} for the second item`,
+        items: [{}, basicSchema],
+        minItems: 2,
+      })),
     ],
   });
 

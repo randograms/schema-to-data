@@ -143,6 +143,43 @@ describe('selectType', function () {
         });
       });
     });
+
+    context('that has a "false" literal items schema', function () {
+      before(function () {
+        const typedSchema = generateValidTestSchema({
+          type: ['array'],
+          items: false,
+        });
+
+        this.result = lib.selectType(typedSchema);
+      });
+
+      it('returns a schema with an empty items tuple and restricted length', function () {
+        expect(this.result).to.eql({
+          type: 'array',
+          items: [],
+          minItems: 0,
+          maxItems: 0,
+          additionalItems: false,
+        });
+      });
+    });
+
+    context('that has a "false" literal items schema and non-zero "minItems"', function () {
+      it('throws an error', function () {
+        const typedSchema = generateValidTestSchema({
+          type: ['array'],
+          items: false,
+          minItems: 1,
+        });
+
+        const testFn = () => {
+          lib.selectType(typedSchema);
+        };
+
+        expect(testFn).to.throw('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
+      });
+    });
   });
 
   context('with a typedSchema with a malformed type', function () {
