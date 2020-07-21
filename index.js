@@ -66,26 +66,56 @@ const selectType = (typedSchema) => {
     type,
   };
 
-  if (type === 'array') {
-    const itemsDefinition = typedSchema.items !== undefined ? typedSchema.items : lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
+  return singleTypedSchema;
+};
 
-    const isItemsTheFalseSchema = itemsDefinition === false;
-    const itemSchemas = isItemsTheFalseSchema ? [] : _.castArray(itemsDefinition);
-    const additionalItemsSchema = _.isArray(itemsDefinition) ? lib.generateDefaultNestedSchema() : itemsDefinition; // eslint-disable-line no-use-before-define
+const createPseudoArraySchema = (singleTypedSchema) => {
+  const itemsDefinition = singleTypedSchema.items !== undefined
+    ? singleTypedSchema.items
+    : lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
 
-    singleTypedSchema.items = itemSchemas;
-    singleTypedSchema.additionalItems = additionalItemsSchema;
-    if (isItemsTheFalseSchema) {
-      if (typedSchema.minItems > 0) {
-        throw Error('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
-      }
+  const isItemsTheFalseSchema = itemsDefinition === false;
+  const itemSchemas = isItemsTheFalseSchema ? [] : _.castArray(itemsDefinition);
+  const additionalItemsSchema = _.isArray(itemsDefinition) ? lib.generateDefaultNestedSchema() : itemsDefinition; // eslint-disable-line no-use-before-define
 
-      singleTypedSchema.minItems = 0;
-      singleTypedSchema.maxItems = 0;
-    }
+  if (isItemsTheFalseSchema && singleTypedSchema.minItems > 0) {
+    throw Error('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
   }
 
-  return singleTypedSchema;
+  return {
+    items: itemSchemas,
+    additionalItems: additionalItemsSchema,
+    minItems: isItemsTheFalseSchema ? 0 : singleTypedSchema.minItems,
+    maxItems: isItemsTheFalseSchema ? 0 : singleTypedSchema.maxItems,
+  };
+};
+
+const getCoercedItemsSchemas = (pseudoArraySchema) => {
+  const {
+    items,
+    additionalItems,
+    minItems = defaultMinArrayItems,
+    maxItems = (minItems + defaultArrayLengthRange),
+  } = pseudoArraySchema;
+
+  if (maxItems < minItems) {
+    throw Error('Cannot generate data for conflicting "minItems" and "maxItems"');
+  }
+
+  // assumes defaultMaxArrayItems is always greater than items.length (for now)
+  const length = _.random(minItems, maxItems);
+  const needsAdditionalItems = length > items.length;
+
+  const itemSchemas = needsAdditionalItems
+    ? [...items, ..._.times(length - items.length, () => additionalItems)]
+    : items.slice(0, length);
+
+  const coercedItemsSchemas = itemSchemas.map((itemSchema) => {
+    const coercedItemSchema = lib.coerceSchema(itemSchema); // eslint-disable-line no-use-before-define
+    return coercedItemSchema;
+  });
+
+  return coercedItemsSchemas;
 };
 
 const createPseudoObjectSchema = (singleTypedSchema) => {
@@ -222,33 +252,12 @@ const conformSchemaToType = (singleTypedSchema) => {
       };
     }
     case 'array': {
-      // items is guaranteed to be an array
-      // additionalItems is guaranteed to be a schema
-      const {
-        items,
-        additionalItems,
-        minItems = defaultMinArrayItems,
-        maxItems = (minItems + defaultArrayLengthRange),
-      } = singleTypedSchema;
+      const pseudoArraySchema = createPseudoArraySchema(singleTypedSchema);
+      const coercedItemsSchemas = getCoercedItemsSchemas(pseudoArraySchema);
 
-      if (maxItems < minItems) {
-        throw Error('Cannot generate data for conflicting "minItems" and "maxItems"');
-      }
-
-      // assumes defaultMaxArrayItems is always greater than items.length (for now)
-      const length = _.random(minItems, maxItems);
-      const needsAdditionalItems = length > items.length;
-
-      const itemSchemas = needsAdditionalItems
-        ? [...items, ..._.times(length - items.length, () => additionalItems)]
-        : items.slice(0, length);
-      const coercedItemSchemas = itemSchemas.map((itemSchema) => {
-        const coercedItemSchema = lib.coerceSchema(itemSchema); // eslint-disable-line no-use-before-define
-        return coercedItemSchema;
-      });
       return {
         ...conformedSchema,
-        items: coercedItemSchemas,
+        items: coercedItemsSchemas,
       };
     }
     case 'object': {
@@ -358,6 +367,8 @@ const lib = {
   coerceTypes,
   generateDefaultNestedSchema,
   selectType,
+  createPseudoArraySchema,
+  getCoercedItemsSchemas,
   createPseudoObjectSchema,
   guaranteeRequiredPropertiesHaveSchemas,
   generateAdditionalPropertyName,
