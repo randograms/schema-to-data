@@ -157,8 +157,11 @@ const fillOutPropertiesToGenerate = (pseudoObjectSchema) => {
 
   while (propertyNamesToGenerate.length < size) {
     const additionalPropertyName = lib.generateAdditionalPropertyName(); // eslint-disable-line no-use-before-define
-    propertiesSchemas[additionalPropertyName] = additionalPropertiesSchema; // eslint-disable-line no-use-before-define
-    propertyNamesToGenerate.push(additionalPropertyName);
+
+    if (propertiesSchemas[additionalPropertyName] === undefined) {
+      propertiesSchemas[additionalPropertyName] = additionalPropertiesSchema; // eslint-disable-line no-use-before-define
+      propertyNamesToGenerate.push(additionalPropertyName);
+    }
   }
 };
 
