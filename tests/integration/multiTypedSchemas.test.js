@@ -14,6 +14,19 @@ describe('multi-typed schemas', function () {
   });
 
   testSchema({
+    scenario: 'with a "true" literal schema',
+    testBooleanLiteral: {
+      schema: true,
+      itAlwaysReturns: 'data',
+    },
+    runCount: 30,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `${schemaDescriptor}`,
+      ...basicSchema,
+    })),
+  });
+
+  testSchema({
     scenario: 'with one type in an array',
     schema: {
       itAlwaysReturns: 'data of the provided type',

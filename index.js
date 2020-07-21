@@ -13,6 +13,10 @@ const defaultPotentialExtraProperties = 3;
 const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
+  if (schema === false) {
+    throw Error('Cannot generate data for a "false" literal schema');
+  }
+
   /* eslint-disable no-use-before-define */
   const typedSchema = coerceTypes(schema);
   const singleTypedSchema = selectType(typedSchema);

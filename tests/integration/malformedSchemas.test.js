@@ -79,4 +79,12 @@ describe('malformed schemas', function () {
       required: ['property1', 'property2', 'property3'],
     },
   });
+
+  testSchema({
+    scenario: 'with a "false" literal schema',
+    testBooleanLiteral: {
+      schema: false,
+      itThrowsTheError: 'Cannot generate data for a "false" literal schema',
+    },
+  });
 });
