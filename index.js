@@ -130,7 +130,9 @@ const guaranteeRequiredPropertiesHaveSchemas = (pseudoObjectSchema) => {
   } = pseudoObjectSchema;
 
   propertyNamesToGenerate.forEach((propertyName) => {
-    propertiesSchemas[propertyName] = propertiesSchemas[propertyName] || additionalPropertiesSchema;
+    propertiesSchemas[propertyName] = propertiesSchemas[propertyName] !== undefined
+      ? propertiesSchemas[propertyName]
+      : additionalPropertiesSchema;
   });
 };
 

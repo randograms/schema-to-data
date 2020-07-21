@@ -106,4 +106,14 @@ describe('malformed schemas', function () {
       items: [{}, false],
     },
   });
+
+  testSchema({
+    scenario: 'with an object schema with a false literal property schema',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for a "false" literal schema',
+      type: 'object',
+      properties: { property1: false },
+      required: ['property1'],
+    },
+  });
 });
