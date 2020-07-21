@@ -103,7 +103,8 @@ describe('malformed schemas', function () {
     schema: {
       itThrowsTheError: 'Cannot generate data for a "false" literal schema',
       type: 'array',
-      items: [{}, false],
+      items: [false],
+      minItems: 1,
     },
   });
 
