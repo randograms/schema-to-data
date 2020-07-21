@@ -1,4 +1,6 @@
 {
+  "name": "schema-to-data",
+  "version": "0.0.0",
   "scripts": {
     "build:flowchart": "node buildFlowchart",
     "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml",
