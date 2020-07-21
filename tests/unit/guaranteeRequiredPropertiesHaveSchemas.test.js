@@ -8,8 +8,10 @@ describe('guaranteeRequiredPropertiesHaveSchemas', function () {
     this.pseudoObjectSchema = {
       propertiesSchemas: {
         property2: this.propertySchema2,
+        property4: true,
+        property5: false,
       },
-      propertyNamesToGenerate: ['property1', 'property2', 'property3'],
+      propertyNamesToGenerate: ['property1', 'property2', 'property3', 'property4', 'property5'],
       shuffledOptionalPropertyNames: [],
       additionalPropertiesSchema: this.additionalPropertiesSchema,
       minProperties: Symbol('minProperties'),
@@ -28,6 +30,8 @@ describe('guaranteeRequiredPropertiesHaveSchemas', function () {
       property1: this.additionalPropertiesSchema,
       property2: this.propertySchema2,
       property3: this.additionalPropertiesSchema,
+      property4: true,
+      property5: false,
     });
   });
 });

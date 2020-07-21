@@ -122,6 +122,7 @@ describe('object schemas', function () {
       minProperties: 2,
       maxProperties: 6,
     },
+    runCount: 50,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'an object with "minProperties" properties',

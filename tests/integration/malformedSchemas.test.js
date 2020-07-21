@@ -79,4 +79,42 @@ describe('malformed schemas', function () {
       required: ['property1', 'property2', 'property3'],
     },
   });
+
+  testSchema({
+    scenario: 'with a "false" literal schema',
+    testBooleanLiteral: {
+      schema: false,
+      itThrowsTheError: 'Cannot generate data for a "false" literal schema',
+    },
+  });
+
+  testSchema({
+    scenario: 'with an array schema with a "false" literal items schema and non-zero "minItems"',
+    schema: {
+      itThrowsTheError: 'Cannot generate array items for "false" literal items schema and non-zero "minItems"',
+      type: 'array',
+      items: false,
+      minItems: 1,
+    },
+  });
+
+  testSchema({
+    scenario: 'with an array schema with a "false" literal item tuple schema',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for a "false" literal schema',
+      type: 'array',
+      items: [false],
+      minItems: 1,
+    },
+  });
+
+  testSchema({
+    scenario: 'with an object schema with a false literal property schema',
+    schema: {
+      itThrowsTheError: 'Cannot generate data for a "false" literal schema',
+      type: 'object',
+      properties: { property1: false },
+      required: ['property1'],
+    },
+  });
 });

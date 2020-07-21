@@ -18,13 +18,26 @@ describe('object properties schemas', function () {
   });
 
   testSchema({
-    scenario: 'with typeless optional properties',
+    scenario: 'with typeless optional properties (object literal property schema)',
     schema: {
       itAlwaysReturns: 'an object',
       type: 'object',
-      properties: {
-        property1: {},
-      },
+      properties: { property1: {} },
+    },
+    runCount: 30,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an object with ${schemaDescriptor} property`,
+      properties: { property1: basicSchema },
+      required: ['property1'],
+    })),
+  });
+
+  testSchema({
+    scenario: 'with typeless optional properties (boolean literal property schema)',
+    schema: {
+      itAlwaysReturns: 'an object',
+      type: 'object',
+      properties: { property1: true },
     },
     runCount: 30,
     itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
@@ -58,7 +71,7 @@ describe('object properties schemas', function () {
   });
 
   testSchema({
-    scenario: 'with typeless required properties',
+    scenario: 'with typeless required properties (no property schema)',
     schema: {
       itAlwaysReturns: 'an object with the required properties',
       type: 'object',
@@ -67,7 +80,39 @@ describe('object properties schemas', function () {
     runCount: 50,
     itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
       itSometimesReturns: `an object with ${schemaDescriptor} property`,
-      properties: { property: basicSchema },
+      properties: { property1: basicSchema },
+      required: ['property1'],
+    })),
+  });
+
+  testSchema({
+    scenario: 'with typeless required properties (object literal property schema)',
+    schema: {
+      itAlwaysReturns: 'an object with the required properties',
+      type: 'object',
+      properties: { property1: {} },
+      required: ['property1'],
+    },
+    runCount: 50,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an object with ${schemaDescriptor} property`,
+      properties: { property1: basicSchema },
+      required: ['property1'],
+    })),
+  });
+
+  testSchema({
+    scenario: 'with typeless required properties (boolean literal property schema)',
+    schema: {
+      itAlwaysReturns: 'an object with the required properties',
+      type: 'object',
+      properties: { property1: true },
+      required: ['property1'],
+    },
+    runCount: 50,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an object with ${schemaDescriptor} property`,
+      properties: { property1: basicSchema },
       required: ['property1'],
     })),
   });

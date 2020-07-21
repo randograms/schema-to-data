@@ -13,6 +13,10 @@ const defaultPotentialExtraProperties = 3;
 const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
+  if (schema === false) {
+    throw Error('Cannot generate data for a "false" literal schema');
+  }
+
   /* eslint-disable no-use-before-define */
   const typedSchema = coerceTypes(schema);
   const singleTypedSchema = selectType(typedSchema);
@@ -63,13 +67,22 @@ const selectType = (typedSchema) => {
   };
 
   if (type === 'array') {
-    const itemsDefinition = typedSchema.items || lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
+    const itemsDefinition = typedSchema.items !== undefined ? typedSchema.items : lib.generateDefaultNestedSchema(); // eslint-disable-line no-use-before-define
 
-    const itemSchemas = _.castArray(itemsDefinition);
+    const isItemsTheFalseSchema = itemsDefinition === false;
+    const itemSchemas = isItemsTheFalseSchema ? [] : _.castArray(itemsDefinition);
     const additionalItemsSchema = _.isArray(itemsDefinition) ? lib.generateDefaultNestedSchema() : itemsDefinition; // eslint-disable-line no-use-before-define
 
     singleTypedSchema.items = itemSchemas;
     singleTypedSchema.additionalItems = additionalItemsSchema;
+    if (isItemsTheFalseSchema) {
+      if (typedSchema.minItems > 0) {
+        throw Error('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
+      }
+
+      singleTypedSchema.minItems = 0;
+      singleTypedSchema.maxItems = 0;
+    }
   }
 
   return singleTypedSchema;
@@ -117,7 +130,9 @@ const guaranteeRequiredPropertiesHaveSchemas = (pseudoObjectSchema) => {
   } = pseudoObjectSchema;
 
   propertyNamesToGenerate.forEach((propertyName) => {
-    propertiesSchemas[propertyName] = propertiesSchemas[propertyName] || additionalPropertiesSchema;
+    propertiesSchemas[propertyName] = propertiesSchemas[propertyName] !== undefined
+      ? propertiesSchemas[propertyName]
+      : additionalPropertiesSchema;
   });
 };
 
@@ -142,8 +157,11 @@ const fillOutPropertiesToGenerate = (pseudoObjectSchema) => {
 
   while (propertyNamesToGenerate.length < size) {
     const additionalPropertyName = lib.generateAdditionalPropertyName(); // eslint-disable-line no-use-before-define
-    propertiesSchemas[additionalPropertyName] = additionalPropertiesSchema; // eslint-disable-line no-use-before-define
-    propertyNamesToGenerate.push(additionalPropertyName);
+
+    if (propertiesSchemas[additionalPropertyName] === undefined) {
+      propertiesSchemas[additionalPropertyName] = additionalPropertiesSchema; // eslint-disable-line no-use-before-define
+      propertyNamesToGenerate.push(additionalPropertyName);
+    }
   }
 };
 

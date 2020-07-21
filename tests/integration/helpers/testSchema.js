@@ -15,7 +15,8 @@ const defaultRunCount = parseInt(process.env.RUN_COUNT || 10, 10);
 
 const testSchema = ({
   scenario,
-  schema: inputSchema,
+  schema: normalSchemaConfig,
+  testBooleanLiteral: booleanSchemaConfig,
   runCount = defaultRunCount,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   alternateBaseValidationSchema = null, // use if the edgeCaseValidator still throws an error
@@ -29,9 +30,19 @@ const testSchema = ({
 
   const hasScenario = scenario !== undefined;
 
-  const hasInputSchema = inputSchema !== undefined;
-  const expectedError = hasInputSchema ? inputSchema.itThrowsTheError || null : null;
-  const returnDescriptor = hasInputSchema ? inputSchema.itAlwaysReturns || null : null;
+  const isNormalTest = normalSchemaConfig !== undefined;
+  const isBooleanSchemaTest = booleanSchemaConfig !== undefined;
+  const hasOneTestConfig = (isNormalTest && !isBooleanSchemaTest) || (!isNormalTest && isBooleanSchemaTest);
+
+  let testConfig = null;
+  let schemaToTest = null;
+  if (hasOneTestConfig) {
+    testConfig = isNormalTest ? normalSchemaConfig : booleanSchemaConfig;
+    schemaToTest = isNormalTest ? normalSchemaConfig : booleanSchemaConfig.schema;
+  }
+
+  const expectedError = hasOneTestConfig ? testConfig.itThrowsTheError || null : null;
+  const returnDescriptor = hasOneTestConfig ? testConfig.itAlwaysReturns || null : null;
   const isValidationTest = returnDescriptor !== null && expectedError === null;
   const isErrorTest = returnDescriptor === null && expectedError !== null;
   const hasBaseTestAnnotation = isValidationTest || isErrorTest;
@@ -54,16 +65,25 @@ const testSchema = ({
       throw Error('"testSchema" must be provided a "scenario"');
     }
 
-    if (!hasInputSchema) {
-      throw Error('"testSchema" must be provided a "schema"');
+    if (!hasOneTestConfig) {
+      throw Error('"testSchema" must be provided either "schema" or "testBooleanLiteral"');
     }
 
-    if (!hasBaseTestAnnotation) {
+    if (isNormalTest && !hasBaseTestAnnotation) {
       throw Error('"schema" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
     }
 
+    if (isBooleanSchemaTest && schemaToTest !== true && schemaToTest !== false) {
+      throw Error('"testBooleanLiteral" must have boolean property "schema"');
+    }
+
+    if (isBooleanSchemaTest && !hasBaseTestAnnotation) {
+      // eslint-disable-next-line max-len
+      throw Error('"testBooleanLiteral" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
+    }
+
     if (ignoreSchemaValidation) {
-      const isSchemaValid = regularValidator.validateSchema(inputSchema);
+      const isSchemaValid = regularValidator.validateSchema(schemaToTest);
 
       if (isSchemaValid) {
         throw Error('Expected "schema" to not be a valid json-schema');
@@ -93,7 +113,7 @@ const testSchema = ({
   const itThrowsTheExpectedError = () => {
     it(`throws "${expectedError}"`, function () {
       const testSchemaToData = () => {
-        const mockData = schemaToData(inputSchema);
+        const mockData = schemaToData(schemaToTest);
 
         if (debug) {
           console.log('    Expected error, but got data:', JSON.stringify(mockData, null)); // eslint-disable-line no-console
@@ -162,7 +182,7 @@ const testSchema = ({
           let mockData;
           let errors = null;
           try {
-            mockData = schemaToData(inputSchema);
+            mockData = schemaToData(schemaToTest);
           } catch (error) {
             errors = error.message;
           }
@@ -190,7 +210,7 @@ const testSchema = ({
 
   const itAlwaysReturnsValidData = () => {
     it(`always returns ${returnDescriptor}`, function () {
-      const schema = alternateBaseValidationSchema === null ? inputSchema : alternateBaseValidationSchema;
+      const schema = alternateBaseValidationSchema === null ? schemaToTest : alternateBaseValidationSchema;
       const validator = ignoreSchemaValidation ? edgeCaseValidator : regularValidator;
 
       reportResults({
@@ -229,10 +249,10 @@ const testSchema = ({
     before(reportInvalidTestSetup);
     before(function () {
       if (debug) {
-        const singleLineSchema = JSON.stringify(inputSchema, ' ');
+        const singleLineSchema = JSON.stringify(schemaToTest, ' ');
         const stringifiedSchema = singleLineSchema.length < 60
           ? singleLineSchema
-          : JSON.stringify(inputSchema, null, 2);
+          : JSON.stringify(schemaToTest, null, 2);
 
         const [firstLine, ...otherLines] = stringifiedSchema.split('\n');
         const formattedSchema = [

@@ -2,11 +2,25 @@ const { mapBasicSchemas } = require('./helpers/commonSchemas');
 
 describe('list array items schemas', function () {
   testSchema({
-    scenario: 'with typeless items',
+    scenario: 'with typeless items (object literal schema)',
     schema: {
       itAlwaysReturns: 'an array',
       type: 'array',
       items: {},
+    },
+    runCount: 30,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `an array with ${schemaDescriptor}`,
+      contains: basicSchema,
+    })),
+  });
+
+  testSchema({
+    scenario: 'with typeless items (boolean literal schema)',
+    schema: {
+      itAlwaysReturns: 'an array',
+      type: 'array',
+      items: true,
     },
     runCount: 30,
     itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
@@ -41,5 +55,14 @@ describe('list array items schemas', function () {
         contains: { type: 'boolean' },
       },
     ],
+  });
+
+  testSchema({
+    scenario: 'with a "false" literal items schema',
+    schema: {
+      itAlwaysReturns: 'an empty array',
+      type: 'array',
+      items: false,
+    },
   });
 });
