@@ -6,7 +6,7 @@ Straightforward (and soon to be well-documented) algorithm for generating mock d
 
 ## Installation
 
-```
+```shell
 npm install --save-dev https://github.com/randograms/schema-to-data
 ```
 
@@ -98,30 +98,30 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 
 ### Goals
 
-  - Provide a clear algorithm for generating mock data given a json-schema
-    - Maintain separation of concerns via thorough unit tests
-    - Provide documentation for the internals of the library at both a high level and a more granular level
-    - Maintain high level integration tests
-    - Maintain integration regression tests for found issues
-  - Provide clear expectations based on json-schema draft versions
-    - Limit extraneous default functionality that is not stated in the json-schema specification
-    - Be open to configurable quality of life enhancements
-    - Separate supported behavior based on json-schema draft
+- Provide a clear algorithm for generating mock data given a json-schema
+  - Maintain separation of concerns via thorough unit tests
+  - Provide documentation for the internals of the library at both a high level and a more granular level
+  - Maintain high level integration tests
+  - Maintain integration regression tests for found issues
+- Provide clear expectations based on json-schema draft versions
+  - Limit extraneous default functionality that is not stated in the json-schema specification
+  - Be open to configurable quality of life enhancements
+  - Separate supported behavior based on json-schema draft
 
 ### Out of Scope Concerns
 
-  - Schema validation
-    - *schema-to-data* should ignore any malformed json-schema keywords and will ignore any custom json-schema keywords
-    - *schema-to-data* will always attempt to generate valid data until it is forced to throw an exception
-    - Consider using [Another JSON Schema Validator](https://ajv.js.org/) for schema validation as it is well-documented and thoroughly versed in the nuances of json-schema
-    - *schema-to-data* officially uses [Another JSON Schema Validator](https://ajv.js.org/) for its tests
-  - Extreme edge cases
-    - Validating data against a json-schema is much easier than generating data, therefore edge cases will only be handled if a solution can fit cleanly into the algorithm
-    - Consider using [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) instead of *schema-to-data* as it provides more flexibility when working with complex schemas
-  - Seeded "random" data
-    - *schema-to-data* does not provide a means to seed random data even if some of the underlying libraries provide such functionality
-  - Exposing internal dependencies
-    - *schema-to-data* is not strictly tied to any underlying library for data generation and will not expose any underlying library
+- Schema validation
+  - *schema-to-data* should ignore any malformed json-schema keywords and will ignore any custom json-schema keywords
+  - *schema-to-data* will always attempt to generate valid data until it is forced to throw an exception
+  - Consider using [Another JSON Schema Validator](https://ajv.js.org/) for schema validation as it is well-documented and thoroughly versed in the nuances of json-schema
+  - *schema-to-data* officially uses [Another JSON Schema Validator](https://ajv.js.org/) for its tests
+- Extreme edge cases
+  - Validating data against a json-schema is much easier than generating data, therefore edge cases will only be handled if a solution can fit cleanly into the algorithm
+  - Consider using [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) instead of *schema-to-data* as it provides more flexibility when working with complex schemas
+- Seeded "random" data
+  - *schema-to-data* does not provide a means to seed random data even if some of the underlying libraries provide such functionality
+- Exposing internal dependencies
+  - *schema-to-data* is not strictly tied to any underlying library for data generation and will not expose any underlying library
 
 ## Developer Guide
 
@@ -133,7 +133,7 @@ The flow chart explains the algorithm at a high level with pseudo code. There sh
 
 Build the flow chart, then check the `build/` folder
 
-```
+```shell
 npm run build:flowchart
 ```
 
@@ -141,7 +141,7 @@ npm run build:flowchart
 
 The flow chart is written with [PlantUml](https://plantuml.com/). Build the flow chart in watch mode and then update `flowchart.puml`
 
-```
+```shell
 npm run build:flowchart:watch
 ```
 
@@ -153,7 +153,7 @@ The majority of tests will create a set of results and make assertions on the se
 
 Tests the granular responsibilites of the algorithm. Functions under test will usually take a pseudo-schema and return a coerced pseudo-schema.
 
-```
+```shell
 npm run test:unit
 ```
 
@@ -161,7 +161,7 @@ npm run test:unit
 
 Tests the *schemaToData* function as a whole. All tests use the `testSchema` integration helper which needs it's own documentation. Tests should focus on as few keywords as possible and assertion statements should be as limited in scope as possible.
 
-```
+```shell
 npm run test:integration
 ```
 
