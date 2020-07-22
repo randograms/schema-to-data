@@ -125,21 +125,21 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 
 ## Developer Guide
 
-### The Flow Chart
+### The Flowchart
 
-**Note**: The flow chart is currently out of date as it was created before the code
+**Note**: The flowchart is currently out of date as it was created before the code
 
-The flow chart explains the algorithm at a high level with pseudo code. There should be a correspondence between the flow chart and the actual implementation.
+The flowchart explains the algorithm at a high level with pseudo code. There should be a correspondence between the flowchart and the actual implementation.
 
-Build the flow chart, then check the `build/` folder
+Build the flowchart, then check the `build/` folder
 
 ```shell
 npm run build:flowchart
 ```
 
-#### Updating the Flow Chart
+#### Updating the Flowchart
 
-The flow chart is written with [PlantUml](https://plantuml.com/). Build the flow chart in watch mode and then update `flowchart.puml`
+The flowchart is written with [PlantUml](https://plantuml.com/). Build the flowchart in watch mode and then update `flowchart.puml`
 
 ```shell
 npm run build:flowchart:watch
