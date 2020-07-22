@@ -125,4 +125,4 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 
 ## More Docs
 
-[Developer Guide](./docs/developerGuide)
+[Developer Guide](./docs/developerGuide.md)
