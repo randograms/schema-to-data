@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "build:flowchart": "node buildFlowchart",
-    "build:flowchart:watch": "nodemon buildFlowchart --watch flowchart.puml",
+    "build:flowchart:watch": "nodemon buildFlowchart.js --watch flowchart.puml",
     "lint": "npm run lint:md && npm run lint:js",
     "lint:js": "eslint . --color",
     "lint:md": "markdownlint --ignore node_modules/ .",

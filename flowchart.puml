@@ -1,7 +1,36 @@
 @startuml Schema to Data
 
-skinparam shadowing false
+!define dark #222
+!define lessDark #777
+!define lessLight #FEFEFE
+!define light #FFF
+!define primary #1C5D99
+!define secondary #639FAB
+!define accent #BBCDE5
 
+skinparam shadowing false
+skinparam FontColor dark
+
+skinparam Activity {
+  BackgroundColor light
+  BorderColor primary
+}
+
+skinparam ActivityDiamond {
+  BackgroundColor light
+  BorderColor secondary
+}
+
+skinparam Arrow {
+  Color lessDark
+  FontColor primary
+}
+
+skinparam Note {
+  BackgroundColor lessLight
+  BorderColor accent
+  FontColor lessDark
+}
 
 start
 note right: schemaToData(schema)
