@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const faker = require('faker');
+const { defaultMocker } = require('./lib/mocker');
 
 // TODO: allow these to be configured
 const defaultMinStringLength = 0;
@@ -339,8 +340,6 @@ const generateNumber = (numberSchema) => {
   return _.random(minimum, maximum, isDecimal);
 };
 
-const generateBoolean = () => faker.random.boolean();
-
 const generateArray = (arraySchema) => {
   // all array schemas will have been coerced to a tuple array schema
   const { items } = arraySchema;
@@ -362,6 +361,7 @@ const schemaToData = (schema) => {
   return generatedData;
 };
 
+// this lib object is deprecated and will be replaced with the Mocker api
 const lib = {
   coerceSchema,
   coerceTypes,
@@ -378,9 +378,11 @@ const lib = {
   generateData,
   generateString,
   generateNumber,
-  generateBoolean,
   generateArray,
   generateObject,
+
+  // these functions are temporary since the integration tests depend on them
+  generateBoolean: () => defaultMocker.generateBoolean(),
 };
 
 module.exports = {
