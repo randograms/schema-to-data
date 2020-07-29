@@ -276,38 +276,9 @@ const conformSchemaToType = (singleTypedSchema) => {
   }
 };
 
-const generateData = (singleTypedSchema) => {
-  /* eslint-disable no-use-before-define */
-  switch (singleTypedSchema.type) {
-    case 'null': return null;
-    case 'string': return lib.generateString(singleTypedSchema);
-    case 'decimal': return lib.generateNumber(singleTypedSchema);
-    case 'integer': return lib.generateNumber(singleTypedSchema);
-    case 'boolean': return lib.generateBoolean();
-    case 'array': return lib.generateArray(singleTypedSchema);
-    case 'object': return lib.generateObject(singleTypedSchema);
-    default: throw Error(`Expected schema to have a known type but got "${singleTypedSchema.type}"`);
-  }
-  /* eslint-enable no-use-before-define */
-};
-
-const generateArray = (arraySchema) => {
-  // all array schemas will have been coerced to a tuple array schema
-  const { items } = arraySchema;
-  return items.map(lib.generateData); // eslint-disable-line no-use-before-define
-};
-
-const generateObject = (objectSchema) => {
-  // "properties" will have been coerced to only have properties that should be generated
-  const { properties } = objectSchema;
-
-  const mockObject = _.mapValues(properties, lib.generateData); // eslint-disable-line no-use-before-define
-  return mockObject;
-};
-
 const schemaToData = (schema) => {
   const coercedSchema = coerceSchema(schema);
-  const generatedData = generateData(coercedSchema);
+  const generatedData = defaultMocker.generateData(coercedSchema);
 
   return generatedData;
 };
@@ -326,14 +297,6 @@ const lib = {
   fillOutPropertiesToGenerate,
   getCoercedPropertiesSchemas,
   conformSchemaToType,
-  generateData,
-  generateArray,
-  generateObject,
-
-  // these functions are temporary since the integration tests depend on them
-  generateBoolean: () => defaultMocker.generateBoolean(),
-  generateNumber: (schema) => defaultMocker.generateNumber(schema),
-  generateString: (schema) => defaultMocker.generateString(schema),
 };
 
 module.exports = {

@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -8,7 +8,7 @@ describe('generateArray', function () {
   context('when "items" is empty', function () {
     it('returns an empty array', function () {
       const schema = generateValidTestSchema();
-      expect(lib.generateArray(schema)).to.eql([]);
+      expect(defaultMocker.generateArray(schema)).to.eql([]);
     });
   });
 
@@ -22,7 +22,7 @@ describe('generateArray', function () {
       this.generatedData2 = Symbol('generatedData2');
       this.generatedData3 = Symbol('generatedData3');
 
-      const stub = sandbox.stub(lib, 'generateData');
+      const stub = sandbox.stub(defaultMocker, 'generateData');
       stub.withArgs(this.itemSchema1).returns(this.generatedData1);
       stub.withArgs(this.itemSchema2).returns(this.generatedData2);
       stub.withArgs(this.itemSchema3).returns(this.generatedData3);
@@ -35,7 +35,7 @@ describe('generateArray', function () {
         ],
       });
 
-      this.result = lib.generateArray(schema);
+      this.result = defaultMocker.generateArray(schema);
     });
     after(sandbox.restore);
 
