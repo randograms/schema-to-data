@@ -291,55 +291,6 @@ const generateData = (singleTypedSchema) => {
   /* eslint-enable no-use-before-define */
 };
 
-const generateString = (stringSchema) => {
-  // minLength and maxLength will be guaranteed to exist
-  const { minLength, maxLength } = stringSchema;
-
-  if (maxLength < minLength) {
-    throw Error('Cannot generate data for conflicting "minLength" and "maxLength"');
-  }
-
-  const stringLength = _.random(minLength, maxLength);
-
-  let generatedLength = 0;
-  const randomWords = [];
-
-  while (generatedLength < stringLength) {
-    let randomWord = faker.lorem.word();
-    generatedLength += randomWord.length;
-
-    if (generatedLength > stringLength) {
-      const numCharsToRemove = generatedLength - stringLength;
-      const numCharsToKeep = randomWord.length - numCharsToRemove;
-
-      randomWord = randomWord.substr(0, numCharsToKeep);
-      generatedLength -= numCharsToRemove;
-    }
-
-    randomWords.push(randomWord);
-  }
-
-  const randomString = randomWords.join('');
-  return randomString;
-};
-
-const generateNumber = (numberSchema) => {
-  // schema is guaranteed to have a "decimal" or "integer" type
-  // minimum and maximum are guaranteed to exist
-  const {
-    type,
-    minimum,
-    maximum,
-  } = numberSchema;
-  const isDecimal = type === 'decimal';
-
-  if (maximum < minimum) {
-    throw Error('Cannot generate data for conflicting "minimum" and "maximum"');
-  }
-
-  return _.random(minimum, maximum, isDecimal);
-};
-
 const generateArray = (arraySchema) => {
   // all array schemas will have been coerced to a tuple array schema
   const { items } = arraySchema;
@@ -376,13 +327,13 @@ const lib = {
   getCoercedPropertiesSchemas,
   conformSchemaToType,
   generateData,
-  generateString,
-  generateNumber,
   generateArray,
   generateObject,
 
   // these functions are temporary since the integration tests depend on them
   generateBoolean: () => defaultMocker.generateBoolean(),
+  generateNumber: (schema) => defaultMocker.generateNumber(schema),
+  generateString: (schema) => defaultMocker.generateString(schema),
 };
 
 module.exports = {

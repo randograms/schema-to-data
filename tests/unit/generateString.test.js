@@ -1,10 +1,10 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 describe('generateString', function () {
   context('by default', function () {
     before(function () {
-      this.results = _.times(50, () => lib.generateString({
+      this.results = _.times(50, () => defaultMocker.generateString({
         type: 'string',
         minLength: 5,
         maxLength: 10,
@@ -35,7 +35,7 @@ describe('generateString', function () {
   context('when minLength and maxLength conflict', function () {
     it('throws an error', function () {
       const testFn = () => {
-        lib.generateString({
+        defaultMocker.generateString({
           type: 'string',
           minLength: 10,
           maxLength: 3,
