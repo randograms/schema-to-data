@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const generateValidTestSchema = ({ type = '', ...additionalSchemaKeys } = {}) => ({
   type,
@@ -11,7 +11,7 @@ describe('conformSchemaToType', function () {
     context('by default', function () {
       it('returns a schema with relevant keys', function () {
         const singleTypedSchema = generateValidTestSchema({ type: 'string' });
-        expect(lib.conformSchemaToType(singleTypedSchema)).to.eql({
+        expect(defaultMocker.conformSchemaToType(singleTypedSchema)).to.eql({
           type: 'string',
           minLength: 0,
           maxLength: 20,
@@ -26,7 +26,7 @@ describe('conformSchemaToType', function () {
           minLength: 1000,
         });
 
-        this.result = lib.conformSchemaToType(typedSchema);
+        this.result = defaultMocker.conformSchemaToType(typedSchema);
       });
 
       it('adjusts the maxLength', function () {
@@ -43,7 +43,7 @@ describe('conformSchemaToType', function () {
       context('by default', function () {
         it('returns a schema with relevant keys', function () {
           const singleTypedSchema = generateValidTestSchema({ type });
-          expect(lib.conformSchemaToType(singleTypedSchema)).to.eql({
+          expect(defaultMocker.conformSchemaToType(singleTypedSchema)).to.eql({
             type,
             minimum: -100000,
             maximum: 100000,
@@ -58,7 +58,7 @@ describe('conformSchemaToType', function () {
             minimum: 200000,
           });
 
-          this.result = lib.conformSchemaToType(schema);
+          this.result = defaultMocker.conformSchemaToType(schema);
         });
 
         it('adjusts the maximum', function () {
@@ -76,7 +76,7 @@ describe('conformSchemaToType', function () {
             maximum: -200000,
           });
 
-          this.result = lib.conformSchemaToType(schema);
+          this.result = defaultMocker.conformSchemaToType(schema);
         });
 
         it('adjusts the minimum', function () {
@@ -103,7 +103,7 @@ describe('conformSchemaToType', function () {
             maximum: 2.1,
           });
 
-          this.result = lib.conformSchemaToType(schema);
+          this.result = defaultMocker.conformSchemaToType(schema);
         });
 
         it('adjusts them to be integers', function () {
@@ -124,7 +124,7 @@ describe('conformSchemaToType', function () {
         unsupportedSchemaKey: Symbol('unsupportedSchemaKey'),
       });
 
-      const result = lib.conformSchemaToType(singleTypedSchema);
+      const result = defaultMocker.conformSchemaToType(singleTypedSchema);
       expect(result).to.not.equal(singleTypedSchema);
       expect(result).to.eql({ type: 'whoops' });
     });

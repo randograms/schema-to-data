@@ -1,10 +1,10 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 describe('coerceSchema', function () {
   context('with a "false" literal schema', function () {
     it('throws an error', function () {
       const testFn = () => {
-        lib.coerceSchema(false);
+        defaultMocker.coerceSchema(false);
       };
 
       expect(testFn).to.throw('Cannot generate data for a "false" literal schema');

@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -30,7 +30,7 @@ describe('fillOutPropertiesToGenerate', function () {
         maxProperties: 4,
       };
 
-      this.result = lib.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
     });
 
     it('returns undefined', function () {
@@ -53,8 +53,8 @@ describe('fillOutPropertiesToGenerate', function () {
 
   context('when the object size is greater than the total number of required and optional properties', function () {
     before(function () {
-      sandbox.stub(lib, 'generateAdditionalPropertyName').callsFake(() => (
-        `additionalProperty${lib.generateAdditionalPropertyName.callCount}`
+      sandbox.stub(defaultMocker, 'generateAdditionalPropertyName').callsFake(() => (
+        `additionalProperty${defaultMocker.generateAdditionalPropertyName.callCount}`
       ));
 
       this.pseudoObjectSchema = {
@@ -70,7 +70,7 @@ describe('fillOutPropertiesToGenerate', function () {
         maxProperties: 5,
       };
 
-      this.result = lib.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
     });
     after(sandbox.restore);
 
@@ -106,7 +106,7 @@ describe('fillOutPropertiesToGenerate', function () {
   // regression
   context('when a duplicate additional property name is generated', function () {
     before(function () {
-      const stub = sandbox.stub(lib, 'generateAdditionalPropertyName');
+      const stub = sandbox.stub(defaultMocker, 'generateAdditionalPropertyName');
       stub.onFirstCall().returns('additionalProperty1');
       stub.onSecondCall().returns('additionalProperty1');
       stub.onThirdCall().returns('additionalProperty2');
@@ -123,7 +123,7 @@ describe('fillOutPropertiesToGenerate', function () {
         maxProperties: 4,
       };
 
-      this.result = lib.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
     });
     after(sandbox.restore);
 
@@ -154,8 +154,8 @@ describe('fillOutPropertiesToGenerate', function () {
     this.retries(10);
 
     beforeEach(function () {
-      sandbox.stub(lib, 'generateAdditionalPropertyName').callsFake(() => (
-        `additionalProperty${lib.generateAdditionalPropertyName.callCount}`
+      sandbox.stub(defaultMocker, 'generateAdditionalPropertyName').callsFake(() => (
+        `additionalProperty${defaultMocker.generateAdditionalPropertyName.callCount}`
       ));
 
       this.pseudoObjectSchema = {
@@ -171,7 +171,7 @@ describe('fillOutPropertiesToGenerate', function () {
         maxProperties: 4,
       };
 
-      lib.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
 
       this.assertionResult = _.pick(this.pseudoObjectSchema, [
         'propertiesSchemas',

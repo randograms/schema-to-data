@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -14,7 +14,7 @@ describe('getCoercedPropertiesSchemas', function () {
     this.coercedPropertySchema3 = Symbol('propertySchema3');
     this.coercedPropertySchema4 = Symbol('propertySchema4');
 
-    const stub = sandbox.stub(lib, 'coerceSchema');
+    const stub = sandbox.stub(defaultMocker, 'coerceSchema');
     stub.withArgs(this.propertySchema1).returns(this.coercedPropertySchema1);
     stub.withArgs(this.propertySchema2).returns(this.coercedPropertySchema2);
     stub.withArgs(this.propertySchema3).returns(this.coercedPropertySchema3);
@@ -33,7 +33,7 @@ describe('getCoercedPropertiesSchemas', function () {
         maxProperties: Symbol('maxProperties'),
       };
 
-      this.result = lib.getCoercedPropertiesSchemas(pseudoObjectSchema);
+      this.result = defaultMocker.getCoercedPropertiesSchemas(pseudoObjectSchema);
     });
 
     it('returns an empty object', function () {
@@ -57,7 +57,7 @@ describe('getCoercedPropertiesSchemas', function () {
         maxProperties: Symbol('maxProperties'),
       };
 
-      this.result = lib.getCoercedPropertiesSchemas(pseudoObjectSchema);
+      this.result = defaultMocker.getCoercedPropertiesSchemas(pseudoObjectSchema);
     });
 
     it('returns coercedPropertiesSchemas for just the properties that need to be generated', function () {

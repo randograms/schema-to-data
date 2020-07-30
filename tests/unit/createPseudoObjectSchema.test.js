@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -12,14 +12,14 @@ describe('createPseudoObjectSchema', function () {
     this.propertySchema5 = Symbol('propertySchema5');
 
     this.defaultNestedSchema = Symbol('defaultNestedSchema');
-    sandbox.stub(lib, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
+    sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
   });
   after(sandbox.restore);
 
   context('when the schema does not have any relevant keys', function () {
     before(function () {
       const singleTypedSchema = { type: 'object' };
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with default custom keys', function () {
@@ -40,7 +40,7 @@ describe('createPseudoObjectSchema', function () {
         type: 'object',
         properties: {},
       };
-      this.result = lib.createPseudoObjectSchema(this.singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(this.singleTypedSchema);
     });
 
     it('returns a schema with a copy of "properties"', function () {
@@ -55,7 +55,7 @@ describe('createPseudoObjectSchema', function () {
         type: 'object',
         required: ['property1', 'property2'],
       };
-      this.result = lib.createPseudoObjectSchema(this.singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(this.singleTypedSchema);
     });
 
     it('returns a schema with a copy of "required"', function () {
@@ -77,7 +77,7 @@ describe('createPseudoObjectSchema', function () {
         required: ['property1', 'property3'],
       };
 
-      const results = _.times(30, () => lib.createPseudoObjectSchema(this.singleTypedSchema));
+      const results = _.times(30, () => defaultMocker.createPseudoObjectSchema(this.singleTypedSchema));
       this.shuffledOptionalPropertyNamesResults = _.map(results, 'shuffledOptionalPropertyNames');
     });
 
@@ -114,7 +114,7 @@ describe('createPseudoObjectSchema', function () {
         minProperties: 1,
       };
 
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with an unchanged "minProperties"', function () {
@@ -138,7 +138,7 @@ describe('createPseudoObjectSchema', function () {
         minProperties: 3,
       };
 
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -162,7 +162,7 @@ describe('createPseudoObjectSchema', function () {
         minProperties: 7,
       };
 
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -183,7 +183,7 @@ describe('createPseudoObjectSchema', function () {
       };
 
       const testFn = () => {
-        lib.createPseudoObjectSchema(singleTypedSchema);
+        defaultMocker.createPseudoObjectSchema(singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "required" and "maxProperties"');
@@ -205,7 +205,7 @@ describe('createPseudoObjectSchema', function () {
         maxProperties: 3,
       };
 
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -228,7 +228,7 @@ describe('createPseudoObjectSchema', function () {
         maxProperties: 5,
       };
 
-      this.result = lib.createPseudoObjectSchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -249,7 +249,7 @@ describe('createPseudoObjectSchema', function () {
       };
 
       const testFn = () => {
-        lib.createPseudoObjectSchema(singleTypedSchema);
+        defaultMocker.createPseudoObjectSchema(singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minProperties" and "maxProperties"');

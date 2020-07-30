@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 describe('guaranteeRequiredPropertiesHaveSchemas', function () {
   before(function () {
@@ -18,7 +18,7 @@ describe('guaranteeRequiredPropertiesHaveSchemas', function () {
       maxProperties: Symbol('maxProperties'),
     };
 
-    this.result = lib.guaranteeRequiredPropertiesHaveSchemas(this.pseudoObjectSchema);
+    this.result = defaultMocker.guaranteeRequiredPropertiesHaveSchemas(this.pseudoObjectSchema);
   });
 
   it('returns undefined', function () {
