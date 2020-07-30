@@ -6,7 +6,10 @@ const {
   red,
   yellow,
 } = require('ansi-colors');
-const { schemaToData } = require('../../..');
+const {
+  schemaToData: defaultSchemaToData,
+  createWithDefaults,
+} = require('../../..');
 
 const regularValidator = new Ajv();
 const edgeCaseValidator = new Ajv({ validateSchema: false });
@@ -15,6 +18,7 @@ const defaultRunCount = parseInt(process.env.RUN_COUNT || 10, 10);
 
 const testSchema = ({
   scenario,
+  customDefaults,
   schema: normalSchemaConfig,
   testBooleanLiteral: booleanSchemaConfig,
   runCount = defaultRunCount,
@@ -26,6 +30,8 @@ const testSchema = ({
   skip = false,
   ...unsupportedOptions
 } = {}) => {
+  const schemaToData = customDefaults === undefined ? defaultSchemaToData : createWithDefaults(customDefaults);
+
   const actualRunCount = _.max([runCount, defaultRunCount]);
 
   const hasScenario = scenario !== undefined;

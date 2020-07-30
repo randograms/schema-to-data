@@ -68,6 +68,29 @@ describe('mocker', function () {
     });
   });
 
+  describe('Mocker.extractSchemaToData', function () {
+    before(function () {
+      this.mocker = new Mocker();
+      this.schemaToData = Mocker.extractSchemaToData(this.mocker);
+    });
+
+    it('returns a function', function () {
+      expect(this.schemaToData).to.be.a('function');
+    });
+
+    it('returns something with a "getDefaults" function', function () {
+      expect(this.schemaToData).to.have.property('getDefaults').that.is.a('function');
+    });
+
+    describe('getDefaults', function () {
+      it('returns a copy of the mockers DEFAULTS object', function () {
+        const defaults = this.schemaToData.getDefaults();
+        expect(defaults).to.eql(this.mocker.DEFAULTS);
+        expect(defaults).to.not.equal(this.mocker.DEFAULTS);
+      });
+    });
+  });
+
   describe('defaultMocker', function () {
     it('is a Mocker', function () {
       expect(defaultMocker).to.be.an.instanceOf(Mocker);
