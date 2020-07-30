@@ -11,44 +11,17 @@ const numberRange = defaultMaxNumber - defaultMinNumber;
 const defaultMinArrayItems = 0;
 const defaultArrayLengthRange = 20;
 const defaultPotentialExtraProperties = 3;
-const supportedInputTypes = ['null', 'string', 'number', 'integer', 'boolean', 'array', 'object'];
 
 const coerceSchema = (schema) => {
   if (schema === false) {
     throw Error('Cannot generate data for a "false" literal schema');
   }
 
-  /* eslint-disable no-use-before-define */
-  const typedSchema = coerceTypes(schema);
-  const singleTypedSchema = selectType(typedSchema);
-  const conformedSchema = conformSchemaToType(singleTypedSchema);
-  /* eslint-enable no-use-before-define */
+  const typedSchema = defaultMocker.coerceTypes(schema);
+  const singleTypedSchema = defaultMocker.selectType(typedSchema);
+  const conformedSchema = conformSchemaToType(singleTypedSchema); // eslint-disable-line no-use-before-define
 
   return conformedSchema;
-};
-
-const coerceTypes = (schema) => {
-  const inputTypes = _.castArray(schema.type);
-  let coercedTypes = _.intersection(inputTypes, supportedInputTypes);
-
-  const numberIndex = coercedTypes.indexOf('number');
-  const hasNumber = numberIndex !== -1;
-  if (hasNumber) {
-    const hasInteger = coercedTypes.includes('integer');
-    const expandedTypes = hasInteger ? ['decimal'] : ['decimal', 'integer'];
-    coercedTypes.splice(numberIndex, 1, ...expandedTypes);
-  }
-
-  if (_.isEmpty(coercedTypes)) {
-    coercedTypes = ['null', 'string', 'decimal', 'integer', 'boolean', 'array', 'object'];
-  }
-
-  const typedSchema = {
-    ...schema,
-    type: coercedTypes,
-  };
-
-  return typedSchema;
 };
 
 const generateDefaultNestedSchema = () => ({
@@ -58,17 +31,6 @@ const generateDefaultNestedSchema = () => ({
   minProperties: 0,
   maxProperties: 3,
 });
-
-const selectType = (typedSchema) => {
-  const type = _.sample(typedSchema.type);
-
-  const singleTypedSchema = {
-    ...typedSchema,
-    type,
-  };
-
-  return singleTypedSchema;
-};
 
 const createPseudoArraySchema = (singleTypedSchema) => {
   const itemsDefinition = singleTypedSchema.items !== undefined
@@ -286,9 +248,7 @@ const schemaToData = (schema) => {
 // this lib object is deprecated and will be replaced with the Mocker api
 const lib = {
   coerceSchema,
-  coerceTypes,
   generateDefaultNestedSchema,
-  selectType,
   createPseudoArraySchema,
   getCoercedItemsSchemas,
   createPseudoObjectSchema,

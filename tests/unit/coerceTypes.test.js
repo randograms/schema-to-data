@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 describe('coerceTypes', function () {
   const additionalSchemaKeys = Symbol('additionalSchemaKeys');
@@ -9,7 +9,7 @@ describe('coerceTypes', function () {
       additionalSchemaKeys,
     };
 
-    this.result = lib.coerceTypes(this.schema);
+    this.result = defaultMocker.coerceTypes(this.schema);
   };
 
   const itReturnsACopyOfTheSchema = () => {
