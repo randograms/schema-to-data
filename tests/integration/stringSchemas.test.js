@@ -8,18 +8,17 @@ describe('string schemas', function () {
     runCount: 100,
     itValidatesAgainst: [
       {
-        itSometimesReturns: 'an empty string',
-        maxLength: 0,
+        itSometimesReturns: 'a shorter string',
+        maxLength: 99,
       },
       {
-        itSometimesReturns: 'a short string',
-        minLength: 1,
-        maxLength: 10,
+        itSometimesReturns: 'a medium length string',
+        minLength: 100,
+        maxLength: 249,
       },
       {
-        itSometimesReturns: 'a long string',
-        minLength: 11,
-        maxLength: 20,
+        itSometimesReturns: 'a longer string',
+        minLength: 250,
       },
     ],
   });

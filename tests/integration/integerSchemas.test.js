@@ -25,7 +25,6 @@ describe('integer schemas', function () {
       minimum: 2,
       maximum: 6,
     },
-    runCount: 20,
     itValidatesAgainst: [
       {
         itSometimesReturns: 'the minimum',

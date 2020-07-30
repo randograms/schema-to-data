@@ -13,7 +13,10 @@ npm install --save-dev https://github.com/randograms/schema-to-data
 ## Getting Started
 
 ```javascript
-const { schemaToData } = require('schema-to-data');
+const {
+  schemaToData,
+  createWithDefaults, // see "Working with Custom Defaults" below
+} = require('schema-to-data');
 
 // prints a string
 console.log(schemaToData({ type: 'string' }));
@@ -81,10 +84,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - exclusiveMinimum (draft4 and draft6)
   - multipleOf
 
-### Planned Features
-
-- Configurable defaults for lengths, minimums, maximums etc.
-
 ### Unplanned Keywords
 
 - All
@@ -93,6 +92,49 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - uniqueItems
 - Object
   - dependencies
+
+### Custom Defaults
+
+#### Creating a Custom schemaToData Instance
+
+```javascript
+const { createWithDefaults } = require('schema-to-data');
+
+const customSchemaToData = createWithDefaults({
+  minStringLength: 50,
+});
+
+// prints a string with at least 50 characters
+console.log(customSchemaToData({ type: 'string' }));
+```
+
+#### Inspecting Instance Defaults
+
+```javascript
+const {
+  schemaToData,
+  createWithDefaults,
+} = require('schema-to-data');
+
+const customSchemaToData = createWithDefaults({
+  stringLengthRange: 1000,
+});
+
+// prints default defaults
+console.log(schemaToData.getDefaults());
+
+// prints instance defaults
+console.log(customSchemaToData.getDefaults());
+```
+
+#### Available createWithDefaults Options
+
+Schema keywords always take precedence over configurable defaults (ex: if a schema has "minLength", then "minLength" will be used instead of "minStringLength").
+
+| Schemas | Option | Type | Default | Description
+| --- | --- | --- | --- | --- | ---
+| string | minStringLength | integer | 0 | Minimum potential string length
+| string | stringLengthRange | integer | 500 | Generated strings will have length between one of the following inclusive ranges: <ul><li>`[minStringLength, minStringLength + stringLengthRange]`</li><li>`[minLength, minLength + stringLengthRange]`</li><li>`[minStringLength, maxLength]`</li><li>`[minLength, maxLength]`</li></ul>
 
 ## Project Scope
 

@@ -1,6 +1,6 @@
-const { defaultMocker } = require('./lib/mocker');
+const { defaultMocker, Mocker } = require('./lib/mocker');
 
 module.exports = {
-  schemaToData: defaultMocker.schemaToData.bind(defaultMocker),
-  // TODO: add a function that lets the end user create 'schemaToData' with custom defaults
+  schemaToData: Mocker.extractSchemaToData(defaultMocker),
+  createWithDefaults: (options) => Mocker.extractSchemaToData(new Mocker(options)),
 };
