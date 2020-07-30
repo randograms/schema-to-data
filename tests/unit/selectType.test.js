@@ -1,24 +1,16 @@
 const _ = require('lodash');
-const { lib } = require('../..');
-
-const sandbox = sinon.createSandbox();
+const { defaultMocker } = require('../../lib/mocker');
 
 const generateValidTestSchema = ({ type = [], ...additionalSchemaKeys } = {}) => ({ type, ...additionalSchemaKeys });
 
 describe('selectType', function () {
-  before(function () {
-    this.defaultNestedSchema = Symbol('defaultNestedSchema');
-    sandbox.stub(lib, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
-  });
-  after(sandbox.restore);
-
   context('with a typedSchema with a single type', function () {
     before(function () {
       const typedSchema = generateValidTestSchema({
         type: ['integer'],
       });
 
-      this.result = lib.selectType(typedSchema);
+      this.result = defaultMocker.selectType(typedSchema);
     });
 
     it('returns a schema with a single string type', function () {
@@ -43,7 +35,7 @@ describe('selectType', function () {
       };
       const typedSchema = generateValidTestSchema(this.typedSchema);
 
-      this.results = _.times(10, () => lib.selectType(typedSchema));
+      this.results = _.times(10, () => defaultMocker.selectType(typedSchema));
     });
 
     it('always returns a schema with a single type', function () {
@@ -105,7 +97,7 @@ describe('selectType', function () {
         additionalSchemaKeys,
       });
 
-      const result = lib.selectType(typedSchema);
+      const result = defaultMocker.selectType(typedSchema);
       expect(result).to.not.equal(typedSchema);
       expect(result).to.eql({
         type: 'whoops',

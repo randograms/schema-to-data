@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -7,10 +7,10 @@ const generateValidTestSchema = ({ ...additionalSchemaKeys } = {}) => ({
   type: 'array',
 });
 
-describe('createPseudoArraySchema', function () {
+describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
   before(function () {
     this.defaultNestedSchema = Symbol('defaultNestedSchema');
-    sandbox.stub(lib, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
+    sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
   });
   after(sandbox.restore);
 
@@ -22,7 +22,7 @@ describe('createPseudoArraySchema', function () {
         items: this.itemSchema,
       });
 
-      this.result = lib.createPseudoArraySchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoArraySchema(singleTypedSchema);
     });
 
     it('returns a schema with the item schema as the items tuple and the additionalItems', function () {
@@ -45,7 +45,7 @@ describe('createPseudoArraySchema', function () {
         items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
       });
 
-      this.result = lib.createPseudoArraySchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoArraySchema(singleTypedSchema);
     });
 
     it('returns a schema with tuple items and a default additionalItems', function () {
@@ -64,7 +64,7 @@ describe('createPseudoArraySchema', function () {
         items: false,
       });
 
-      this.result = lib.createPseudoArraySchema(singleTypedSchema);
+      this.result = defaultMocker.createPseudoArraySchema(singleTypedSchema);
     });
 
     it('returns a schema with an empty items tuple and restricted length', function () {
@@ -85,7 +85,7 @@ describe('createPseudoArraySchema', function () {
       });
 
       const testFn = () => {
-        lib.createPseudoArraySchema(singleTypedSchema);
+        defaultMocker.createPseudoArraySchema(singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate array items for "false" literal items schema and non-zero "minItems"');

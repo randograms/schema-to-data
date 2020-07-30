@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-describe('getCoercedItemsSchemas', function () {
+describe('getConformedArrayKeywords/getCoercedItemsSchemas', function () {
   before(function () {
     this.itemSchema1 = Symbol('itemSchema1');
     this.itemSchema2 = Symbol('itemSchema2');
@@ -15,7 +15,7 @@ describe('getCoercedItemsSchemas', function () {
     this.coercedItemSchema3 = Symbol('coercedItemSchema3');
     this.coercedAdditionalItemsSchema = Symbol('coercedAdditionalItemsSchema');
 
-    const stub = sandbox.stub(lib, 'coerceSchema');
+    const stub = sandbox.stub(defaultMocker, 'coerceSchema');
     stub.withArgs(this.itemSchema1).returns(this.coercedItemSchema1);
     stub.withArgs(this.itemSchema2).returns(this.coercedItemSchema2);
     stub.withArgs(this.itemSchema3).returns(this.coercedItemSchema3);
@@ -32,7 +32,7 @@ describe('getCoercedItemsSchemas', function () {
         additionalItems: this.additionalItemsSchema,
       };
 
-      this.result = lib.getCoercedItemsSchemas(pseudoArraySchema);
+      this.result = defaultMocker.getCoercedItemsSchemas(pseudoArraySchema);
     });
 
     it('sometimes returns a schema with an empty items tuple', function () {
@@ -66,7 +66,7 @@ describe('getCoercedItemsSchemas', function () {
         minItems: 5,
       };
 
-      this.results = _.times(50, () => lib.getCoercedItemsSchemas(pseudoArraySchema));
+      this.results = _.times(50, () => defaultMocker.getCoercedItemsSchemas(pseudoArraySchema));
     });
 
     it('always returns a conformedSchema with at least "minItems" item schemas', function () {
@@ -92,7 +92,7 @@ describe('getCoercedItemsSchemas', function () {
         minItems: 100,
       };
 
-      this.results = _.times(50, () => lib.getCoercedItemsSchemas(pseudoArraySchema));
+      this.results = _.times(50, () => defaultMocker.getCoercedItemsSchemas(pseudoArraySchema));
     });
 
     it('always returns a conformedSchema with at least "minItems" item schemas', function () {
@@ -119,7 +119,7 @@ describe('getCoercedItemsSchemas', function () {
         maxItems: 3,
       };
 
-      this.results = _.times(50, () => lib.getCoercedItemsSchemas(pseudoArraySchema));
+      this.results = _.times(50, () => defaultMocker.getCoercedItemsSchemas(pseudoArraySchema));
     });
 
     it('always returns a conformedSchema with items with length less than or equal to "maxItems"', function () {
@@ -152,7 +152,7 @@ describe('getCoercedItemsSchemas', function () {
         maxItems: 7,
       };
 
-      this.results = _.times(50, () => lib.getCoercedItemsSchemas(pseudoArraySchema));
+      this.results = _.times(50, () => defaultMocker.getCoercedItemsSchemas(pseudoArraySchema));
     });
 
     it('always returns a conformedSchema with items with length between "minItems" and "maxItems"', function () {
@@ -187,7 +187,7 @@ describe('getCoercedItemsSchemas', function () {
           minItems: 15,
           maxItems: 13,
         };
-        lib.getCoercedItemsSchemas(pseudoArraySchema);
+        defaultMocker.getCoercedItemsSchemas(pseudoArraySchema);
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minItems" and "maxItems"');

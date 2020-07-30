@@ -1,4 +1,4 @@
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -10,7 +10,7 @@ describe('generateObject', function () {
       const schema = generateValidTestSchema({
         properties: {},
       });
-      expect(lib.generateObject(schema)).to.eql({});
+      expect(defaultMocker.generateObject(schema)).to.eql({});
     });
   });
 
@@ -22,7 +22,7 @@ describe('generateObject', function () {
       this.generatedData1 = Symbol('generatedData1');
       this.generatedData2 = Symbol('generatedData2');
 
-      const stub = sandbox.stub(lib, 'generateData');
+      const stub = sandbox.stub(defaultMocker, 'generateData');
       stub.withArgs(this.propertySchema1).returns(this.generatedData1);
       stub.withArgs(this.propertySchema2).returns(this.generatedData2);
 
@@ -33,7 +33,7 @@ describe('generateObject', function () {
         },
       });
 
-      this.result = lib.generateObject(schema);
+      this.result = defaultMocker.generateObject(schema);
     });
 
     it('returns an object with generated properties', function () {

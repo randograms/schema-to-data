@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 const generateValidTestSchema = ({ type } = {}) => ({ type });
 
@@ -8,7 +8,7 @@ describe('generateNumber', function () {
     before(function () {
       const schema = generateValidTestSchema({ type: 'decimal' });
 
-      this.results = _.times(10, () => lib.generateNumber(schema));
+      this.results = _.times(10, () => defaultMocker.generateNumber(schema));
     });
 
     it('always returns a number', function () {
@@ -24,7 +24,7 @@ describe('generateNumber', function () {
     before(function () {
       const schema = generateValidTestSchema({ type: 'integer' });
 
-      this.results = _.times(10, () => lib.generateNumber(schema));
+      this.results = _.times(10, () => defaultMocker.generateNumber(schema));
     });
 
     it('always returns a number', function () {
@@ -39,7 +39,7 @@ describe('generateNumber', function () {
   context('when minimum and maximum conflict', function () {
     it('throws an error', function () {
       const testFn = () => {
-        lib.generateNumber({
+        defaultMocker.generateNumber({
           type: 'decimal',
           minimum: 10,
           maximum: 9,

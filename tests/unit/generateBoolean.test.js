@@ -1,18 +1,18 @@
 const _ = require('lodash');
-const { lib } = require('../..');
+const { defaultMocker } = require('../../lib/mocker');
 
 describe('generateBoolean', function () {
   it('returns a boolean', function () {
-    expect(lib.generateBoolean()).to.be.a('boolean');
+    expect(defaultMocker.generateBoolean()).to.be.a('boolean');
   });
 
   it('sometimes returns true', function () {
-    const results = _.times(10, lib.generateBoolean);
+    const results = _.times(10, defaultMocker.generateBoolean);
     expect(results).to.include.something.that.equals(true);
   });
 
   it('sometimes returns false', function () {
-    const results = _.times(10, lib.generateBoolean);
+    const results = _.times(10, defaultMocker.generateBoolean);
     expect(results).to.include.something.that.equals(false);
   });
 });

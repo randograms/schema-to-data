@@ -1,6 +1,7 @@
 module.exports = {
   extends: 'eslint-config-airbnb-base',
   rules: {
+    'func-names': 'off',
     'import/extensions': ['error', 'never'],
     'import/order': [
       'error',
