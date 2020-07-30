@@ -14,7 +14,8 @@ const {
 const regularValidator = new Ajv();
 const edgeCaseValidator = new Ajv({ validateSchema: false });
 
-const defaultRunCount = parseInt(process.env.RUN_COUNT || 10, 10);
+const minDefaultRunCount = 30;
+const defaultRunCount = parseInt(process.env.RUN_COUNT || minDefaultRunCount, 10);
 
 const testSchema = ({
   scenario,
@@ -32,6 +33,7 @@ const testSchema = ({
 } = {}) => {
   const schemaToData = customDefaults === undefined ? defaultSchemaToData : createWithDefaults(customDefaults);
 
+  const hasInvalidRunCount = runCount < minDefaultRunCount;
   const actualRunCount = _.max([runCount, defaultRunCount]);
 
   const hasScenario = scenario !== undefined;
@@ -109,6 +111,10 @@ const testSchema = ({
       if (!areAllValidationSchemasAnnotated) {
         throw Error('All schemas in "itValidatesAgainst" must have an "itAlwaysReturns" or "itSometimesReturns" string annotation'); // eslint-disable-line max-len
       }
+    }
+
+    if (hasInvalidRunCount) {
+      throw Error(`"runCount" must be greater than "minDefaultRunCount" ${minDefaultRunCount}`);
     }
 
     if (!wasOnlyCalledWithSupportedOptions) {
