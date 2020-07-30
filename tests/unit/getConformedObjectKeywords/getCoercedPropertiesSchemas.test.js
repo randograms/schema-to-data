@@ -1,8 +1,8 @@
-const { defaultMocker } = require('../../lib/mocker');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-describe('getCoercedPropertiesSchemas', function () {
+describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
   before(function () {
     this.propertySchema1 = Symbol('propertySchema1');
     this.propertySchema2 = Symbol('propertySchema2');

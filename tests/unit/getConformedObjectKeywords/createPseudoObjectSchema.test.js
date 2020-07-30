@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const { defaultMocker } = require('../../lib/mocker');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-describe('createPseudoObjectSchema', function () {
+describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
   before(function () {
     this.propertySchema1 = Symbol('propertySchema1');
     this.propertySchema2 = Symbol('propertySchema2');

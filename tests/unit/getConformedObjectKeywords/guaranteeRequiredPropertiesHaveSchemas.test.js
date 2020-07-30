@@ -1,6 +1,6 @@
-const { defaultMocker } = require('../../lib/mocker');
+const { defaultMocker } = require('../../../lib/mocker');
 
-describe('guaranteeRequiredPropertiesHaveSchemas', function () {
+describe('getConformedObjectKeywords/guaranteeRequiredPropertiesHaveSchemas', function () {
   before(function () {
     this.propertySchema2 = Symbol('propertySchema2');
     this.additionalPropertiesSchema = Symbol('additionalPropertiesSchema');

@@ -1,4 +1,4 @@
-const { defaultMocker } = require('../../lib/mocker');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -7,7 +7,7 @@ const generateValidTestSchema = ({ ...additionalSchemaKeys } = {}) => ({
   type: 'array',
 });
 
-describe('createPseudoArraySchema', function () {
+describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
   before(function () {
     this.defaultNestedSchema = Symbol('defaultNestedSchema');
     sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);

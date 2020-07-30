@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const { defaultMocker } = require('../../lib/mocker');
+const { defaultMocker } = require('../../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-describe('getCoercedItemsSchemas', function () {
+describe('getConformedArrayKeywords/getCoercedItemsSchemas', function () {
   before(function () {
     this.itemSchema1 = Symbol('itemSchema1');
     this.itemSchema2 = Symbol('itemSchema2');
