@@ -135,6 +135,7 @@ Schema keywords always take precedence over configurable defaults (ex: if a sche
 | --- | --- | --- | --- | --- | ---
 | object | maxExtraAdditionalProperties | integer | 10 | When "maxProperties" is not defined, it is the maximum number of extra additional properties that can be generated on top of "minProperties", "minObjectProperties" or the toal number of required and optional properties. It is not necessarily the maximum number of additional properties that will be generated.
 | object | minObjectProperties | integer | 0 | Minimum number of object properties to generate
+| object | optionalPropertyPrioritization | number [0, 1] | 0.8 | When generating random object properties this is the chance that an optional property will be generated instead of an additional property. If set to 1, then no additional properties will be generated unless all optional properties are generated first.
 | string | minStringLength | integer | 0 | Minimum potential string length
 | string | stringLengthRange | integer | 500 | Generated strings will have length between one of the following inclusive ranges: <ul><li>`[minStringLength, minStringLength + stringLengthRange]`</li><li>`[minLength, minLength + stringLengthRange]`</li><li>`[minStringLength, maxLength]`</li><li>`[minLength, maxLength]`</li></ul>
 

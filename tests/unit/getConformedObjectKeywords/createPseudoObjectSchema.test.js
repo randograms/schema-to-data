@@ -132,8 +132,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
       this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
-    it('returns a schema with an unchanged "minProperties"', function () {
-      expect(this.result.minProperties).to.equal(1);
+    it('adjusts "minProperties" to be at least the number of required properties', function () {
+      expect(this.result.minProperties).to.equal(2);
     });
 
     it('returns a schema with "maxProperties"', function () {
@@ -212,7 +212,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with "minProperties"', function () {
-      expect(this.result.minProperties).to.equal(0);
+      expect(this.result.minProperties).to.equal(2);
     });
 
     it('returns a schema with "maxProperties" that is higher than "minProperties"', function () {
@@ -255,7 +255,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with "minProperties"', function () {
-      expect(this.result.minProperties).to.equal(0);
+      expect(this.result.minProperties).to.equal(2);
     });
 
     it('returns a schema with "maxProperties"', function () {
@@ -278,7 +278,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with "minProperties"', function () {
-      expect(this.result.minProperties).to.equal(0);
+      expect(this.result.minProperties).to.equal(3);
     });
 
     it('returns a schema with "maxProperties"', function () {

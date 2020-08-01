@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { defaultMocker } = require('../../../lib/mocker');
+const { setupCustomMocker } = require('../helpers/setupCustomMocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -13,48 +14,12 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
     this.additionalPropertiesSchema = Symbol('additionalPropertiesSchema');
   });
 
-  context('when the object size is less than the total number of required and optional properties', function () {
+  context('when "optionalPropertyPrioritization" is 0', function () {
+    setupCustomMocker({ optionalPropertyPrioritization: 0 });
+
     before(function () {
-      this.pseudoObjectSchema = {
-        propertiesSchemas: {
-          property1: this.propertySchema1,
-          property2: this.propertySchema2,
-          property3: this.propertySchema3,
-          property4: this.propertySchema4,
-          property5: this.propertySchema5,
-        },
-        propertyNamesToGenerate: ['property1', 'property2'],
-        shuffledOptionalPropertyNames: ['property3', 'property4', 'property5'],
-        additionalPropertiesSchema: this.additionalPropertiesSchema,
-        minProperties: 4,
-        maxProperties: 4,
-      };
-
-      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
-    });
-
-    it('returns undefined', function () {
-      expect(this.result).to.be.undefined;
-    });
-
-    it('removes properties from "shuffledOptionalPropertyNames"', function () {
-      expect(this.pseudoObjectSchema.shuffledOptionalPropertyNames).to.eql(['property5']);
-    });
-
-    it('adds the properties to "propertyNamesToGenerate"', function () {
-      expect(this.pseudoObjectSchema.propertyNamesToGenerate).to.eql([
-        'property1',
-        'property2',
-        'property3',
-        'property4',
-      ]);
-    });
-  });
-
-  context('when the object size is greater than the total number of required and optional properties', function () {
-    before(function () {
-      sandbox.stub(defaultMocker, 'generateAdditionalPropertyName').callsFake(() => (
-        `additionalProperty${defaultMocker.generateAdditionalPropertyName.callCount}`
+      sandbox.stub(this.mocker, 'generateAdditionalPropertyName').callsFake(() => (
+        `additionalProperty${this.mocker.generateAdditionalPropertyName.callCount}`
       ));
 
       this.pseudoObjectSchema = {
@@ -62,15 +27,75 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
           property3: this.propertySchema3,
+          property4: this.propertySchema4,
         },
         propertyNamesToGenerate: ['property1', 'property2'],
-        shuffledOptionalPropertyNames: ['property3'],
+        shuffledOptionalPropertyNames: ['property3', 'property4'],
         additionalPropertiesSchema: this.additionalPropertiesSchema,
-        minProperties: 5,
-        maxProperties: 5,
+        minProperties: 6,
+        maxProperties: 6,
       };
 
-      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      this.result = this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+    });
+    after(sandbox.restore);
+
+    it('returns undefined', function () {
+      expect(this.result).to.be.undefined;
+    });
+
+    it('does not remove properties from "shuffledOptionalPropertyNames"', function () {
+      expect(this.pseudoObjectSchema.shuffledOptionalPropertyNames).to.eql(['property3', 'property4']);
+    });
+
+    it('appends additional properties to "propertiesSchemas"', function () {
+      expect(this.pseudoObjectSchema.propertiesSchemas).to.eql({
+        property1: this.propertySchema1,
+        property2: this.propertySchema2,
+        property3: this.propertySchema3,
+        property4: this.propertySchema4,
+        additionalProperty1: this.additionalPropertiesSchema,
+        additionalProperty2: this.additionalPropertiesSchema,
+        additionalProperty3: this.additionalPropertiesSchema,
+        additionalProperty4: this.additionalPropertiesSchema,
+      });
+    });
+
+    it('appends additional property names to "propertyNamesToGenerate"', function () {
+      expect(this.pseudoObjectSchema.propertyNamesToGenerate).to.eql([
+        'property1',
+        'property2',
+        'additionalProperty1',
+        'additionalProperty2',
+        'additionalProperty3',
+        'additionalProperty4',
+      ]);
+    });
+  });
+
+  context('when "optionalPropertyPrioritization" is 1', function () {
+    setupCustomMocker({ optionalPropertyPrioritization: 1 });
+
+    before(function () {
+      sandbox.stub(this.mocker, 'generateAdditionalPropertyName').callsFake(() => (
+        `additionalProperty${this.mocker.generateAdditionalPropertyName.callCount}`
+      ));
+
+      this.pseudoObjectSchema = {
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+          property3: this.propertySchema3,
+          property4: this.propertySchema4,
+        },
+        propertyNamesToGenerate: ['property1', 'property2'],
+        shuffledOptionalPropertyNames: ['property3', 'property4'],
+        additionalPropertiesSchema: this.additionalPropertiesSchema,
+        minProperties: 6,
+        maxProperties: 6,
+      };
+
+      this.result = this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
     });
     after(sandbox.restore);
 
@@ -87,6 +112,7 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         property1: this.propertySchema1,
         property2: this.propertySchema2,
         property3: this.propertySchema3,
+        property4: this.propertySchema4,
         additionalProperty1: this.additionalPropertiesSchema,
         additionalProperty2: this.additionalPropertiesSchema,
       });
@@ -97,6 +123,7 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         'property1',
         'property2',
         'property3',
+        'property4',
         'additionalProperty1',
         'additionalProperty2',
       ]);
@@ -150,12 +177,13 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
     });
   });
 
-  context('when size can vary', function () {
-    this.retries(10);
+  context('when "optionalPropertyPrioritization" is between 0 and 1 and the object size can vary', function () {
+    this.retries(30);
+    setupCustomMocker({ optionalPropertyPrioritization: 0.5 });
 
     beforeEach(function () {
-      sandbox.stub(defaultMocker, 'generateAdditionalPropertyName').callsFake(() => (
-        `additionalProperty${defaultMocker.generateAdditionalPropertyName.callCount}`
+      sandbox.stub(this.mocker, 'generateAdditionalPropertyName').callsFake(() => (
+        `additionalProperty${this.mocker.generateAdditionalPropertyName.callCount}`
       ));
 
       this.pseudoObjectSchema = {
@@ -163,15 +191,16 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
           property3: this.propertySchema3,
+          property4: this.propertySchema4,
         },
         propertyNamesToGenerate: ['property1', 'property2'],
-        shuffledOptionalPropertyNames: ['property3'],
+        shuffledOptionalPropertyNames: ['property3', 'property4'],
         additionalPropertiesSchema: this.additionalPropertiesSchema,
-        minProperties: 1,
+        minProperties: 2,
         maxProperties: 4,
       };
 
-      defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
 
       this.assertionResult = _.pick(this.pseudoObjectSchema, [
         'propertiesSchemas',
@@ -181,40 +210,72 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
     });
     afterEach(sandbox.restore);
 
-    it('sometimes does not append any more properties to "propertyNamesToGenerate"', function () {
+    it('sometimes does not append any more properties', function () {
       expect(this.assertionResult).to.eql({
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
           property3: this.propertySchema3,
+          property4: this.propertySchema4,
         },
         propertyNamesToGenerate: ['property1', 'property2'],
-        shuffledOptionalPropertyNames: ['property3'],
+        shuffledOptionalPropertyNames: ['property3', 'property4'],
       });
     });
 
-    it('sometimes only appends optional properties to "propertyNamesToGenerate"', function () {
+    it('sometimes only appends optional properties', function () {
       expect(this.assertionResult).to.eql({
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
           property3: this.propertySchema3,
+          property4: this.propertySchema4,
         },
-        propertyNamesToGenerate: ['property1', 'property2', 'property3'],
+        propertyNamesToGenerate: ['property1', 'property2', 'property3', 'property4'],
         shuffledOptionalPropertyNames: [],
       });
     });
 
-    it('sometimes appends optional additional properties to "propertyNamesToGenerate"', function () {
+    it('sometimes appends optional and additional properties', function () {
       expect(this.assertionResult).to.eql({
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
           property3: this.propertySchema3,
+          property4: this.propertySchema4,
           additionalProperty1: this.additionalPropertiesSchema,
         },
         propertyNamesToGenerate: ['property1', 'property2', 'property3', 'additionalProperty1'],
-        shuffledOptionalPropertyNames: [],
+        shuffledOptionalPropertyNames: ['property4'],
+      });
+    });
+
+    it('sometimes appends additional and optional properties', function () {
+      expect(this.assertionResult).to.eql({
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+          property3: this.propertySchema3,
+          property4: this.propertySchema4,
+          additionalProperty1: this.additionalPropertiesSchema,
+        },
+        propertyNamesToGenerate: ['property1', 'property2', 'additionalProperty1', 'property3'],
+        shuffledOptionalPropertyNames: ['property4'],
+      });
+    });
+
+    it('sometimes only appends additional properties', function () {
+      expect(this.assertionResult).to.eql({
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+          property3: this.propertySchema3,
+          property4: this.propertySchema4,
+          additionalProperty1: this.additionalPropertiesSchema,
+          additionalProperty2: this.additionalPropertiesSchema,
+        },
+        propertyNamesToGenerate: ['property1', 'property2', 'additionalProperty1', 'additionalProperty2'],
+        shuffledOptionalPropertyNames: ['property3', 'property4'],
       });
     });
   });
