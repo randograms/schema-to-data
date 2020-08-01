@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { defaultMocker } = require('../../../lib/mocker');
+const { setupCustomMocker } = require('../helpers/setupCustomMocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -16,10 +17,19 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
   });
   after(sandbox.restore);
 
+  const localSetupCustomMocker = (options) => {
+    setupCustomMocker(options);
+    before(function () {
+      sinon.stub(this.mocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
+    });
+  };
+
   context('when the schema does not have any relevant keys', function () {
+    localSetupCustomMocker({ maxExtraAdditionalProperties: 7 });
+
     before(function () {
       const singleTypedSchema = { type: 'object' };
-      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
+      this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with default custom keys', function () {
@@ -29,7 +39,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
         shuffledOptionalPropertyNames: [],
         additionalPropertiesSchema: this.defaultNestedSchema,
         minProperties: 0,
-        maxProperties: 3,
+        maxProperties: 7,
       });
     });
   });
@@ -64,7 +74,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
   });
 
-  context('when the schema has a "required" that is a subset of "properties"', function () {
+  context('when the schema has a "required" that is not a subset of "properties"', function () {
     before(function () {
       this.singleTypedSchema = {
         type: 'object',
@@ -107,6 +117,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
   });
 
   context('when "minProperties" is less than the number of required properties', function () {
+    localSetupCustomMocker({ maxExtraAdditionalProperties: 0 });
+
     before(function () {
       const singleTypedSchema = {
         type: 'object',
@@ -114,7 +126,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
         minProperties: 1,
       };
 
-      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
+      this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with an unchanged "minProperties"', function () {
@@ -122,11 +134,13 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with "maxProperties"', function () {
-      expect(this.result.maxProperties).to.equal(5);
+      expect(this.result.maxProperties).to.equal(2);
     });
   });
 
   context('when "minProperties" is less than the number of required and optional properties', function () {
+    localSetupCustomMocker({ maxExtraAdditionalProperties: 0 });
+
     before(function () {
       const singleTypedSchema = {
         type: 'object',
@@ -138,7 +152,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
         minProperties: 3,
       };
 
-      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
+      this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -146,11 +160,13 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with a "maxProperties" that is higher than the total number of properties', function () {
-      expect(this.result.maxProperties).to.equal(7);
+      expect(this.result.maxProperties).to.equal(4);
     });
   });
 
   context('when "minProperties" is greater than the number of required and optional properties', function () {
+    localSetupCustomMocker({ maxExtraAdditionalProperties: 0 });
+
     before(function () {
       const singleTypedSchema = {
         type: 'object',
@@ -162,7 +178,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
         minProperties: 7,
       };
 
-      this.result = defaultMocker.createPseudoObjectSchema(singleTypedSchema);
+      this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
     });
 
     it('returns a schema with "minProperties"', function () {
@@ -170,7 +186,34 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     });
 
     it('returns a schema with "maxProperties" that is higher than "minProperties"', function () {
-      expect(this.result.maxProperties).to.equal(10);
+      expect(this.result.maxProperties).to.equal(7);
+    });
+  });
+
+  context('with "maxExtraAdditionalProperties" and a schema without "maxProperties"', function () {
+    localSetupCustomMocker({ maxExtraAdditionalProperties: 15 });
+
+    before(function () {
+      const singleTypedSchema = {
+        type: 'object',
+        properties: {
+          property2: this.propertySchema2,
+          property3: this.propertySchema3,
+          property4: this.propertySchema4,
+          property5: this.propertySchema5,
+        },
+        required: ['property1', 'property3'],
+      };
+
+      this.result = this.mocker.createPseudoObjectSchema(singleTypedSchema);
+    });
+
+    it('returns a schema with "minProperties"', function () {
+      expect(this.result.minProperties).to.equal(0);
+    });
+
+    it('returns a schema with "maxProperties" that is higher than "minProperties"', function () {
+      expect(this.result.maxProperties).to.equal(20);
     });
   });
 
