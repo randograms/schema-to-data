@@ -1,15 +1,5 @@
-const _ = require('lodash');
-const { defaultMocker, Mocker } = require('../../lib/mocker');
-
-const setupCustomMocker = (options) => {
-  before(function () {
-    this.mocker = new Mocker(options);
-
-    _.keys(options).forEach((option) => {
-      expect(this.mocker.DEFAULTS[option]).to.not.equal(defaultMocker.DEFAULTS[option]);
-    });
-  });
-};
+const { defaultMocker } = require('../../lib/mocker');
+const { setupCustomMocker } = require('./helpers/setupCustomMocker');
 
 const generateValidTestSchema = ({ ...keywords } = {}) => ({
   ...keywords,
