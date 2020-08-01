@@ -14,6 +14,78 @@ describe('mocker', function () {
       });
     });
 
+    describe('object default errors', function () {
+      context('when "maxExtraAdditionalProperties" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ maxExtraAdditionalProperties: -1 });
+          };
+
+          expect(testFn).to.throw('"maxExtraAdditionalProperties" must be a non-negative integer');
+        });
+      });
+
+      context('when "maxExtraAdditionalProperties" is not an integer', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ maxExtraAdditionalProperties: 1.1 });
+          };
+
+          expect(testFn).to.throw('"maxExtraAdditionalProperties" must be a non-negative integer');
+        });
+      });
+
+      context('when "minObjectProperties" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minObjectProperties: -1 });
+          };
+
+          expect(testFn).to.throw('"minObjectProperties" must be a non-negative integer');
+        });
+      });
+
+      context('when "minObjectProperties" is not an integer', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minObjectProperties: 1.1 });
+          };
+
+          expect(testFn).to.throw('"minObjectProperties" must be a non-negative integer');
+        });
+      });
+
+      context('when "optionalPropertyPrioritization" is not a number', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ optionalPropertyPrioritization: 'test' });
+          };
+
+          expect(testFn).to.throw('"optionalPropertyPrioritization" must be a number in the range [0, 1]');
+        });
+      });
+
+      context('when "optionalPropertyPrioritization" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ optionalPropertyPrioritization: -0.1 });
+          };
+
+          expect(testFn).to.throw('"optionalPropertyPrioritization" must be a number in the range [0, 1]');
+        });
+      });
+
+      context('when "optionalPropertyPrioritization" is greater than 1', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ optionalPropertyPrioritization: 1.1 });
+          };
+
+          expect(testFn).to.throw('"optionalPropertyPrioritization" must be a number in the range [0, 1]');
+        });
+      });
+    });
+
     describe('string default errors', function () {
       context('when "minStringLength" is less than zero', function () {
         it('throws an error', function () {
