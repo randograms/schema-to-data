@@ -1,5 +1,6 @@
 const customDefaults = {
-  maxExtraAdditionalProperties: 2,
+  minObjectProperties: 20,
+  maxExtraAdditionalProperties: 5,
 };
 
 describe('object defaults', function () {
@@ -12,21 +13,22 @@ describe('object defaults', function () {
     },
     itValidatesAgainst: [
       {
-        itAlwaysReturns: 'an object with less than or equal to "maxExtraAdditionalProperties" properties',
-        maxProperties: 2,
+        itAlwaysReturns: 'an object with number of properties in the range ["minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"]', // eslint-disable-line max-len
+        minProperties: 20,
+        maxProperties: 25,
       },
       {
-        itSometimesReturns: 'an object with 0 properties',
-        maxProperties: 0,
+        itSometimesReturns: 'an object with "minObjectProperties" properties',
+        maxProperties: 20,
       },
       {
-        itSometimesReturns: 'an object with a number of properties between 0 and "maxExtraAdditionalProperties"',
-        minProperties: 1,
-        maxProperties: 1,
+        itSometimesReturns: 'an object with number of properties in the range ("minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"])', // eslint-disable-line max-len
+        minProperties: 21,
+        maxProperties: 24,
       },
       {
-        itSometimesReturns: 'an object with "maxExtraAdditionalProperties" properties',
-        minProperties: 2,
+        itSometimesReturns: 'an object with "minObjectProperties" + "maxExtraAdditionalProperties" properties',
+        minProperties: 25,
       },
     ],
   });
@@ -43,28 +45,29 @@ describe('object defaults', function () {
     },
     itValidatesAgainst: [
       {
-        itAlwaysReturns: 'an array with an object with less than or equal to "maxExtraAdditionalProperties" properties',
+        itAlwaysReturns: 'an array with an object with number of properties in the range ["minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"]', // eslint-disable-line max-len
         items: {
-          maxProperties: 2,
+          minProperties: 20,
+          maxProperties: 25,
         },
       },
       {
-        itSometimesReturns: 'an array with an object with 0 properties',
+        itSometimesReturns: 'an array with an object with "minObjectProperties" properties',
         items: {
-          maxProperties: 0,
+          maxProperties: 20,
         },
       },
       {
-        itSometimesReturns: 'an array with an object with number of properties between 0 and "maxExtraAdditionalProperties"', // eslint-disable-line max-len
+        itSometimesReturns: 'an array with an object with number of properties in the range ("minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"])', // eslint-disable-line max-len
         items: {
-          minProperties: 1,
-          maxProperties: 1,
+          minProperties: 21,
+          maxProperties: 24,
         },
       },
       {
-        itSometimesReturns: 'an array with an object with "maxExtraAdditionalProperties" properties',
+        itSometimesReturns: 'an array with an object with "minObjectProperties" + "maxExtraAdditionalProperties" properties', // eslint-disable-line max-len
         items: {
-          minProperties: 2,
+          minProperties: 25,
         },
       },
     ],
@@ -86,28 +89,29 @@ describe('object defaults', function () {
     },
     itValidatesAgainst: [
       {
-        itAlwaysReturns: 'an object with an object property with less than or equal to "maxExtraAdditionalProperties" properties', // eslint-disable-line max-len
+        itAlwaysReturns: 'an object with an object property with number of properties in the range ["minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"]', // eslint-disable-line max-len
         additionalProperties: {
-          maxProperties: 2,
+          minProperties: 20,
+          maxProperties: 25,
         },
       },
       {
-        itSometimesReturns: 'an object with an object property with 0 properties',
+        itSometimesReturns: 'an object with an object property with "minObjectProperties" properties',
         additionalProperties: {
-          maxProperties: 0,
+          maxProperties: 20,
         },
       },
       {
-        itSometimesReturns: 'an object with an object property with number of properties between 0 and "maxExtraAdditionalProperties"', // eslint-disable-line max-len
+        itSometimesReturns: 'an object with an object property with number of properties in the range ("minObjectProperties", "minObjectProperties" + "maxExtraAdditionalProperties"])', // eslint-disable-line max-len
         additionalProperties: {
-          minProperties: 1,
-          maxProperties: 1,
+          minProperties: 21,
+          maxProperties: 24,
         },
       },
       {
-        itSometimesReturns: 'an object with an object property with "maxExtraAdditionalProperties" properties',
+        itSometimesReturns: 'an object with an object property with "minObjectProperties" + "maxExtraAdditionalProperties" properties', // eslint-disable-line max-len
         additionalProperties: {
-          minProperties: 2,
+          minProperties: 25,
         },
       },
     ],
