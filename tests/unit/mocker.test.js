@@ -15,13 +15,13 @@ describe('mocker', function () {
     });
 
     describe('array default errors', function () {
-      context('when "arrayLengthRange" is less than zero', function () {
+      context('when "arrayItemsRange" is less than zero', function () {
         it('throws an error', function () {
           const testFn = () => {
-            new Mocker({ arrayLengthRange: -1 });
+            new Mocker({ arrayItemsRange: -1 });
           };
 
-          expect(testFn).to.throw('"arrayLengthRange" must be a non-negative integer');
+          expect(testFn).to.throw('"arrayItemsRange" must be a non-negative integer');
         });
       });
 
