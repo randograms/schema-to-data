@@ -14,6 +14,38 @@ describe('mocker', function () {
       });
     });
 
+    describe('array default errors', function () {
+      context('when "arrayLengthRange" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ arrayLengthRange: -1 });
+          };
+
+          expect(testFn).to.throw('"arrayLengthRange" must be a non-negative integer');
+        });
+      });
+
+      context('when "maxExtraAdditionalItems" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ maxExtraAdditionalItems: -1 });
+          };
+
+          expect(testFn).to.throw('"maxExtraAdditionalItems" must be a non-negative integer');
+        });
+      });
+
+      context('when "minArrayItems" is less than zero', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minArrayItems: -1 });
+          };
+
+          expect(testFn).to.throw('"minArrayItems" must be a non-negative integer');
+        });
+      });
+    });
+
     describe('object default errors', function () {
       context('when "maxExtraAdditionalProperties" is less than zero', function () {
         it('throws an error', function () {
