@@ -28,7 +28,7 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
   context('without any relevant keywords', function () {
     localSetupCustomMocker({
       minArrayItems: 3,
-      arrayLengthRange: 5,
+      arrayItemsRange: 5,
     });
     before(function () {
       this.itemSchema = Symbol('itemSchema');
@@ -51,7 +51,7 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
   context('with a list array schema', function () {
     localSetupCustomMocker({
       minArrayItems: 2,
-      arrayLengthRange: 7,
+      arrayItemsRange: 7,
     });
     before(function () {
       this.itemSchema = Symbol('itemSchema');
@@ -179,7 +179,7 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
 
   context('with a list array schema with just "minItems"', function () {
     localSetupCustomMocker({
-      arrayLengthRange: 5,
+      arrayItemsRange: 5,
     });
     before(function () {
       const singleTypedSchema = generateValidTestSchema({

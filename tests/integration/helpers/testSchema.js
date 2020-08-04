@@ -21,7 +21,7 @@ const testSchema = ({
   scenario,
   customDefaults,
   schema: normalSchemaConfig,
-  testBooleanLiteral: booleanSchemaConfig,
+  testNonObjectArgument: nonObjectArgumentConfig,
   runCount = defaultRunCount,
   theSchemaIsInvalidBecause: expectedSchemaValidationError = null,
   alternateBaseValidationSchema = null, // use if the edgeCaseValidator still throws an error
@@ -39,14 +39,14 @@ const testSchema = ({
   const hasScenario = scenario !== undefined;
 
   const isNormalTest = normalSchemaConfig !== undefined;
-  const isBooleanSchemaTest = booleanSchemaConfig !== undefined;
-  const hasOneTestConfig = (isNormalTest && !isBooleanSchemaTest) || (!isNormalTest && isBooleanSchemaTest);
+  const isNonObjectArgumentTest = nonObjectArgumentConfig !== undefined;
+  const hasOneTestConfig = (isNormalTest && !isNonObjectArgumentTest) || (!isNormalTest && isNonObjectArgumentTest);
 
   let testConfig = null;
   let schemaToTest = null;
   if (hasOneTestConfig) {
-    testConfig = isNormalTest ? normalSchemaConfig : booleanSchemaConfig;
-    schemaToTest = isNormalTest ? normalSchemaConfig : booleanSchemaConfig.schema;
+    testConfig = isNormalTest ? normalSchemaConfig : nonObjectArgumentConfig;
+    schemaToTest = isNormalTest ? normalSchemaConfig : nonObjectArgumentConfig.schema;
   }
 
   const expectedError = hasOneTestConfig ? testConfig.itThrowsTheError || null : null;
@@ -74,20 +74,20 @@ const testSchema = ({
     }
 
     if (!hasOneTestConfig) {
-      throw Error('"testSchema" must be provided either "schema" or "testBooleanLiteral"');
+      throw Error('"testSchema" must be provided either "schema" or "testNonObjectArgument"');
     }
 
     if (isNormalTest && !hasBaseTestAnnotation) {
       throw Error('"schema" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
     }
 
-    if (isBooleanSchemaTest && schemaToTest !== true && schemaToTest !== false) {
-      throw Error('"testBooleanLiteral" must have boolean property "schema"');
+    if (isNonObjectArgumentTest && !_.has(nonObjectArgumentConfig, 'schema')) {
+      throw Error('"testNonObjectArgument" must have property "schema"');
     }
 
-    if (isBooleanSchemaTest && !hasBaseTestAnnotation) {
+    if (isNonObjectArgumentTest && !hasBaseTestAnnotation) {
       // eslint-disable-next-line max-len
-      throw Error('"testBooleanLiteral" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
+      throw Error('"testNonObjectArgument" must have either of the string annotations "itAlwaysReturns" or "itThrowsTheError"');
     }
 
     if (ignoreSchemaValidation) {

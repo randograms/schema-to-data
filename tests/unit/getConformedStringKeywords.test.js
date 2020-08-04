@@ -70,4 +70,18 @@ describe('getConformedStringKeywords', function () {
       });
     });
   });
+
+  context('when "maxLength" is less than "minStringLength"', function () {
+    setupCustomMocker({ minStringLength: 10 });
+
+    it('adjusts the minLength', function () {
+      const singleTypedSchema = generateValidTestSchema({
+        maxLength: 4,
+      });
+      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+        minLength: 4,
+        maxLength: 4,
+      });
+    });
+  });
 });

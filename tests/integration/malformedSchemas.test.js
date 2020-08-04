@@ -82,7 +82,7 @@ describe('malformed schemas', function () {
 
   testSchema({
     scenario: 'with a "false" literal schema',
-    testBooleanLiteral: {
+    testNonObjectArgument: {
       schema: false,
       itThrowsTheError: 'Cannot generate data for a "false" literal schema',
     },
