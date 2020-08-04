@@ -2,6 +2,20 @@ const { mapBasicSchemas } = require('./helpers/commonSchemas');
 
 describe('multi-typed schemas', function () {
   testSchema({
+    scenario: 'without a schema',
+    testNonObjectArgument: {
+      schema: undefined,
+      itAlwaysReturns: 'data',
+    },
+    alternateBaseValidationSchema: true,
+    runCount: 30,
+    itValidatesAgainst: mapBasicSchemas(({ schemaDescriptor, basicSchema }) => ({
+      itSometimesReturns: `${schemaDescriptor}`,
+      ...basicSchema,
+    })),
+  });
+
+  testSchema({
     scenario: 'when type is undefined',
     schema: {
       itAlwaysReturns: 'data',
@@ -15,7 +29,7 @@ describe('multi-typed schemas', function () {
 
   testSchema({
     scenario: 'with a "true" literal schema',
-    testBooleanLiteral: {
+    testNonObjectArgument: {
       schema: true,
       itAlwaysReturns: 'data',
     },
