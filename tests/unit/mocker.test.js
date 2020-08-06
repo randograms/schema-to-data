@@ -46,6 +46,58 @@ describe('mocker', function () {
       });
     });
 
+    describe('number default errors', function () {
+      context('when "minNumber" is not a number', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minNumber: 'a' });
+          };
+
+          expect(testFn).to.throw('"minNumber" must be a number');
+        });
+      });
+
+      context('when "maxNumber" is not a number', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ maxNumber: 'a' });
+          };
+
+          expect(testFn).to.throw('"maxNumber" must be a number');
+        });
+      });
+
+      context('when "maxNumber" and "minNumber" are provided and they conflict', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minNumber: 1, maxNumber: -1 });
+          };
+
+          expect(testFn).to.throw('"minNumber" must be less than or equal to "maxNumber"');
+        });
+      });
+
+      context('when only "maxNumber" is provided and it conflicts with the default "minNumber"', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ maxNumber: -Number.MAX_SAFE_INTEGER });
+          };
+
+          expect(testFn).to.throw('"minNumber" must be less than or equal to "maxNumber"');
+        });
+      });
+
+      context('when only "minNumber" is provided and it conflicts with the default "maxNumber"', function () {
+        it('throws an error', function () {
+          const testFn = () => {
+            new Mocker({ minNumber: Number.MAX_SAFE_INTEGER });
+          };
+
+          expect(testFn).to.throw('"minNumber" must be less than or equal to "maxNumber"');
+        });
+      });
+    });
+
     describe('object default errors', function () {
       context('when "maxExtraAdditionalProperties" is less than zero', function () {
         it('throws an error', function () {

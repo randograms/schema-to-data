@@ -1,4 +1,5 @@
 const { defaultMocker } = require('../../lib/mocker');
+const { setupCustomMocker } = require('./helpers/setupCustomMocker');
 
 // TODO: enforce that type is either "decimal" or "integer"
 const generateValidTestSchema = ({ ...keywords } = {}) => ({
@@ -7,12 +8,35 @@ const generateValidTestSchema = ({ ...keywords } = {}) => ({
 
 describe('getConformedNumberKeywords', function () {
   const testCommonBehavior = (type) => {
+    setupCustomMocker({
+      minNumber: -10,
+      maxNumber: 10,
+    });
+
     context('by default', function () {
       it('returns relevant keys', function () {
         const singleTypedSchema = generateValidTestSchema({ type });
-        expect(defaultMocker.getConformedNumberKeywords(singleTypedSchema)).to.eql({
-          minimum: -100000,
-          maximum: 100000,
+        expect(this.mocker.getConformedNumberKeywords(singleTypedSchema)).to.eql({
+          minimum: -10,
+          maximum: 10,
+        });
+      });
+    });
+
+    context('with just "minimum"', function () {
+      before(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type,
+          minimum: 2,
+        });
+
+        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+      });
+
+      it('uses the default "maxNumber"', function () {
+        expect(this.result).to.be.like({
+          minimum: 2,
+          maximum: 10,
         });
       });
     });
@@ -21,16 +45,34 @@ describe('getConformedNumberKeywords', function () {
       before(function () {
         const singleTypedSchema = generateValidTestSchema({
           type,
-          minimum: 200000,
+          minimum: 20,
         });
 
-        this.result = defaultMocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
       });
 
       it('adjusts the maximum', function () {
         expect(this.result).to.be.like({
-          minimum: 200000,
-          maximum: 400000,
+          minimum: 20,
+          maximum: 20,
+        });
+      });
+    });
+
+    context('with just "maximum"', function () {
+      before(function () {
+        const singleTypedSchema = generateValidTestSchema({
+          type,
+          maximum: 2,
+        });
+
+        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+      });
+
+      it('uses the default "minNumber"', function () {
+        expect(this.result).to.be.like({
+          minimum: -10,
+          maximum: 2,
         });
       });
     });
@@ -39,17 +81,30 @@ describe('getConformedNumberKeywords', function () {
       before(function () {
         const singleTypedSchema = generateValidTestSchema({
           type,
-          maximum: -200000,
+          maximum: -20,
         });
 
-        this.result = defaultMocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
       });
 
       it('adjusts the minimum', function () {
         expect(this.result).to.be.like({
-          minimum: -400000,
-          maximum: -200000,
+          minimum: -20,
+          maximum: -20,
         });
+      });
+    });
+
+    context('when "minimum" and "maximum" conflict', function () {
+      it('throws an error', function () {
+        const testFn = () => {
+          defaultMocker.getConformedNumberKeywords({
+            minimum: 2,
+            maximum: 1,
+          });
+        };
+
+        expect(testFn).to.throw('Cannot generate data for conflicting "minimum" and "maximum"');
       });
     });
   };
