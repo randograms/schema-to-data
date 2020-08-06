@@ -84,4 +84,19 @@ describe('getConformedStringKeywords', function () {
       });
     });
   });
+
+  context('when "minLength" and "maxLength" conflict', function () {
+    it('throws an error', function () {
+      const singleTypedSchema = generateValidTestSchema({
+        minLength: 10,
+        maxLength: 3,
+      });
+
+      const testFn = () => {
+        defaultMocker.getConformedStringKeywords(singleTypedSchema);
+      };
+
+      expect(testFn).to.throw('Cannot generate data for conflicting "minLength" and "maxLength"');
+    });
+  });
 });
