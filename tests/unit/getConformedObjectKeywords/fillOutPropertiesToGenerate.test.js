@@ -178,7 +178,7 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
   });
 
   context('when "optionalPropertyPrioritization" is between 0 and 1 and the object size can vary', function () {
-    this.retries(30);
+    this.retries(50);
     setupCustomMocker({ optionalPropertyPrioritization: 0.5 });
 
     beforeEach(function () {

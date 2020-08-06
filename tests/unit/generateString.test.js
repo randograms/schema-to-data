@@ -31,18 +31,4 @@ describe('generateString', function () {
       expect(this.results).to.include.something.that.satisfies((string) => string.length > 5 && string.length < 10);
     });
   });
-
-  context('when minLength and maxLength conflict', function () {
-    it('throws an error', function () {
-      const testFn = () => {
-        defaultMocker.generateString({
-          type: 'string',
-          minLength: 10,
-          maxLength: 3,
-        });
-      };
-
-      expect(testFn).to.throw('Cannot generate data for conflicting "minLength" and "maxLength"');
-    });
-  });
 });

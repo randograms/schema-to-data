@@ -35,18 +35,4 @@ describe('generateNumber', function () {
       expect(this.results).to.all.satisfy(_.isInteger);
     });
   });
-
-  context('when minimum and maximum conflict', function () {
-    it('throws an error', function () {
-      const testFn = () => {
-        defaultMocker.generateNumber({
-          type: 'decimal',
-          minimum: 10,
-          maximum: 9,
-        });
-      };
-
-      expect(testFn).to.throw('Cannot generate data for conflicting "minimum" and "maximum"');
-    });
-  });
 });

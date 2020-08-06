@@ -12,13 +12,13 @@ describe('array schemas', function () {
         maxItems: 0,
       },
       {
-        itSometimesReturns: 'an array with one item',
+        itSometimesReturns: 'an array with some items',
         minItems: 1,
-        maxItems: 1,
+        maxItems: 10,
       },
       {
-        itSometimesReturns: 'an array with multiple items',
-        minItems: 3,
+        itSometimesReturns: 'an array with many items',
+        minItems: 11,
       },
     ],
   });
