@@ -7,20 +7,45 @@ on:
       - synchronize
 
 jobs:
-  CI:
+  # CI:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     RUN_COUNT: 100
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #     - name: Setup Node 12.x
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: '12.x'
+  #     - name: Clean Install
+  #       run: npm ci
+  #     - name: Lint
+  #       run: npm run lint
+  #     - name: Test
+  #       run: npm run test
+  BuildPreview:
     runs-on: ubuntu-latest
-    env:
-      RUN_COUNT: 100
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Setup Node 12.x
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - name: Clean Install
-        run: npm ci
-      - name: Lint
-        run: npm run lint
-      - name: Test
-        run: npm run test
+      - name: Get Branch Name
+        uses: mdecoleman/pr-branch-name@1.0.0
+        id: vars
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: sed -i 's/readme-assets/readme-previews\/${{ steps.vars.outputs.branch }}/' docs/flowchart.md
+      - name: Clean Install, Build Flowchart, Unignore Build, Commit and Push
+        run: |
+          npm ci
+          npm run build:flowchart
+          npm run unignore:build
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Save built assets"
+          git push origin HEAD:refs/heads/readme-previews/${{ steps.vars.outputs.branch }} -f --no-verify
