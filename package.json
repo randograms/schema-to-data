@@ -2,8 +2,9 @@
   "name": "schema-to-data",
   "version": "0.0.0",
   "scripts": {
-    "build:flowchart": "node buildFlowchart",
-    "build:flowchart:watch": "nodemon buildFlowchart.js --watch flowchart.puml",
+    "build:diagrams": "node buildDiagrams",
+    "build:diagrams:watch": "nodemon buildDiagrams.js -e .puml --watch uml",
+    "clean:build": "rm -rf build/",
     "lint": "npm run lint:md && npm run lint:js",
     "lint:js": "eslint . --color",
     "lint:md": "markdownlint --ignore node_modules/ .",
