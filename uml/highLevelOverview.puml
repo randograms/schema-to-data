@@ -1,5 +1,6 @@
 @startuml Schema to Data
 
+!define notImplemented #F9C2C2
 !define dark #222
 !define lessDark #777
 !define lessLight #FEFEFE

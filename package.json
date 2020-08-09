@@ -9,8 +9,9 @@
     "lint:js": "eslint . --color",
     "lint:md": "markdownlint --ignore node_modules/ .",
     "prepush": "npm run lint && cross-env RUN_COUNT=50 npm run test",
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit && npm run test:integration && npm run test:uml",
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
+    "test:uml": "mocha --colors --require tests/setup tests/uml.test.js",
     "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js",
     "unignore:build": "node unignoreBuild"
   },
