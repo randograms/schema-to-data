@@ -1,0 +1,252 @@
+@startuml Schema to Data
+
+!define notImplemented #F9C2C2
+!define dark #222
+!define lessDark #777
+!define lessLight #FEFEFE
+!define light #FFF
+!define primary #1C5D99
+!define secondary #639FAB
+!define accent #BBCDE5
+
+skinparam shadowing false
+skinparam FontColor dark
+
+skinparam Activity {
+  BackgroundColor light
+  BorderColor primary
+}
+
+skinparam ActivityDiamond {
+  BackgroundColor light
+  BorderColor secondary
+}
+
+skinparam Arrow {
+  Color lessDark
+  FontColor primary
+}
+
+skinparam Note {
+  BackgroundColor lessLight
+  BorderColor accent
+  FontColor lessDark
+}
+
+title Algorithm Functions (Detailed)
+
+floating note
+  * The majority of functions are immutable to prevent modifying the original schema
+  and to facilitate debugging
+  * The algorithm coerces the original schema into a series of pseudo schemas
+  * Each function has specific responsibilities which allows downstream functions
+  to make assumptions
+end note
+
+partition Legend {
+ :implemented;
+  detach
+  notImplemented:not implemented;
+  detach
+}
+
+start
+note right
+  index/schemaToData(schema)
+  * function is bound to mocker instance
+end note
+
+:lib/schemaToData(schema);
+
+partition "Schema to Data" {
+  :coerceSchema;
+  note right: (A)
+
+  partition "Coerce Schema" {
+    :coerceTypes
+    * force "type" keyword to be an array
+    * if no "type" keyword is set then it uses all pseudo types
+    * pseudo types are: "array", "boolean", "decimal",
+    "integer", "null", "object", "string"
+    * "decimal" is not an official json-schema type
+    * the "number" type is converted to "integer" and "decimal"
+    to facilitate decision making later on;
+
+    notImplemented: * traverse inner combined
+      schemas (allOf, anyOf, oneOf)
+      and coerce their types
+      * limit types based on types
+      of inner combined schemas;
+
+    :selectType
+    * pick one of the types from the type array;
+
+    :conformSchemaToType
+    * gathers keywords related to selected "type"
+    * uses Mocker instance defaults if schema is missing keywords;
+
+    partition conformSchemaToType {
+      notImplemented:handle keywords
+      * "enum"
+      * "const"
+      * "default"
+      * "examples";
+
+      if (type?) then (array)
+        :getConformedArrayKeywords
+        * "items":
+          * Will be an array of coerced item schemas
+          * Will have a random valid length
+          * Will only contain items to generate;
+
+        partition getConformedArrayKeywords {
+          :createPseudoArraySchema
+          * coerces "items" to a tuple definition
+          * guarantees an "additionalItems" schema
+          * guarantees values for "minItems" and "maxItems";
+
+          notImplemented:handle keywords
+          * "additionalItems"
+          * "uniqueItems";
+
+          partition getCoercedItemSchemas {
+            :* picks a random valid array length
+            * creates an array of uncoerced schemas using
+            "additionalItems" to fill in needed schemas;
+
+            while (coerced "items" has uncoerced schemas?) is (yes)
+              (A)
+              note right: coerceSchema(itemSchema)
+            endwhile
+
+            :* return coerced "items";
+          }
+        }
+      else if (type?) then (decimal or integer)
+        :getConformedNumberKeywords
+        * "minimum"
+        * "maximum";
+      else if (type?) then (object)
+        :getConformedObjectKeywords
+        * "properties":
+          * Will be an object with coerced property schemas
+          * Will contain all required properties
+          * Will have a valid random number of properties
+          * Will only contain properties to generate;
+
+        partition getConformedObjectKeywords {
+          :createPseudoObjectSchema
+          * tracks schemas for properties to generate using
+          the pseudo keyword "propertiesSchemas"
+          * tracks properties to generate
+          using the pseudo keyword "propertyNamesToGenerate"
+          * shuffles and tracks potential optional property names to generate
+          * guarantees an "additionalProperties" schema
+          * guarantees valid "minProperties" and "maxProperties";
+
+          notImplemented:handle keywords
+          * "additionalProperties"
+          * "propertyNames"
+          * "patternProperties";
+
+          :guaranteeRequiredPropertiesHaveSchemas
+          * Uses the "additionalProperties" schema to fill in
+          missing schemas for "required" properties;
+
+          :fillOutPropertiesToGenerate
+          * picks a random valid object size
+          * populates "propertyNamesToGenerate" using optional
+          and random additional properties
+          * guarantees each additional property will have its own schema
+          using the "additionalProperties" schema;
+
+          partition getCoercedPropertiesSchemas {
+            :* coerces and gathers property
+            schemas for "propertyNamesToGenerate";
+
+            while (coerced "properties" has uncoerced schemas?) is (yes)
+              (A)
+              note right: coerceSchema(propertySchema)
+            endwhile
+
+            :* returns coerced "properties";
+          }
+        }
+      else if (type?) then (string)
+        :getConformedStringKeywords
+        * "minLength"
+        * "maxLength";
+      else (boolean, null or bad state)
+        :do nothing;
+        note right
+          * this function is
+          not responsible
+          for handling
+          a bad state
+          * a bad state is
+          only expected to
+          occur during
+          development
+        end note
+      endif
+    }
+  }
+
+  :generateData;
+  note right: (B)
+
+  partition "Generate Data" {
+    if (type?) then (array)
+      partition generateArray {
+        while (has coerced items?) is (yes)
+          (B)
+          note right: generateData(coercedItemSchema)
+        endwhile
+
+        :return mock array;
+      }
+    else if (type?) then (boolean)
+      :generateBoolean
+      * return random true or false;
+    else if (type?) then (decimal or integer)
+      notImplemented: handle keywords
+      *"multipleOf"
+      *"exclusiveMinimum" (draft 4 and 6)
+      *"exclusiveMaximum" (draft 4 and 6);
+
+      :generateNumber
+      * use pseudo "type" keyword to guarantee "integer" is an integer
+      and "decimal" has a fractional value
+      * return random number using "minimum" and "maximum";
+    else if (type?) then (null)
+      :return null;
+    else if (type?) then (object)
+      partition generateObject {
+        while (has coerced properties?) is (yes)
+          (B)
+          note right: generateData(coercedPropertySchema)
+        endwhile
+
+        :return mock object;
+      }
+    else if (type?) then (string)
+      notImplemented: handle keywords
+      * "format"
+      * "pattern";
+
+      :generateString
+      * return random string using "minLength" and "maxLength";
+    else (bad state)
+      stop
+      note right
+        Error
+        * Only expected to occur
+        during development
+      end note
+    endif
+  }
+}
+
+stop
+note right: return mock data;
+@enduml
