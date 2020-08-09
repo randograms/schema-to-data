@@ -1,25 +1,23 @@
 # Developer Guide
 
-## The Flowchart
+## Diagrams
 
-**Note**: The flowchart is currently out of date as it was created before the code
+Diagrams are written with [PlantUml](https://plantuml.com/) and are located in the `uml/` directory
 
-The flowchart explains the algorithm at a high level with pseudo code. There should be a correspondence between the flowchart and the actual implementation.
+* [High Level Overview](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/highLevelOverview.png)
+* [Algorithm Functions (High Level)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsHighLevel.png)
+* [Algorithm Functions (Detailed)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsDetailed.png)
 
-See the current flowchart [here](./flowchart.md)
-
-Build the flowchart locally:
+Building diagrams locally:
 
 ```shell
-npm run build:flowchart
+npm run build:diagrams
 ```
 
-### Updating the Flowchart
-
-The flowchart is written with [PlantUml](https://plantuml.com/). Build the flowchart in watch mode and then update `flowchart.puml`
+or
 
 ```shell
-npm run build:flowchart:watch
+npm run build:diagrams:watch
 ```
 
 ## Tests
