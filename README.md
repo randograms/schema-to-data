@@ -62,7 +62,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 ### Planned Supported Keywords
 
 - All
-  - $ref
   - const
   - allOf
   - anyOf
@@ -87,6 +86,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 ### Unplanned Keywords
 
 - All
+  - $ref
   - not
 - Array
   - uniqueItems

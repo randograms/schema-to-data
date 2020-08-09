@@ -1,0 +1,134 @@
+@startuml Schema to Data
+
+!define notImplemented #F9C2C2
+!define dark #222
+!define lessDark #777
+!define lessLight #FEFEFE
+!define light #FFF
+!define primary #1C5D99
+!define secondary #639FAB
+!define accent #BBCDE5
+
+skinparam shadowing false
+skinparam FontColor dark
+
+skinparam Activity {
+  BackgroundColor light
+  BorderColor primary
+}
+
+skinparam ActivityDiamond {
+  BackgroundColor light
+  BorderColor secondary
+}
+
+skinparam Arrow {
+  Color lessDark
+  FontColor primary
+}
+
+skinparam Note {
+  BackgroundColor lessLight
+  BorderColor accent
+  FontColor lessDark
+}
+
+title Algorithm Functions (High Level)
+
+partition Legend {
+ :implemented;
+  detach
+  notImplemented:not implemented;
+  detach
+}
+
+start
+note right
+  index/schemaToData(schema)
+  * function is bound to mocker instance
+end note
+
+:lib/schemaToData(schema);
+
+partition "Schema to Data" {
+  :coerceSchema;
+
+  partition "Coerce Schema" {
+    :coerceTypes;
+
+    notImplemented:* handle allOf, anyOf, oneOf;
+
+    :selectType;
+
+    :conformSchemaToType;
+
+    partition conformSchemaToType {
+      if (type?) then (array)
+        :getConformedArrayKeywords;
+
+        partition getConformedArrayKeywords {
+          :createPseudoArraySchema;
+
+          :getCoercedItemSchemas;
+        }
+      else if (type?) then (decimal or integer)
+        :getConformedNumberKeywords;
+      else if (type?) then (object)
+        :getConformedObjectKeywords;
+
+        partition getConformedObjectKeywords {
+          :createPseudoObjectSchema;
+
+          :guaranteeRequiredPropertiesHaveSchemas;
+
+          :fillOutPropertiesToGenerate;
+
+          :getCoercedPropertiesSchemas;
+        }
+      else if (type?) then (string)
+        :getConformedStringKeywords;
+      else (boolean, null or bad state)
+        :do nothing;
+        note right
+          * this function is
+          not responsible
+          for handling
+          a bad state
+          * a bad state is
+          only expected to
+          occur during
+          development
+        end note
+      endif
+    }
+  }
+
+  :generateData;
+
+  partition generateData {
+    if (type?) then (array)
+      :generateArray;
+    else if (type?) then (boolean)
+      :generateBoolean;
+    else if (type?) then (decimal or integer)
+      :generateNumber;
+    else if (type?) then (null)
+      :return null;
+    else if (type?) then (object)
+      :generateObject;
+    else if (type?) then (string)
+      :generateString;
+    else (bad state)
+      stop
+      note right
+        Error
+        * Only expected to occur
+        during development
+      end note
+    endif
+  }
+}
+
+stop
+note right: return mock data;
+@enduml

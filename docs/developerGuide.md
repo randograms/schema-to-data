@@ -1,26 +1,34 @@
 # Developer Guide
 
-## The Flowchart
+## Diagrams
 
-**Note**: The flowchart is currently out of date as it was created before the code
+Diagrams are written with [PlantUml](https://plantuml.com/) and are located in the `uml/` directory
 
-The flowchart explains the algorithm at a high level with pseudo code. There should be a correspondence between the flowchart and the actual implementation.
+* [High Level Overview](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/highLevelOverview.png)
+* [Algorithm Functions (High Level)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsHighLevel.png)
+* [Algorithm Functions (Detailed)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsDetailed.png)
 
-See the current flowchart [here](./flowchart.md)
-
-Build the flowchart locally:
-
-```shell
-npm run build:flowchart
-```
-
-### Updating the Flowchart
-
-The flowchart is written with [PlantUml](https://plantuml.com/). Build the flowchart in watch mode and then update `flowchart.puml`
+Building diagrams locally:
 
 ```shell
-npm run build:flowchart:watch
+npm run build:diagrams
 ```
+
+or
+
+```shell
+npm run build:diagrams:watch
+```
+
+## The Mocker Class
+
+All of the algorithm functions can be found in the `lib/` directory. These functions are added to the prototype of the Mocker class defined under `lib/mocker.js`. A Mocker instance encapsulates a set of user-configurable defaults that will be used in the algorithm. Mocker instances should never be exposed to the end user. The Mocker class itself has a function to extract the `schemaToData` function from a Mocker instance. This isolated `schemaToData` function will still be bound to the Mocker instance.
+
+There is a `defaultMocker` singleton which contains the default defaults.
+
+## index.js
+
+The index file exposes two functions: `schemaToData` and `createWithDefaults`. `schemaToData` is bound to the `defaultMocker`. `createWithDefaults` returns a version of `schemaToData` that is bound to a new Mocker instance. This allows the end user to create multiple `schemaToData` functions with separate default values.
 
 ## Tests
 
@@ -41,6 +49,11 @@ Tests the *schemaToData* function as a whole. All tests use the `testSchema` int
 ```shell
 npm run test:integration
 ```
+
+Supported environment variables:
+
+* DEBUG=true: Will always print generated data, even if a test passes. Produces verbose output, so it is recommended to isolate a single test case first.
+* RUN_COUNT=n: Minimum run count. `testSchema` will use the maximum of RUN_COUNT and the test case's defined runCount. Since tests are inherently flaky it is recommended to set a high RUN_COUNT to separate flaky tests from broken tests during development. `n` is an integer.
 
 #### testSchema Integration Helper
 

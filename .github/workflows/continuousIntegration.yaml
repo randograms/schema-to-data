@@ -13,7 +13,7 @@ jobs:
       RUN_COUNT: 100
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Setup Node 12.x
         uses: actions/setup-node@v1
         with:
@@ -24,3 +24,28 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm run test
+  DeployReadmePreview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Get Branch Name
+        uses: mdecoleman/pr-branch-name@1.0.0
+        id: vars
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clean Install, Build Diagrams, Unignore Build, Commit and Push
+        run: |
+          sed -i 's/readme-assets/readme-previews\/${{ steps.vars.outputs.branch }}/' docs/developerGuide.md
+          npm ci
+          npm run build:diagrams
+          npm run unignore:build
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Save built assets"
+          git push origin HEAD:refs/heads/readme-previews/${{ steps.vars.outputs.branch }} -f --no-verify
