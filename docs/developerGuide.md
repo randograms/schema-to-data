@@ -50,6 +50,11 @@ Tests the *schemaToData* function as a whole. All tests use the `testSchema` int
 npm run test:integration
 ```
 
+Supported environment variables:
+
+* DEBUG=true: Will always print generated data, even if a test passes. Produces verbose output, so it is recommended to isolate a single test case first.
+* RUN_COUNT=n: Minimum run count. `testSchema` will use the maximum of RUN_COUNT and the test case's defined runCount. Since tests are inherently flaky it is recommended to set a high RUN_COUNT to separate flaky tests from broken tests during development. `n` is an integer.
+
 #### testSchema Integration Helper
 
 **Note**: Documentation needed
