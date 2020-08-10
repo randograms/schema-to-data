@@ -17,8 +17,8 @@ jobs:
           node-version: '12.x'
       - name: Clean Install
         run: npm ci
-      - name: Build Flowchart
-        run: npm run build:flowchart
+      - name: Build Diagrams
+        run: npm run build:diagrams
       - name: Unignore Build
         run: npm run unignore:build
       - name: Deploy Assets

@@ -1,0 +1,84 @@
+@startuml Schema to Data
+
+!define notImplemented #F9C2C2
+!define dark #222
+!define lessDark #777
+!define lessLight #FEFEFE
+!define light #FFF
+!define primary #1C5D99
+!define secondary #639FAB
+!define accent #BBCDE5
+
+skinparam shadowing false
+skinparam FontColor dark
+
+skinparam Activity {
+  BackgroundColor light
+  BorderColor primary
+}
+
+skinparam ActivityDiamond {
+  BackgroundColor light
+  BorderColor secondary
+}
+
+skinparam Arrow {
+  Color lessDark
+  FontColor primary
+}
+
+skinparam Note {
+  BackgroundColor lessLight
+  BorderColor accent
+  FontColor lessDark
+}
+
+title High Level Overview
+
+start
+note right: schemaToData(schema)
+
+partition "Coerce Schema" {
+  floating note left
+    * schemas within the algorithm
+    are pseudo schemas
+    and may not adhere
+    to a json-schema draft
+
+    * this step determines the
+    size/length of the
+    data to generate
+  end note
+
+  repeat
+  :use the "type" keyword to get a set of possible types;
+
+  :select one type;
+
+  :gather keywords relevant to selected type;
+
+  repeat while (has sub schemas?) is (coerce sub schemas)
+  ->no;
+}
+
+partition "Generate Data" {
+  floating note
+    * at this point the coerced
+    pseudo schema has all of the
+    information it needs to generate
+    valid data
+  end note
+
+  repeat
+    if (is number, string or boolean schema?) then (yes)
+      :use schema type and keywords
+      to generate mock data;
+    endif
+
+  repeat while (schema is object or array?) is (repeat for each property or item subschema)
+}
+
+stop
+note right: return mock data
+
+@enduml
