@@ -9,7 +9,7 @@ describe('coerceTypes', function () {
       additionalSchemaKeys,
     };
 
-    this.result = defaultMocker.coerceTypes(this.schema);
+    this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
   };
 
   const itReturnsACopyOfTheSchema = () => {
@@ -115,6 +115,59 @@ describe('coerceTypes', function () {
         'decimal',
         'integer',
         'boolean',
+        'array',
+        'object',
+      ]);
+    });
+  });
+
+  context('when the schemas type field is an invalid string type', function () {
+    before(buildSetupResultForSchemaWithType('whoops'));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with all data types', function () {
+      expect(this.result.type).to.eql([
+        'null',
+        'string',
+        'decimal',
+        'integer',
+        'boolean',
+        'array',
+        'object',
+      ]);
+    });
+  });
+
+  context('when the schemas type field is an array of invalid values', function () {
+    before(buildSetupResultForSchemaWithType(['whoops1', false, 3]));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with all data types', function () {
+      expect(this.result.type).to.eql([
+        'null',
+        'string',
+        'decimal',
+        'integer',
+        'boolean',
+        'array',
+        'object',
+      ]);
+    });
+  });
+
+  context('when the schemas type field is an array with some valid and invalid values', function () {
+    before(buildSetupResultForSchemaWithType(['string', 'whoops1', false, 'array', 3, 'object']));
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with the subset of valid types', function () {
+      expect(this.result.type).to.eql([
+        'string',
         'array',
         'object',
       ]);

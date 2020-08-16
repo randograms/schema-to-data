@@ -12,7 +12,7 @@
     "test": "npm run test:unit && npm run test:integration && npm run test:uml",
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
     "test:uml": "mocha --colors --require tests/setup tests/uml.test.js",
-    "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js",
+    "test:unit": "mocha --colors --require tests/setup --require tests/setupUnit tests/unit/**/*.test.js",
     "unignore:build": "node unignoreBuild"
   },
   "husky": {

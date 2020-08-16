@@ -2,13 +2,16 @@ const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-const generateValidTestSchema = ({ items = [] } = {}) => ({ items });
-
-describe('generateArray', function () {
+describe.only('generateArray', function () {
   context('when "items" is empty', function () {
     it('returns an empty array', function () {
-      const schema = generateValidTestSchema();
-      expect(defaultMocker.generateArray(schema)).to.eql([]);
+      const conformedSchema = {
+        type: 'array',
+        items: [],
+      };
+      const result = testUnit(defaultMocker, 'generateArray', conformedSchema);
+
+      expect(result).to.eql([]);
     });
   });
 
@@ -27,15 +30,16 @@ describe('generateArray', function () {
       stub.withArgs(this.itemSchema2).returns(this.generatedData2);
       stub.withArgs(this.itemSchema3).returns(this.generatedData3);
 
-      const schema = generateValidTestSchema({
+      const conformedSchema = {
+        type: 'array',
         items: [
           this.itemSchema1,
           this.itemSchema2,
           this.itemSchema3,
         ],
-      });
+      };
 
-      this.result = defaultMocker.generateArray(schema);
+      this.result = testUnit(defaultMocker, 'generateArray', conformedSchema);
     });
     after(sandbox.restore);
 
