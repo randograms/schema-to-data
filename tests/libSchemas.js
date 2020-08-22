@@ -270,9 +270,17 @@ module.exports.libSchemas = {
     inputSchema: SingleTypedSchema,
     outputSchema: ConformedSchema,
   },
+  generateArray: {
+    inputSchema: ConformedArraySchema,
+    outputSchema: { type: 'array' },
+  },
   generateBoolean: {
     inputSchema: ConformedBooleanSchema,
     outputSchema: { type: 'boolean' },
+  },
+  generateData: {
+    inputSchema: ConformedSchema,
+    outputSchema: true,
   },
   generateNumber: {
     inputSchema: ConformedNumberSchema,
@@ -281,6 +289,10 @@ module.exports.libSchemas = {
   generateString: {
     inputSchema: ConformedStringSchema,
     outputSchema: { type: 'string' },
+  },
+  generateObject: {
+    inputSchema: ConformedObjectSchema,
+    outputSchema: { type: 'object' },
   },
 
   // getConformedArrayKeywords
