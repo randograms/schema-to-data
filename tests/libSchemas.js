@@ -53,6 +53,19 @@ const ConformedBooleanSchema = {
   additionalProperties: false,
 };
 
+const ConformedNumberKeywordsSchema = {
+  type: 'object',
+  properties: {
+    maximum: { type: 'number' },
+    minimum: { type: 'number' },
+  },
+  required: [
+    'maximum',
+    'minimum',
+  ],
+  additionalProperties: false,
+};
+
 const ConformedNumberSchema = {
   type: 'object',
   properties: {
@@ -64,6 +77,19 @@ const ConformedNumberSchema = {
     'maximum',
     'minimum',
     'type',
+  ],
+  additionalProperties: false,
+};
+
+const ConformedStringKeywordsSchema = {
+  type: 'object',
+  properties: {
+    maxLength: { type: 'number' },
+    minLength: { type: 'number' },
+  },
+  required: [
+    'maxLength',
+    'minLength',
   ],
   additionalProperties: false,
 };
@@ -102,6 +128,14 @@ module.exports.libSchemas = {
   generateString: {
     inputSchema: ConformedStringSchema,
     outputSchema: { type: 'string' },
+  },
+  getConformedNumberKeywords: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: ConformedNumberKeywordsSchema,
+  },
+  getConformedStringKeywords: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: ConformedStringKeywordsSchema,
   },
   selectType: {
     inputSchema: TypedSchema,
