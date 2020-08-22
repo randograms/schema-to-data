@@ -3,17 +3,12 @@ const { setupCustomMocker } = require('../helpers/setupCustomMocker');
 
 const sandbox = sinon.createSandbox();
 
-const generateValidTestSchema = ({ ...additionalSchemaKeys } = {}) => ({
-  ...additionalSchemaKeys,
-  type: 'array',
-});
-
 describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
   before(function () {
-    this.itemSchema1 = Symbol('itemSchema1');
-    this.itemSchema2 = Symbol('itemSchema2');
-    this.itemSchema3 = Symbol('itemSchema3');
-    this.defaultNestedSchema = Symbol('defaultNestedSchema');
+    this.itemSchema1 = { referenceId: 'itemSchema1' };
+    this.itemSchema2 = { referenceId: 'itemSchema2' };
+    this.itemSchema3 = { referenceId: 'itemSchema3' };
+    this.defaultNestedSchema = { referenceId: 'defaultNestedSchema' };
     sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
   });
   after(sandbox.restore);
@@ -31,11 +26,8 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       arrayItemsRange: 5,
     });
     before(function () {
-      this.itemSchema = Symbol('itemSchema');
-
-      const singleTypedSchema = generateValidTestSchema();
-
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      const singleTypedSchema = { type: 'array' };
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns an array schema with default values', function () {
@@ -54,13 +46,14 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       arrayItemsRange: 7,
     });
     before(function () {
-      this.itemSchema = Symbol('itemSchema');
+      this.itemSchema = { referenceId: 'itemSchema' };
 
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: this.itemSchema,
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns an array schema with the item schema as the items tuple and the additionalItems along with defult min and max items', function () { // eslint-disable-line max-len
@@ -75,13 +68,14 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
 
   context('with a list array schema and the defaultMocker', function () {
     before(function () {
-      this.itemSchema = Symbol('itemSchema');
+      this.itemSchema = { referenceId: 'itemSchema' };
 
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: this.itemSchema,
-      });
+      };
 
-      this.result = defaultMocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(defaultMocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns an array schema with the item schema as the items tuple and the additionalItems along with defult min and max items', function () { // eslint-disable-line max-len
@@ -100,11 +94,12 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       maxExtraAdditionalItems: 3,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with tuple items and a default additionalItems along with adjusted length keywords', function () { // eslint-disable-line max-len
@@ -123,11 +118,12 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       maxExtraAdditionalItems: 2,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: [this.itemSchema1, this.itemSchema2, this.itemSchema3],
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with tuple items and a default additionalItems along with adjusted length keywords', function () { // eslint-disable-line max-len
@@ -145,11 +141,12 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       minArrayItems: 4,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: false,
-      });
+      };
 
-      this.result = defaultMocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(defaultMocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with an empty items tuple and restricted length', function () {
@@ -164,13 +161,14 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
 
   context('with an array schema with a "false" literal items schema and non-zero "minItems"', function () {
     it('throws an error', function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         items: false,
         minItems: 1,
-      });
+      };
 
       const testFn = () => {
-        defaultMocker.createPseudoArraySchema(singleTypedSchema);
+        testUnit(defaultMocker, 'createPseudoArraySchema', singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate array items for "false" literal items schema and non-zero "minItems"');
@@ -182,12 +180,13 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       arrayItemsRange: 5,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         minItems: 4,
         items: this.itemSchema1,
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with "minItems" and "maxItems"', function () {
@@ -205,12 +204,13 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       maxExtraAdditionalItems: 3,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         minItems: 4,
         items: [this.itemSchema1, this.itemSchema2],
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with "minItems" and "maxItems"', function () {
@@ -228,11 +228,12 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       minArrayItems: 5,
     });
     before(function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'array',
         maxItems: 3,
-      });
+      };
 
-      this.result = this.mocker.createPseudoArraySchema(singleTypedSchema);
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
     });
 
     it('returns a schema with an adjusted "minItems"', function () {
@@ -247,13 +248,15 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
 
   context('with conflicting "minItems" and "maxItems"', function () {
     it('throws an error', function () {
+      const singleTypedSchema = {
+        type: 'string',
+        items: [],
+        minItems: 15,
+        maxItems: 13,
+      };
+
       const testFn = () => {
-        const pseudoArraySchema = generateValidTestSchema({
-          items: [],
-          minItems: 15,
-          maxItems: 13,
-        });
-        defaultMocker.createPseudoArraySchema(pseudoArraySchema);
+        testUnit(defaultMocker, 'createPseudoArraySchema', singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minItems" and "maxItems"');

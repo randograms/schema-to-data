@@ -1,16 +1,12 @@
 const { defaultMocker } = require('../../lib/mocker');
 const { setupCustomMocker } = require('./helpers/setupCustomMocker');
 
-const generateValidTestSchema = ({ ...keywords } = {}) => ({
-  ...keywords,
-  type: 'string',
-});
-
 describe('getConformedStringKeywords', function () {
   context('by default', function () {
     it('returns relevant keys with default values', function () {
-      const singleTypedSchema = generateValidTestSchema();
-      expect(defaultMocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      const singleTypedSchema = { type: 'string' };
+      const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 0,
         maxLength: 500,
       });
@@ -21,8 +17,9 @@ describe('getConformedStringKeywords', function () {
     setupCustomMocker({ minStringLength: 30 });
 
     it('returns relevant keys with custom default values', function () {
-      const singleTypedSchema = generateValidTestSchema();
-      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      const singleTypedSchema = { type: 'string' };
+      const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 30,
         maxLength: 530,
       });
@@ -35,8 +32,9 @@ describe('getConformedStringKeywords', function () {
     });
 
     it('returns relevant keys with custom default values', function () {
-      const singleTypedSchema = generateValidTestSchema();
-      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      const singleTypedSchema = { type: 'string' };
+      const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 0,
         maxLength: 80,
       });
@@ -47,10 +45,12 @@ describe('getConformedStringKeywords', function () {
     setupCustomMocker({ stringLengthRange: 20 });
 
     it('returns the "minLength" and an adjusted "maxLength"', function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'string',
         minLength: 70,
-      });
-      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      };
+      const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 70,
         maxLength: 90,
       });
@@ -61,10 +61,12 @@ describe('getConformedStringKeywords', function () {
     setupCustomMocker({ minStringLength: 1 });
 
     it('returns the default "minStringLength" and the "maxLength', function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'string',
         maxLength: 60,
-      });
-      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      };
+      const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 1,
         maxLength: 60,
       });
@@ -75,10 +77,12 @@ describe('getConformedStringKeywords', function () {
     setupCustomMocker({ minStringLength: 10 });
 
     it('adjusts the minLength', function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'string',
         maxLength: 4,
-      });
-      expect(this.mocker.getConformedStringKeywords(singleTypedSchema)).to.eql({
+      };
+      const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
         minLength: 4,
         maxLength: 4,
       });
@@ -87,13 +91,14 @@ describe('getConformedStringKeywords', function () {
 
   context('when "minLength" and "maxLength" conflict', function () {
     it('throws an error', function () {
-      const singleTypedSchema = generateValidTestSchema({
+      const singleTypedSchema = {
+        type: 'string',
         minLength: 10,
         maxLength: 3,
-      });
+      };
 
       const testFn = () => {
-        defaultMocker.getConformedStringKeywords(singleTypedSchema);
+        testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minLength" and "maxLength"');

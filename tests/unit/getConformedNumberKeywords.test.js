@@ -1,11 +1,6 @@
 const { defaultMocker } = require('../../lib/mocker');
 const { setupCustomMocker } = require('./helpers/setupCustomMocker');
 
-// TODO: enforce that type is either "decimal" or "integer"
-const generateValidTestSchema = ({ ...keywords } = {}) => ({
-  ...keywords,
-});
-
 describe('getConformedNumberKeywords', function () {
   const testCommonBehavior = (type) => {
     setupCustomMocker({
@@ -15,8 +10,9 @@ describe('getConformedNumberKeywords', function () {
 
     context('by default', function () {
       it('returns relevant keys', function () {
-        const singleTypedSchema = generateValidTestSchema({ type });
-        expect(this.mocker.getConformedNumberKeywords(singleTypedSchema)).to.eql({
+        const singleTypedSchema = { type };
+        const conformedKeywords = testUnit(this.mocker, 'getConformedNumberKeywords', singleTypedSchema);
+        expect(conformedKeywords).to.eql({
           minimum: -10,
           maximum: 10,
         });
@@ -25,12 +21,12 @@ describe('getConformedNumberKeywords', function () {
 
     context('with just "minimum"', function () {
       before(function () {
-        const singleTypedSchema = generateValidTestSchema({
+        const singleTypedSchema = {
           type,
           minimum: 2,
-        });
+        };
 
-        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = testUnit(this.mocker, 'getConformedNumberKeywords', singleTypedSchema);
       });
 
       it('uses the default "maxNumber"', function () {
@@ -43,12 +39,12 @@ describe('getConformedNumberKeywords', function () {
 
     context('when "minimum" exceeds the default maximum', function () {
       before(function () {
-        const singleTypedSchema = generateValidTestSchema({
+        const singleTypedSchema = {
           type,
           minimum: 20,
-        });
+        };
 
-        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = testUnit(this.mocker, 'getConformedNumberKeywords', singleTypedSchema);
       });
 
       it('adjusts the maximum', function () {
@@ -61,12 +57,12 @@ describe('getConformedNumberKeywords', function () {
 
     context('with just "maximum"', function () {
       before(function () {
-        const singleTypedSchema = generateValidTestSchema({
+        const singleTypedSchema = {
           type,
           maximum: 2,
-        });
+        };
 
-        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = testUnit(this.mocker, 'getConformedNumberKeywords', singleTypedSchema);
       });
 
       it('uses the default "minNumber"', function () {
@@ -79,12 +75,12 @@ describe('getConformedNumberKeywords', function () {
 
     context('when "maximum" is less than the default minimum', function () {
       before(function () {
-        const singleTypedSchema = generateValidTestSchema({
+        const singleTypedSchema = {
           type,
           maximum: -20,
-        });
+        };
 
-        this.result = this.mocker.getConformedNumberKeywords(singleTypedSchema);
+        this.result = testUnit(this.mocker, 'getConformedNumberKeywords', singleTypedSchema);
       });
 
       it('adjusts the minimum', function () {
@@ -118,13 +114,13 @@ describe('getConformedNumberKeywords', function () {
 
     context('when minimum and maximum are decimals', function () {
       before(function () {
-        const schema = generateValidTestSchema({
+        const singleTypedSchema = {
           type: 'integer',
           minimum: -5.3,
           maximum: 2.1,
-        });
+        };
 
-        this.result = defaultMocker.getConformedNumberKeywords(schema);
+        this.result = testUnit(defaultMocker, 'getConformedNumberKeywords', singleTypedSchema);
       });
 
       it('adjusts them to be integers', function () {

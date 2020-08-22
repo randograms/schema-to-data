@@ -4,7 +4,7 @@ describe('coerceSchema', function () {
   context('with a "false" literal schema', function () {
     it('throws an error', function () {
       const testFn = () => {
-        defaultMocker.coerceSchema(false);
+        testUnit(defaultMocker, 'coerceSchema', false);
       };
 
       expect(testFn).to.throw('Cannot generate data for a "false" literal schema');

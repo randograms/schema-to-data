@@ -12,7 +12,7 @@
     "test": "npm run test:unit && npm run test:integration && npm run test:uml",
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
     "test:uml": "mocha --colors --require tests/setup tests/uml.test.js",
-    "test:unit": "mocha --colors --require tests/setup tests/unit/**/*.test.js",
+    "test:unit": "mocha --colors --require tests/setup --require tests/setupUnit tests/unit/**/*.test.js",
     "unignore:build": "node unignoreBuild"
   },
   "husky": {
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "ajv": "6.12.3",
+    "ajv-errors": "1.0.1",
     "ansi-colors": "4.1.1",
     "chai": "4.2.0",
     "chai-like": "1.1.1",

@@ -36,11 +36,21 @@ The majority of tests will create a set of results and make assertions on the se
 
 ### Unit Tests
 
-Tests the granular responsibilites of the algorithm. Functions under test will usually take a pseudo-schema and return a coerced pseudo-schema.
+Tests the granular responsibilites of the algorithm. Functions under test will usually take a pseudo-schema and return a coerced pseudo-schema. The majority of tests will use the `testUnit` helper function.
 
 ```shell
 npm run test:unit
 ```
+
+#### The testUnit Unit Helper
+
+Unit tests mainly cover the functions found in the `lib/` directory which are attached to a Mocker instance. Instead of calling these functions directly in unit tests, use the `testUnit` function. This helper function will lookup the input and output schemas for a given library function. It will enforce that the test data passed into the function and the shape of the return data match the expected shape. [tests/libSchemas.js](../tests/libSchemas.js) contains all of the schemas that unit tests should be concerned with.
+
+**Note:** There was an attempt to use Typescript to cover the purpose of the `testUnit` helper. However, Typescript cannot cover the same granular assertions that the `testUnit` framework provides and it required too much additional code with little value.
+
+#### ReferenceSchema
+
+Unit tests for functions that can take schemas with subschemas should not care about the shape of the subschemas. Use a ReferenceSchema with a `referenceId` to create a placeholder subschema for these tests. ReferenceSchema is defined in the aforementioned libSchemas file. Look at existing unit tests to see how ReferenceSchemas are used to assert that subschemas are coerced properly. The `referenceId` is simply there for debugging purposes.
 
 ### Integration Tests
 
@@ -55,6 +65,6 @@ Supported environment variables:
 * DEBUG=true: Will always print generated data, even if a test passes. Produces verbose output, so it is recommended to isolate a single test case first.
 * RUN_COUNT=n: Minimum run count. `testSchema` will use the maximum of RUN_COUNT and the test case's defined runCount. Since tests are inherently flaky it is recommended to set a high RUN_COUNT to separate flaky tests from broken tests during development. `n` is an integer.
 
-#### testSchema Integration Helper
+#### The testSchema Integration Helper
 
 **Note**: Documentation needed
