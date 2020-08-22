@@ -42,6 +42,48 @@ const SingleTypedSchema = {
   additionalProperties: true,
 };
 
+const ReferenceSchema = {
+  type: 'object',
+  properties: {
+    referenceId: {
+      type: 'string',
+      minLength: 1,
+    },
+  },
+  required: ['referenceId'],
+  additionalProperties: false,
+};
+
+const PseudoArraySchema = {
+  type: 'object',
+  properties: {
+    additionalItems: {
+      oneOf: [
+        ReferenceSchema,
+        { const: false },
+      ],
+    },
+    items: {
+      type: 'array',
+      items: ReferenceSchema,
+    },
+    maxItems: { type: 'number' },
+    minItems: { type: 'number' },
+  },
+  required: [
+    'additionalItems',
+    'items',
+    'maxItems',
+    'minItems',
+  ],
+  additionalProperties: false,
+};
+
+const CoercedArrayItemsSchema = {
+  type: 'array',
+  items: ReferenceSchema,
+};
+
 const ConformedBooleanSchema = {
   type: 'object',
   properties: {
@@ -129,6 +171,17 @@ module.exports.libSchemas = {
     inputSchema: ConformedStringSchema,
     outputSchema: { type: 'string' },
   },
+
+  // getConformedArrayKeywords
+  createPseudoArraySchema: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: PseudoArraySchema,
+  },
+  getCoercedItemsSchemas: {
+    inputSchema: PseudoArraySchema,
+    outputSchema: CoercedArrayItemsSchema,
+  },
+
   getConformedNumberKeywords: {
     inputSchema: SingleTypedSchema,
     outputSchema: ConformedNumberKeywordsSchema,
