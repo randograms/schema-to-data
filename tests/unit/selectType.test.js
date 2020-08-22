@@ -1,20 +1,25 @@
 const _ = require('lodash');
 const { defaultMocker } = require('../../lib/mocker');
 
-const generateValidTestSchema = ({ type = [], ...additionalSchemaKeys } = {}) => ({ type, ...additionalSchemaKeys });
-
 describe('selectType', function () {
+  const additionalSchemaKeys = Symbol('additionalSchemaKeys');
+
   context('with a typedSchema with a single type', function () {
     before(function () {
-      const typedSchema = generateValidTestSchema({
+      this.typedSchema = {
         type: ['integer'],
-      });
+        additionalSchemaKeys,
+      };
 
-      this.result = defaultMocker.selectType(typedSchema);
+      this.result = testUnit(defaultMocker, 'selectType', this.typedSchema);
     });
 
     it('returns a schema with a single string type', function () {
-      expect(this.result.type).to.be.a('string').and.to.equal('integer');
+      expect(this.result.type).to.equal('integer');
+    });
+
+    it('returns a schema with any additional keys', function () {
+      expect(this.result.additionalSchemaKeys).to.equal(additionalSchemaKeys);
     });
   });
 
@@ -32,75 +37,67 @@ describe('selectType', function () {
           'array',
           'object',
         ],
+        additionalSchemaKeys,
       };
-      const typedSchema = generateValidTestSchema(this.typedSchema);
 
-      this.results = _.times(10, () => defaultMocker.selectType(typedSchema));
+      this.results = _.times(10, () => testUnit(defaultMocker, 'selectType', this.typedSchema));
     });
 
     it('always returns a schema with a single type', function () {
-      expect(this.results).to.all.satisfy((data) => _.isString(data.type));
+      expect(this.results).to.all.satisfy((singleTypedSchema) => _.isString(singleTypedSchema.type));
     });
 
-    it('always returns a copy of the schema', function () {
-      expect(this.results).to.not.include.something.that.equals(this.typedSchema);
+    it('always returns a schema with the additional keys', function () {
+      expect(this.results).to.all.satisfy((singleTypedSchema) => (
+        singleTypedSchema.additionalSchemaKeys === additionalSchemaKeys
+      ));
     });
 
     it('can return a null schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'null',
+        additionalSchemaKeys,
       });
     });
 
     it('can return a string schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'string',
+        additionalSchemaKeys,
       });
     });
 
     it('can return a decimal schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'decimal',
+        additionalSchemaKeys,
       });
     });
 
     it('can return an integer schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'integer',
+        additionalSchemaKeys,
       });
     });
 
     it('can return a boolean schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'boolean',
+        additionalSchemaKeys,
       });
     });
 
     it('can return an array schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
+        additionalSchemaKeys,
       });
     });
 
     it('can return an object schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'object',
-      });
-    });
-  });
-
-  context('with a typedSchema with a malformed type', function () {
-    it('returns a copy of the schema with a single type', function () {
-      const additionalSchemaKeys = Symbol('additionalSchemaKeys');
-      const typedSchema = generateValidTestSchema({
-        type: ['whoops'],
-        additionalSchemaKeys,
-      });
-
-      const result = defaultMocker.selectType(typedSchema);
-      expect(result).to.not.equal(typedSchema);
-      expect(result).to.eql({
-        type: 'whoops',
         additionalSchemaKeys,
       });
     });

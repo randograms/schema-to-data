@@ -4,13 +4,13 @@ const sandbox = sinon.createSandbox();
 
 describe('getConformedArrayKeywords/getCoercedItemsSchemas', function () {
   before(function () {
-    this.itemSchema1 = Symbol('itemSchema1');
-    this.itemSchema2 = Symbol('itemSchema2');
-    this.additionalItemsSchema = Symbol('additionalItemsSchema');
+    this.itemSchema1 = { referenceId: 'itemSchema1' };
+    this.itemSchema2 = { referenceId: 'itemSchema2' };
+    this.additionalItemsSchema = { referenceId: 'additionalItemsSchema' };
 
-    this.coercedItemSchema1 = Symbol('coercedItemSchema1');
-    this.coercedItemSchema2 = Symbol('coercedItemSchema2');
-    this.coercedAdditionalItemsSchema = Symbol('coercedAdditionalItemsSchema');
+    this.coercedItemSchema1 = { referenceId: 'coercedItemSchema1' };
+    this.coercedItemSchema2 = { referenceId: 'coercedItemSchema2' };
+    this.coercedAdditionalItemsSchema = { referenceId: 'coercedAdditionalItemsSchema' };
 
     const stub = sandbox.stub(defaultMocker, 'coerceSchema');
     stub.withArgs(this.itemSchema1).returns(this.coercedItemSchema1);
@@ -30,7 +30,7 @@ describe('getConformedArrayKeywords/getCoercedItemsSchemas', function () {
         maxItems: 4,
       };
 
-      this.result = defaultMocker.getCoercedItemsSchemas(pseudoArraySchema);
+      this.result = testUnit(defaultMocker, 'getCoercedItemsSchemas', pseudoArraySchema);
     });
 
     it('sometimes returns an array of coerced schemas with length equal to "minItems"', function () {

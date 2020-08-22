@@ -4,15 +4,15 @@ const sandbox = sinon.createSandbox();
 
 describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
   before(function () {
-    this.propertySchema1 = Symbol('propertySchema1');
-    this.propertySchema2 = Symbol('propertySchema2');
-    this.propertySchema3 = Symbol('propertySchema3');
-    this.propertySchema4 = Symbol('propertySchema4');
+    this.propertySchema1 = { referenceId: 'propertySchema1' };
+    this.propertySchema2 = { referenceId: 'propertySchema2' };
+    this.propertySchema3 = { referenceId: 'propertySchema3' };
+    this.propertySchema4 = { referenceId: 'propertySchema4' };
 
-    this.coercedPropertySchema1 = Symbol('propertySchema1');
-    this.coercedPropertySchema2 = Symbol('propertySchema2');
-    this.coercedPropertySchema3 = Symbol('propertySchema3');
-    this.coercedPropertySchema4 = Symbol('propertySchema4');
+    this.coercedPropertySchema1 = { referenceId: 'propertySchema1' };
+    this.coercedPropertySchema2 = { referenceId: 'propertySchema2' };
+    this.coercedPropertySchema3 = { referenceId: 'propertySchema3' };
+    this.coercedPropertySchema4 = { referenceId: 'propertySchema4' };
 
     const stub = sandbox.stub(defaultMocker, 'coerceSchema');
     stub.withArgs(this.propertySchema1).returns(this.coercedPropertySchema1);
@@ -28,12 +28,12 @@ describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
         propertiesSchemas: {},
         propertyNamesToGenerate: [],
         shuffledOptionalPropertyNames: [],
-        additionalPropertiesSchema: Symbol('additionalPropertiesSchema'),
-        minProperties: Symbol('minProperties'),
-        maxProperties: Symbol('maxProperties'),
+        additionalPropertiesSchema: { referenceId: 'additionalPropertiesSchema' },
+        minProperties: { referenceId: 'minProperties' },
+        maxProperties: { referenceId: 'maxProperties' },
       };
 
-      this.result = defaultMocker.getCoercedPropertiesSchemas(pseudoObjectSchema);
+      this.result = testUnit(defaultMocker, 'getCoercedPropertiesSchemas', pseudoObjectSchema);
     });
 
     it('returns an empty object', function () {
@@ -52,12 +52,12 @@ describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
         },
         propertyNamesToGenerate: ['property1', 'property2'],
         shuffledOptionalPropertyNames: ['property3', 'property4'],
-        additionalPropertiesSchema: Symbol('additionalPropertiesSchema'),
-        minProperties: Symbol('minProperties'),
-        maxProperties: Symbol('maxProperties'),
+        additionalPropertiesSchema: { referenceId: 'additionalPropertiesSchema' },
+        minProperties: { referenceId: 'minProperties' },
+        maxProperties: { referenceId: 'maxProperties' },
       };
 
-      this.result = defaultMocker.getCoercedPropertiesSchemas(pseudoObjectSchema);
+      this.result = testUnit(defaultMocker, 'getCoercedPropertiesSchemas', pseudoObjectSchema);
     });
 
     it('returns coercedPropertiesSchemas for just the properties that need to be generated', function () {

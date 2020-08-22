@@ -2,8 +2,8 @@ const { defaultMocker } = require('../../../lib/mocker');
 
 describe('getConformedObjectKeywords/guaranteeRequiredPropertiesHaveSchemas', function () {
   before(function () {
-    this.propertySchema2 = Symbol('propertySchema2');
-    this.additionalPropertiesSchema = Symbol('additionalPropertiesSchema');
+    this.propertySchema2 = { referenceId: 'propertySchema2' };
+    this.additionalPropertiesSchema = { referenceId: 'additionalPropertiesSchema' };
 
     this.pseudoObjectSchema = {
       propertiesSchemas: {
@@ -14,15 +14,11 @@ describe('getConformedObjectKeywords/guaranteeRequiredPropertiesHaveSchemas', fu
       propertyNamesToGenerate: ['property1', 'property2', 'property3', 'property4', 'property5'],
       shuffledOptionalPropertyNames: [],
       additionalPropertiesSchema: this.additionalPropertiesSchema,
-      minProperties: Symbol('minProperties'),
-      maxProperties: Symbol('maxProperties'),
+      minProperties: { referenceId: 'minProperties' },
+      maxProperties: { referenceId: 'maxProperties' },
     };
 
-    this.result = defaultMocker.guaranteeRequiredPropertiesHaveSchemas(this.pseudoObjectSchema);
-  });
-
-  it('returns undefined', function () {
-    expect(this.result).to.be.undefined;
+    this.result = testUnit(defaultMocker, 'guaranteeRequiredPropertiesHaveSchemas', this.pseudoObjectSchema);
   });
 
   it('updates propertiesSchemas to have a definition for every required property', function () {

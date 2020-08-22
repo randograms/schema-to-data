@@ -2,21 +2,24 @@ const { defaultMocker } = require('../../lib/mocker');
 
 const sandbox = sinon.createSandbox();
 
-const generateValidTestSchema = ({ items = [] } = {}) => ({ items });
-
 describe('generateArray', function () {
   context('when "items" is empty', function () {
     it('returns an empty array', function () {
-      const schema = generateValidTestSchema();
-      expect(defaultMocker.generateArray(schema)).to.eql([]);
+      const conformedSchema = {
+        type: 'array',
+        items: [],
+      };
+      const result = testUnit(defaultMocker, 'generateArray', conformedSchema);
+
+      expect(result).to.eql([]);
     });
   });
 
   context('when "items" is not empty', function () {
     before(function () {
-      this.itemSchema1 = Symbol('itemSchema1');
-      this.itemSchema2 = Symbol('itemSchema2');
-      this.itemSchema3 = Symbol('itemSchema3');
+      this.itemSchema1 = { referenceId: 'itemSchema1' };
+      this.itemSchema2 = { referenceId: 'itemSchema2' };
+      this.itemSchema3 = { referenceId: 'itemSchema3' };
 
       this.generatedData1 = Symbol('generatedData1');
       this.generatedData2 = Symbol('generatedData2');
@@ -27,15 +30,16 @@ describe('generateArray', function () {
       stub.withArgs(this.itemSchema2).returns(this.generatedData2);
       stub.withArgs(this.itemSchema3).returns(this.generatedData3);
 
-      const schema = generateValidTestSchema({
+      const conformedSchema = {
+        type: 'array',
         items: [
           this.itemSchema1,
           this.itemSchema2,
           this.itemSchema3,
         ],
-      });
+      };
 
-      this.result = defaultMocker.generateArray(schema);
+      this.result = testUnit(defaultMocker, 'generateArray', conformedSchema);
     });
     after(sandbox.restore);
 

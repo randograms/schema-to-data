@@ -6,12 +6,12 @@ const sandbox = sinon.createSandbox();
 
 describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
   before(function () {
-    this.propertySchema1 = Symbol('propertySchema1');
-    this.propertySchema2 = Symbol('propertySchema2');
-    this.propertySchema3 = Symbol('propertySchema3');
-    this.propertySchema4 = Symbol('propertySchema4');
-    this.propertySchema5 = Symbol('propertySchema5');
-    this.additionalPropertiesSchema = Symbol('additionalPropertiesSchema');
+    this.propertySchema1 = { referenceId: 'propertySchema1' };
+    this.propertySchema2 = { referenceId: 'propertySchema2' };
+    this.propertySchema3 = { referenceId: 'propertySchema3' };
+    this.propertySchema4 = { referenceId: 'propertySchema4' };
+    this.propertySchema5 = { referenceId: 'propertySchema5' };
+    this.additionalPropertiesSchema = { referenceId: 'additionalPropertiesSchema' };
   });
 
   context('when "optionalPropertyPrioritization" is 0', function () {
@@ -36,13 +36,9 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         maxProperties: 6,
       };
 
-      this.result = this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      testUnit(this.mocker, 'fillOutPropertiesToGenerate', this.pseudoObjectSchema);
     });
     after(sandbox.restore);
-
-    it('returns undefined', function () {
-      expect(this.result).to.be.undefined;
-    });
 
     it('does not remove properties from "shuffledOptionalPropertyNames"', function () {
       expect(this.pseudoObjectSchema.shuffledOptionalPropertyNames).to.eql(['property3', 'property4']);
@@ -95,13 +91,9 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         maxProperties: 6,
       };
 
-      this.result = this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      testUnit(this.mocker, 'fillOutPropertiesToGenerate', this.pseudoObjectSchema);
     });
     after(sandbox.restore);
-
-    it('returns undefined', function () {
-      expect(this.result).to.be.undefined;
-    });
 
     it('removes properties from "shuffledOptionalPropertyNames"', function () {
       expect(this.pseudoObjectSchema.shuffledOptionalPropertyNames).to.eql([]);
@@ -150,13 +142,9 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         maxProperties: 4,
       };
 
-      this.result = defaultMocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      testUnit(defaultMocker, 'fillOutPropertiesToGenerate', this.pseudoObjectSchema);
     });
     after(sandbox.restore);
-
-    it('returns undefined', function () {
-      expect(this.result).to.be.undefined;
-    });
 
     it('continues to generate additional properties to append to "propertiesSchemas"', function () {
       expect(this.pseudoObjectSchema.propertiesSchemas).to.eql({
@@ -200,7 +188,7 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         maxProperties: 4,
       };
 
-      this.mocker.fillOutPropertiesToGenerate(this.pseudoObjectSchema);
+      testUnit(this.mocker, 'fillOutPropertiesToGenerate', this.pseudoObjectSchema);
 
       this.assertionResult = _.pick(this.pseudoObjectSchema, [
         'propertiesSchemas',
