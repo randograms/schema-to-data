@@ -42,6 +42,47 @@ const SingleTypedSchema = {
   additionalProperties: true,
 };
 
+const ConformedBooleanSchema = {
+  type: 'object',
+  properties: {
+    type: { const: 'boolean' },
+  },
+  required: [
+    'type',
+  ],
+  additionalProperties: false,
+};
+
+const ConformedNumberSchema = {
+  type: 'object',
+  properties: {
+    maximum: { type: 'number' },
+    minimum: { type: 'number' },
+    type: { enum: ['decimal', 'integer'] },
+  },
+  required: [
+    'maximum',
+    'minimum',
+    'type',
+  ],
+  additionalProperties: false,
+};
+
+const ConformedStringSchema = {
+  type: 'object',
+  properties: {
+    maxLength: { type: 'number' },
+    minLength: { type: 'number' },
+    type: { const: 'string' },
+  },
+  required: [
+    'maxLength',
+    'minLength',
+    'type',
+  ],
+  additionalProperties: false,
+};
+
 module.exports.libSchemas = {
   coerceSchema: {
     inputSchema: InputSchema,
@@ -49,6 +90,18 @@ module.exports.libSchemas = {
   coerceTypes: {
     inputSchema: ObjectInputSchema,
     outputSchema: TypedSchema,
+  },
+  generateBoolean: {
+    inputSchema: ConformedBooleanSchema,
+    outputSchema: { type: 'boolean' },
+  },
+  generateNumber: {
+    inputSchema: ConformedNumberSchema,
+    outputSchema: { type: 'number' },
+  },
+  generateString: {
+    inputSchema: ConformedStringSchema,
+    outputSchema: { type: 'string' },
   },
   selectType: {
     inputSchema: TypedSchema,
