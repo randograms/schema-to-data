@@ -123,6 +123,56 @@ const ConformedNumberSchema = {
   additionalProperties: false,
 };
 
+const PseudoObjectSchema = {
+  type: 'object',
+  properties: {
+    additionalPropertiesSchema: ReferenceSchema,
+    maxProperties: {
+      oneOf: [
+        { type: 'number' },
+        ReferenceSchema,
+      ],
+    },
+    minProperties: {
+      oneOf: [
+        { type: 'number' },
+        ReferenceSchema,
+      ],
+    },
+    propertiesSchemas: {
+      type: 'object',
+      additionalProperties: {
+        oneOf: [
+          ReferenceSchema,
+          { enum: [true, false] },
+        ],
+      },
+    },
+    propertyNamesToGenerate: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    shuffledOptionalPropertyNames: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+  },
+  required: [
+    'additionalPropertiesSchema',
+    'maxProperties',
+    'minProperties',
+    'propertiesSchemas',
+    'propertyNamesToGenerate',
+    'shuffledOptionalPropertyNames',
+  ],
+  additionalProperties: false,
+};
+
+const CoercedObjectPropertiesSchema = {
+  type: 'object',
+  additionalProperties: ReferenceSchema,
+};
+
 const ConformedStringKeywordsSchema = {
   type: 'object',
   properties: {
@@ -186,6 +236,25 @@ module.exports.libSchemas = {
     inputSchema: SingleTypedSchema,
     outputSchema: ConformedNumberKeywordsSchema,
   },
+
+  // getConformedObjectKeywords
+  createPseudoObjectSchema: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: PseudoObjectSchema,
+  },
+  fillOutPropertiesToGenerate: {
+    inputSchema: PseudoObjectSchema,
+    outputSchema: PseudoObjectSchema,
+  },
+  guaranteeRequiredPropertiesHaveSchemas: {
+    inputSchema: PseudoObjectSchema,
+    outputSchema: PseudoObjectSchema,
+  },
+  getCoercedPropertiesSchemas: {
+    inputSchema: PseudoObjectSchema,
+    outputSchema: CoercedObjectPropertiesSchema,
+  },
+
   getConformedStringKeywords: {
     inputSchema: SingleTypedSchema,
     outputSchema: ConformedStringKeywordsSchema,
