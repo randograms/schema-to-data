@@ -84,6 +84,22 @@ const CoercedArrayItemsSchema = {
   items: ReferenceSchema,
 };
 
+const ConformedArraySchema = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: ReferenceSchema,
+    },
+    type: { const: 'array' },
+  },
+  required: [
+    'items',
+    'type',
+  ],
+  additionalProperties: false,
+};
+
 const ConformedBooleanSchema = {
   type: 'object',
   properties: {
@@ -104,6 +120,17 @@ const ConformedNumberKeywordsSchema = {
   required: [
     'maximum',
     'minimum',
+  ],
+  additionalProperties: false,
+};
+
+const ConformedNullSchema = {
+  type: 'object',
+  properties: {
+    type: { const: 'null' },
+  },
+  required: [
+    'type',
   ],
   additionalProperties: false,
 };
@@ -173,6 +200,22 @@ const CoercedObjectPropertiesSchema = {
   additionalProperties: ReferenceSchema,
 };
 
+const ConformedObjectSchema = {
+  type: 'object',
+  properties: {
+    properties: {
+      type: 'object',
+      additionalProperties: ReferenceSchema,
+    },
+    type: { const: 'object' },
+  },
+  required: [
+    'type',
+    'properties',
+  ],
+  additionalProperties: false,
+};
+
 const ConformedStringKeywordsSchema = {
   type: 'object',
   properties: {
@@ -201,13 +244,31 @@ const ConformedStringSchema = {
   additionalProperties: false,
 };
 
+const ConformedSchema = {
+  type: 'object',
+  required: ['type'],
+  oneOf: [
+    ConformedArraySchema,
+    ConformedBooleanSchema,
+    ConformedNullSchema,
+    ConformedNumberSchema,
+    ConformedObjectSchema,
+    ConformedStringSchema,
+  ],
+};
+
 module.exports.libSchemas = {
   coerceSchema: {
     inputSchema: InputSchema,
+    outputSchema: ConformedSchema,
   },
   coerceTypes: {
     inputSchema: ObjectInputSchema,
     outputSchema: TypedSchema,
+  },
+  conformSchemaToType: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: ConformedSchema,
   },
   generateBoolean: {
     inputSchema: ConformedBooleanSchema,
