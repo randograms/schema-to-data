@@ -60,7 +60,7 @@ partition "Schema to Data" {
 
     :mergeCombinedSchemasForType;
 
-    notImplemented:* handle anyOf, oneOf;
+    notImplemented:* handle oneOf;
 
     :conformSchemaToType;
 

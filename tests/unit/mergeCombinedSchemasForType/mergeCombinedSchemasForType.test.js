@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { defaultMocker } = require('../../../lib/mocker');
 
 /**
@@ -81,6 +82,118 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         minProperties: 3,
         maxProperties: 8,
         required: ['a', 'b', 'c', 'd', 'e'],
+      });
+    });
+  });
+
+  context('when the schema has an anyOf', function () {
+    before(function () {
+      this.singleTypedSchema = {
+        type: 'object',
+        anyOf: [
+          {
+            // type intentionally left out
+            required: ['a'],
+          },
+          {
+            type: 'object',
+            required: ['b'],
+          },
+          {
+            type: 'string',
+            maxLength: 4,
+          },
+        ],
+      };
+
+      this.results = _.times(10, () => testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema));
+    });
+
+    it('always merges at least one relevant subschema', function () {
+      expect(this.results).to.all.satisfy((schema) => _.isArray(schema.required) && schema.required.length > 0);
+    });
+
+    it('sometimes merges a single subschema', function () {
+      expect(this.results).to.include.something.that.eqls({
+        type: 'object',
+        required: ['a'],
+      });
+    });
+
+    it('sometimes merges a different single subschema', function () {
+      expect(this.results).to.include.something.that.eqls({
+        type: 'object',
+        required: ['b'],
+      });
+    });
+
+    it('sometimes merges all relevant subschemas', function () {
+      expect(this.results).to.include.something.that.eqls({
+        type: 'object',
+        required: ['a', 'b'],
+      });
+    });
+  });
+
+  context('when the schema has an anyOf with an anyOf', function () {
+    before(function () {
+      this.singleTypedSchema = {
+        type: 'object',
+        anyOf: [
+          {
+            type: 'object',
+            required: ['a'],
+          },
+          {
+            type: 'object',
+            required: ['b'],
+            anyOf: [
+              {
+                type: 'object',
+                required: ['c'],
+              },
+              {
+                type: 'object',
+                required: ['d'],
+              },
+            ],
+          },
+        ],
+      };
+
+      this.results = _.times(50, () => testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema));
+    });
+
+    const expectedVariations = [
+      {
+        type: 'object',
+        required: ['a'],
+      },
+      {
+        type: 'object',
+        required: ['b', 'c'],
+      },
+      {
+        type: 'object',
+        required: ['b', 'd'],
+      },
+      {
+        type: 'object',
+        required: ['b', 'c', 'd'],
+      },
+      {
+        type: 'object',
+        required: ['a', 'b', 'c', 'd'],
+      },
+    ];
+
+    it('always merges at least one relevant subschema', function () {
+      expect(this.results).to.all.satisfy((schema) => _.isArray(schema.required) && schema.required.length > 0);
+    });
+
+    expectedVariations.forEach((expectedResult, index) => {
+      it(`sometimes merges subschemas: ${expectedResult.required.join()}`, function () {
+        expect(this.results, `case ${index} failed`).to.include.something.that.eqls(expectedResult);
       });
     });
   });
