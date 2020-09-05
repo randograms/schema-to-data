@@ -281,6 +281,68 @@ describe('coerceTypes', function () {
     });
   });
 
+  context('when the schema has a oneOf', function () {
+    before(function () {
+      this.schema = {
+        oneOf: [
+          { type: 'string' },
+          { type: 'boolean' },
+        ],
+        additionalSchemaKeys,
+      };
+
+      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
+      this.resultTypes = _.map(results, 'type');
+    });
+
+    it('always returns a schema with a restricted type', function () {
+      expect(this.resultTypes).to.all.satisfy((type) => (
+        type.length === 1 && (type[0] === 'string' || type[0] === 'boolean')
+      ));
+    });
+
+    it('sometimes returns a schema with one supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['string']);
+    });
+
+    it('sometimes returns a schema with a different supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
+    });
+  });
+
+  context('when the schema has a oneOf with a oneOf', function () {
+    before(function () {
+      this.schema = {
+        oneOf: [
+          {
+            oneOf: [
+              { type: 'string' },
+              { type: 'boolean' },
+            ],
+          },
+        ],
+        additionalSchemaKeys,
+      };
+
+      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
+      this.resultTypes = _.map(results, 'type');
+    });
+
+    it('always returns a schema with a restricted type', function () {
+      expect(this.resultTypes).to.all.satisfy((type) => (
+        type.length === 1 && (type[0] === 'string' || type[0] === 'boolean')
+      ));
+    });
+
+    it('sometimes returns a schema with one supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['string']);
+    });
+
+    it('sometimes returns a schema with a different supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
+    });
+  });
+
   // "shallow" is used by the merging logic to allow reuse of coerceTypes without having to traverse again
   context('when the "shallow" option is enabled', function () {
     before(function () {
@@ -290,6 +352,11 @@ describe('coerceTypes', function () {
           { type: ['integer', 'boolean'] },
         ],
         anyOf: [
+          { type: 'string' },
+          { type: 'boolean' },
+          { type: 'integer' },
+        ],
+        oneOf: [
           { type: 'string' },
           { type: 'boolean' },
           { type: 'integer' },

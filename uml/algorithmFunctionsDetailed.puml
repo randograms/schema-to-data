@@ -80,9 +80,8 @@ partition "Schema to Data" {
     * merges all relevant keywords from "allOf" subschemas into the root schema
     * merges at least one random compatible "anyOf" subschema into the root schema
     * each additional compatible "anyOf" subschema has a 50% chance of being merged
+    * merges one random compatible "oneOf" subschema
     * keywords have independent merge rules;
-
-    notImplemented:* handle oneOf;
 
     :conformSchemaToType
     * guarantees default values for relevant keywords related to selected "type"
