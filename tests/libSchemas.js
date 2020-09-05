@@ -42,6 +42,18 @@ const SingleTypedSchema = {
   additionalProperties: true,
 };
 
+const MergedSchema = {
+  type: 'object',
+  properties: {
+    allOf: false,
+    anyOf: false,
+    oneOf: false,
+    type: IntermediateType,
+  },
+  required: ['type'],
+  additionalProperties: true,
+};
+
 const ReferenceSchema = {
   type: 'object',
   properties: {
@@ -267,7 +279,7 @@ module.exports.libSchemas = {
     outputSchema: TypedSchema,
   },
   conformSchemaToType: {
-    inputSchema: SingleTypedSchema,
+    inputSchema: MergedSchema,
     outputSchema: ConformedSchema,
   },
   generateArray: {
@@ -297,7 +309,7 @@ module.exports.libSchemas = {
 
   // getConformedArrayKeywords
   createPseudoArraySchema: {
-    inputSchema: SingleTypedSchema,
+    inputSchema: MergedSchema,
     outputSchema: PseudoArraySchema,
   },
   getCoercedItemsSchemas: {
@@ -306,13 +318,13 @@ module.exports.libSchemas = {
   },
 
   getConformedNumberKeywords: {
-    inputSchema: SingleTypedSchema,
+    inputSchema: MergedSchema,
     outputSchema: ConformedNumberKeywordsSchema,
   },
 
   // getConformedObjectKeywords
   createPseudoObjectSchema: {
-    inputSchema: SingleTypedSchema,
+    inputSchema: MergedSchema,
     outputSchema: PseudoObjectSchema,
   },
   fillOutPropertiesToGenerate: {
@@ -329,8 +341,12 @@ module.exports.libSchemas = {
   },
 
   getConformedStringKeywords: {
-    inputSchema: SingleTypedSchema,
+    inputSchema: MergedSchema,
     outputSchema: ConformedStringKeywordsSchema,
+  },
+  mergeCombinedSchemasForType: {
+    inputSchema: SingleTypedSchema,
+    outputSchema: MergedSchema,
   },
   selectType: {
     inputSchema: TypedSchema,
