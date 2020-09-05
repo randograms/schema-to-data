@@ -45,6 +45,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 - All
   - type
 - Array
+  - items
   - maxItems
   - minItems
 - Object
