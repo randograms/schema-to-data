@@ -41,6 +41,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
     });
   });
 
+  // TODO: consolidate this into a set of tests that verifies combinations of nested combined schemas work
   context('when the schema has an allOf with an allOf', function () {
     before(function () {
       this.singleTypedSchema = {
@@ -135,6 +136,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
     });
   });
 
+  // TODO: consolidate this into a set of tests that verifies combinations of nested combined schemas work
   context('when the schema has an anyOf with an anyOf', function () {
     before(function () {
       this.singleTypedSchema = {
@@ -194,6 +196,50 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
     expectedVariations.forEach((expectedResult, index) => {
       it(`sometimes merges subschemas: ${expectedResult.required.join()}`, function () {
         expect(this.results, `case ${index} failed`).to.include.something.that.eqls(expectedResult);
+      });
+    });
+  });
+
+  context('when the schema has a "oneOf"', function () {
+    before(function () {
+      this.singleTypedSchema = {
+        type: 'object',
+        oneOf: [
+          {
+            type: 'object',
+            required: ['a'],
+          },
+          {
+            // type intentionally left out
+            required: ['b'],
+          },
+          {
+            type: 'string',
+            maxLength: 4,
+          },
+        ],
+      };
+
+      this.results = _.times(10, () => testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema));
+    });
+
+    it('always merges one compatible subschema', function () {
+      expect(this.results).to.all.satisfy((mergedSchema) => (
+        _.isArray(mergedSchema.required) && mergedSchema.required.length === 1
+      ));
+    });
+
+    it('sometimes merges the first compatible subschema', function () {
+      expect(this.results).to.include.something.that.eqls({
+        type: 'object',
+        required: ['a'],
+      });
+    });
+
+    it('sometimes merges the second compatible subschema', function () {
+      expect(this.results).to.include.something.that.eqls({
+        type: 'object',
+        required: ['b'],
       });
     });
   });
