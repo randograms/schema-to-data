@@ -43,8 +43,10 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 ### Currently Supported Keywords
 
 - All
+  - allOf
   - type
 - Array
+  - items
   - maxItems
   - minItems
 - Object
@@ -63,7 +65,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 
 - All
   - const
-  - allOf
   - anyOf
   - enum
   - examples

@@ -192,4 +192,33 @@ describe('coerceTypes', function () {
       ]);
     });
   });
+
+  context('when the schema has an allOf with an allOf', function () {
+    before(function () {
+      this.schema = {
+        allOf: [
+          { type: ['string', 'boolean', 'number'] },
+          {
+            type: ['array', 'object', 'string', 'boolean', 'integer'],
+            allOf: { type: ['number', 'object', 'string', 'boolean'] },
+          },
+          { type: ['null', 'boolean', 'string', 'integer'] },
+        ],
+        additionalSchemaKeys,
+      };
+
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+    });
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+
+    it('returns a schema with the intersection of all allOf types', function () {
+      expect(this.result.type).to.eql([
+        'string',
+        'integer',
+        'boolean',
+      ]);
+    });
+  });
 });
