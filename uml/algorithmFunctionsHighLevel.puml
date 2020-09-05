@@ -56,9 +56,11 @@ partition "Schema to Data" {
   partition "Coerce Schema" {
     :coerceTypes;
 
-    notImplemented:* handle allOf, anyOf, oneOf;
-
     :selectType;
+
+    :mergeCombinedSchemasForType;
+
+    notImplemented:* handle anyOf, oneOf;
 
     :conformSchemaToType;
 

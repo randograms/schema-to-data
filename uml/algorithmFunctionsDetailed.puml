@@ -70,20 +70,21 @@ partition "Schema to Data" {
     "integer", "null", "object", "string"
     * "decimal" is not an official json-schema type
     * the "number" type is converted to "integer" and "decimal"
-    to facilitate decision making later on;
-
-    notImplemented: * traverse inner combined
-      schemas (allOf, anyOf, oneOf)
-      and coerce their types
-      * limit types based on types
-      of inner combined schemas;
+    to facilitate decision making later on
+    * traverses all "allOf" subschemas to find compatible types;
 
     :selectType
     * pick one of the types from the type array;
 
+    :mergeCombinedSchemasForType
+    * merges all relevant keywords from "allOf" subschemas into the root schema
+    * keywords have independent merge rules;
+
+    notImplemented:* handle anyOf, oneOf;
+
     :conformSchemaToType
-    * gathers keywords related to selected "type"
-    * uses Mocker instance defaults if schema is missing keywords;
+    * guarantees default values for relevant keywords related to selected "type"
+    * uses the Mocker instance's default;
 
     partition conformSchemaToType {
       notImplemented:handle keywords
