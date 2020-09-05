@@ -280,4 +280,30 @@ describe('coerceTypes', function () {
       expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
     });
   });
+
+  // "shallow" is used by the merging logic to allow reuse of coerceTypes without having to traverse again
+  context('when the "shallow" option is enabled', function () {
+    before(function () {
+      const schema = {
+        allOf: [
+          { type: ['string', 'boolean'] },
+          { type: ['integer', 'boolean'] },
+        ],
+        anyOf: [
+          { type: 'string' },
+          { type: 'boolean' },
+          { type: 'integer' },
+        ],
+      };
+
+      // only this test should call the function directly without using `testUnit`
+      const { coerceTypes } = require('../../lib/coerceTypes'); // eslint-disable-line global-require
+
+      this.result = coerceTypes(schema, { shallow: true });
+    });
+
+    it('ignores combined schemas', function () {
+      expect(this.result.type).to.eql(['null', 'string', 'decimal', 'integer', 'boolean', 'array', 'object']);
+    });
+  });
 });
