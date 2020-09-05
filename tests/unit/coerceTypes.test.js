@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { defaultMocker } = require('../../lib/mocker');
 
 describe('coerceTypes', function () {
@@ -219,6 +220,64 @@ describe('coerceTypes', function () {
         'integer',
         'boolean',
       ]);
+    });
+  });
+
+  context('when the schema has an anyOf which can support multiple types', function () {
+    before(function () {
+      this.schema = {
+        anyOf: [
+          { type: ['string', 'boolean'] },
+          { type: ['string', 'integer'] },
+          { type: ['boolean', 'integer'] },
+        ],
+        additionalSchemaKeys,
+      };
+
+      const results = _.times(50, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
+      this.resultTypes = _.map(results, 'type');
+    });
+
+    const expectedTypes = [
+      ['string'],
+      ['boolean'],
+      ['integer'],
+      ['string', 'boolean'],
+      ['string', 'integer'],
+      ['string', 'boolean'],
+    ];
+
+    expectedTypes.forEach((expectedType, index) => {
+      it(`sometimes returns a schema with the type: ${expectedType.join()}`, function () {
+        expect(this.resultTypes, `case ${index} failed`).to.include.something.that.eqls(expectedType);
+      });
+    });
+  });
+
+  context('when the schema has an anyOf with an anyOf', function () {
+    before(function () {
+      this.schema = {
+        anyOf: [
+          {
+            anyOf: [
+              { type: 'string' },
+              { type: 'boolean' },
+            ],
+          },
+        ],
+        additionalSchemaKeys,
+      };
+
+      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
+      this.resultTypes = _.map(results, 'type');
+    });
+
+    it('sometimes returns a schema with one supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['string']);
+    });
+
+    it('sometimes returns a schema with a different supported type', function () {
+      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
     });
   });
 });
