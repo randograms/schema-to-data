@@ -58,7 +58,7 @@ partition "Schema to Data" {
 
     :selectType;
 
-    :mergeCombinedSchemasForType;
+    :mergeCombinedSchemas;
 
     :conformSchemaToType;
 
