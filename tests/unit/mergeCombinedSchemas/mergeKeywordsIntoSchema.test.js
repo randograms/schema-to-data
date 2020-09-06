@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { defaultMocker } = require('../../../lib/mocker');
 
-describe('mergeCombinedSchemasForType/mergeKeywordsIntoSchema', function () {
+describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
   const numberConfig = [
     {
       keyword: 'maximum',

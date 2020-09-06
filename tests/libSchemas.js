@@ -20,25 +20,165 @@ const IntermediateType = {
   ],
 };
 
+const NestedTypedSchema2 = {
+  type: 'object',
+  properties: {
+    allOf: { type: 'null' },
+    anyOf: { type: 'null' },
+    oneOf: { type: 'null' },
+    type: {
+      type: 'array',
+      items: IntermediateType,
+      minItems: 1,
+    },
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
+const NestedTypedSchema1 = {
+  type: 'object',
+  properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedTypedSchema2,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema2,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema2,
+      minItems: 1,
+    },
+    type: {
+      type: 'array',
+      items: IntermediateType,
+      minItems: 1,
+    },
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
 const TypedSchema = {
   type: 'object',
   properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedTypedSchema1,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema1,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema1,
+      minItems: 1,
+    },
     type: {
       type: 'array',
-      minItems: 1,
       items: IntermediateType,
+      minItems: 1,
     },
   },
-  required: ['type'],
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
+const NestedSingleTypedSchema2 = {
+  type: 'object',
+  properties: {
+    allOf: { type: 'null' },
+    anyOf: { type: 'null' },
+    oneOf: { type: 'null' },
+    type: IntermediateType,
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
+const NestedSingleTypedSchema1 = {
+  type: 'object',
+  properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedSingleTypedSchema2,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema2,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema2,
+      minItems: 1,
+    },
+    type: IntermediateType,
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
   additionalProperties: true,
 };
 
 const SingleTypedSchema = {
   type: 'object',
   properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedSingleTypedSchema1,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema1,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema1,
+      minItems: 1,
+    },
     type: IntermediateType,
   },
-  required: ['type'],
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
   additionalProperties: true,
 };
 
@@ -344,7 +484,7 @@ module.exports.libSchemas = {
     inputSchema: MergedSchema,
     outputSchema: ConformedStringKeywordsSchema,
   },
-  mergeCombinedSchemasForType: {
+  mergeCombinedSchemas: {
     inputSchema: SingleTypedSchema,
     outputSchema: MergedSchema,
   },
