@@ -8,6 +8,9 @@ describe('selectType', function () {
     before(function () {
       this.typedSchema = {
         type: ['integer'],
+        allOf: null,
+        anyOf: null,
+        oneOf: null,
         additionalSchemaKeys,
       };
 
@@ -26,6 +29,13 @@ describe('selectType', function () {
   context('with a typedSchema with multiple types', function () {
     this.retries(20);
 
+    const allExpectedAdditionalKeys = {
+      allOf: null,
+      anyOf: null,
+      oneOf: null,
+      additionalSchemaKeys,
+    };
+
     beforeEach(function () {
       this.typedSchema = {
         type: [
@@ -37,6 +47,9 @@ describe('selectType', function () {
           'array',
           'object',
         ],
+        allOf: null,
+        anyOf: null,
+        oneOf: null,
         additionalSchemaKeys,
       };
 
@@ -56,49 +69,49 @@ describe('selectType', function () {
     it('can return a null schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'null',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return a string schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'string',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return a decimal schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'decimal',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return an integer schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'integer',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return a boolean schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'boolean',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return an array schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'array',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
 
     it('can return an object schema', function () {
       expect(this.results).to.include.something.that.eqls({
         type: 'object',
-        additionalSchemaKeys,
+        ...allExpectedAdditionalKeys,
       });
     });
   });

@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const { defaultMocker } = require('../../lib/mocker');
 
 describe('coerceTypes', function () {
@@ -26,11 +25,20 @@ describe('coerceTypes', function () {
     });
   };
 
+  const itReturnsASchemaWithNullCombinedSchemas = () => {
+    it('returns a schema with null combined schemas', function () {
+      expect(this.result.allOf, 'allOf').to.be.null;
+      expect(this.result.anyOf, 'anyOf').to.be.null;
+      expect(this.result.oneOf, 'oneOf').to.be.null;
+    });
+  };
+
   context('when the schema does not have a type', function () {
     before(buildSetupResultForSchemaWithType(undefined));
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
@@ -50,6 +58,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with a single data type', function () {
       expect(this.result.type).to.eql(['boolean']);
@@ -61,6 +70,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with a "decimal" and "integer" data type', function () {
       expect(this.result.type).to.eql(['decimal', 'integer']);
@@ -72,6 +82,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with a copy of the data types', function () {
       expect(this.result.type).to.eql(['array', 'boolean']);
@@ -84,6 +95,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with a copy of the expanded data types', function () {
       expect(this.result.type).to.eql(['boolean', 'decimal', 'integer']);
@@ -96,6 +108,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with a copy of the unique expanded types', function () {
       expect(this.result.type).to.eql(['integer', 'decimal']);
@@ -108,6 +121,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
@@ -127,6 +141,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
@@ -146,6 +161,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
@@ -165,6 +181,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with the subset of valid types', function () {
       expect(this.result.type).to.eql([
@@ -180,6 +197,7 @@ describe('coerceTypes', function () {
 
     itReturnsACopyOfTheSchema();
     itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
@@ -194,191 +212,333 @@ describe('coerceTypes', function () {
     });
   });
 
-  context('when the schema has an allOf with an allOf', function () {
+  context('when the schema has an "allOf"', function () {
+    context('and the subschemas only support a single type', function () {
+      before(function () {
+        this.schema = {
+          allOf: [
+            {
+              type: 'object',
+              referenceId: 'subschema1',
+            },
+            {
+              type: 'object',
+              referenceId: 'subschema2',
+            },
+            {
+              type: 'object',
+              referenceId: 'subschema3',
+            },
+          ],
+        };
+
+        this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+      });
+
+      it('returns a schema with a limited type and subschemas with coerced types', function () {
+        expect(this.result).to.eql({
+          type: ['object'],
+          allOf: [
+            {
+              type: ['object'],
+              referenceId: 'subschema1',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+            {
+              type: ['object'],
+              referenceId: 'subschema2',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+            {
+              type: ['object'],
+              referenceId: 'subschema3',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+          ],
+          anyOf: null,
+          oneOf: null,
+        });
+      });
+    });
+
+    context('and the subschemas support multiple types', function () {
+      before(function () {
+        this.schema = {
+          allOf: [
+            {
+              type: ['array', 'boolean', 'string', 'integer'],
+              referenceId: 'subschema1',
+            },
+            {
+              type: ['boolean', 'string', 'integer', 'object', 'array'],
+              referenceId: 'subschema2',
+            },
+            {
+              type: ['null', 'string', 'boolean', 'integer', 'object'],
+              referenceId: 'subschema3',
+            },
+          ],
+        };
+
+        this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+      });
+
+      // eslint-disable-next-line max-len
+      it('returns a schema with the intersection of all allOf types and subschemas with less limited coerced types', function () {
+        expect(this.result).to.eql({
+          type: ['boolean', 'integer', 'string'],
+          allOf: [
+            {
+              type: ['array', 'boolean', 'integer', 'string'],
+              referenceId: 'subschema1',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+            {
+              type: ['array', 'boolean', 'integer', 'object', 'string'],
+              referenceId: 'subschema2',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+            {
+              type: ['boolean', 'integer', 'null', 'object', 'string'],
+              referenceId: 'subschema3',
+              allOf: null,
+              anyOf: null,
+              oneOf: null,
+            },
+          ],
+          anyOf: null,
+          oneOf: null,
+        });
+      });
+    });
+  });
+
+  context('when the schema has an "anyOf"', function () {
     before(function () {
       this.schema = {
-        allOf: [
-          { type: ['string', 'boolean', 'number'] },
+        anyOf: [
           {
-            type: ['array', 'object', 'string', 'boolean', 'integer'],
-            allOf: { type: ['number', 'object', 'string', 'boolean'] },
+            type: 'string',
+            referenceId: 'subschema1',
           },
-          { type: ['null', 'boolean', 'string', 'integer'] },
+          {
+            type: 'integer',
+            referenceId: 'subschema2',
+          },
+          {
+            type: ['boolean', 'object'],
+            referenceId: 'subschema3',
+          },
         ],
-        additionalSchemaKeys,
       };
 
       this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
     });
 
-    itReturnsACopyOfTheSchema();
-    itReturnsASchemaWithATypeArray();
-
-    it('returns a schema with the intersection of all allOf types', function () {
-      expect(this.result.type).to.eql([
-        'boolean',
-        'integer',
-        'string',
-      ]);
-    });
-  });
-
-  context('when the schema has an anyOf which can support multiple types', function () {
-    before(function () {
-      this.schema = {
+    it('returns a schema that allows any of the sub types, and has coerced subschema types', function () {
+      expect(this.result).to.eql({
+        type: ['boolean', 'integer', 'object', 'string'],
+        allOf: null,
         anyOf: [
-          { type: ['string', 'boolean'] },
-          { type: ['string', 'integer'] },
-          { type: ['boolean', 'integer'] },
+          {
+            type: ['string'],
+            referenceId: 'subschema1',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
+          {
+            type: ['integer'],
+            referenceId: 'subschema2',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
+          {
+            type: ['boolean', 'object'],
+            referenceId: 'subschema3',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
         ],
-        additionalSchemaKeys,
-      };
-
-      const results = _.times(50, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
-      this.resultTypes = _.map(results, 'type');
-    });
-
-    const expectedTypes = [
-      ['string'],
-      ['boolean'],
-      ['integer'],
-      ['boolean', 'string'],
-      ['integer', 'string'],
-      ['boolean', 'string'],
-    ];
-
-    expectedTypes.forEach((expectedType, index) => {
-      it(`sometimes returns a schema with the type: ${expectedType.join()}`, function () {
-        expect(this.resultTypes, `case ${index} failed`).to.include.something.that.eqls(expectedType);
+        oneOf: null,
       });
     });
   });
 
-  context('when the schema has an anyOf with an anyOf', function () {
-    before(function () {
-      this.schema = {
-        anyOf: [
-          {
-            anyOf: [
-              { type: 'string' },
-              { type: 'boolean' },
-            ],
-          },
-        ],
-        additionalSchemaKeys,
-      };
-
-      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
-      this.resultTypes = _.map(results, 'type');
-    });
-
-    it('sometimes returns a schema with one supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['string']);
-    });
-
-    it('sometimes returns a schema with a different supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
-    });
-  });
-
-  context('when the schema has a oneOf', function () {
-    before(function () {
-      this.schema = {
-        oneOf: [
-          { type: 'string' },
-          { type: 'boolean' },
-        ],
-        additionalSchemaKeys,
-      };
-
-      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
-      this.resultTypes = _.map(results, 'type');
-    });
-
-    it('always returns a schema with a restricted type', function () {
-      expect(this.resultTypes).to.all.satisfy((type) => (
-        type.length === 1 && (type[0] === 'string' || type[0] === 'boolean')
-      ));
-    });
-
-    it('sometimes returns a schema with one supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['string']);
-    });
-
-    it('sometimes returns a schema with a different supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
-    });
-  });
-
-  context('when the schema has a oneOf with a oneOf', function () {
+  context('when the schema has a "oneOf"', function () {
     before(function () {
       this.schema = {
         oneOf: [
           {
-            oneOf: [
-              { type: 'string' },
-              { type: 'boolean' },
-            ],
+            type: 'string',
+            referenceId: 'subschema1',
+          },
+          {
+            type: 'integer',
+            referenceId: 'subschema2',
+          },
+          {
+            type: ['boolean', 'object'],
+            referenceId: 'subschema3',
           },
         ],
-        additionalSchemaKeys,
       };
 
-      const results = _.times(30, () => testUnit(defaultMocker, 'coerceTypes', this.schema));
-      this.resultTypes = _.map(results, 'type');
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
     });
 
-    it('always returns a schema with a restricted type', function () {
-      expect(this.resultTypes).to.all.satisfy((type) => (
-        type.length === 1 && (type[0] === 'string' || type[0] === 'boolean')
-      ));
-    });
-
-    it('sometimes returns a schema with one supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['string']);
-    });
-
-    it('sometimes returns a schema with a different supported type', function () {
-      expect(this.resultTypes).to.include.something.that.eqls(['boolean']);
+    it('returns a schema that allows any of the sub types, and has coerced subschema types', function () {
+      expect(this.result).to.eql({
+        type: ['boolean', 'integer', 'object', 'string'],
+        allOf: null,
+        anyOf: null,
+        oneOf: [
+          {
+            type: ['string'],
+            referenceId: 'subschema1',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
+          {
+            type: ['integer'],
+            referenceId: 'subschema2',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
+          {
+            type: ['boolean', 'object'],
+            referenceId: 'subschema3',
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          },
+        ],
+      });
     });
   });
 
-  // "shallow" is used by the merging logic to allow reuse of coerceTypes without having to traverse again
-  context('when the "shallow" option is enabled', function () {
+  context('when the schema has nested combined schemas', function () {
     before(function () {
-      const schema = {
-        allOf: [
-          { type: ['string', 'boolean'] },
-          { type: ['integer', 'boolean'] },
-        ],
-        anyOf: [
-          { type: 'string' },
-          { type: 'boolean' },
-          { type: 'integer' },
-        ],
-        oneOf: [
-          { type: 'string' },
-          { type: 'boolean' },
-          { type: 'integer' },
-        ],
+      this.schema = {
+        allOf: [{
+          allOf: [{
+            type: ['boolean', 'string'],
+          }],
+          anyOf: [{
+            type: ['boolean', 'null', 'string'],
+          }],
+          oneOf: [{
+            type: ['boolean', 'null', 'string'],
+          }],
+        }],
+        anyOf: [{
+          allOf: [{
+            type: ['array', 'null', 'string'],
+          }],
+          anyOf: [{
+            type: ['array', 'string'],
+          }],
+          oneOf: [{
+            type: ['array', 'null', 'string'],
+          }],
+        }],
+        oneOf: [{
+          allOf: [{
+            type: ['null', 'object', 'string'],
+          }],
+          anyOf: [{
+            type: ['null', 'object', 'string'],
+          }],
+          oneOf: [{
+            type: ['object', 'string'],
+          }],
+        }],
       };
 
-      // only this test should call the function directly without using `testUnit`
-      const { coerceTypes } = require('../../lib/coerceTypes'); // eslint-disable-line global-require
-
-      this.result = coerceTypes(schema, { shallow: true });
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
     });
 
-    it('ignores combined schemas', function () {
-      expect(this.result.type).to.eql([
-        'array',
-        'boolean',
-        'decimal',
-        'integer',
-        'null',
-        'object',
-        'string',
-      ]);
+    it('updates the schemas at all levels', function () {
+      expect(this.result).to.eql({
+        type: ['string'],
+        allOf: [{
+          type: ['boolean', 'string'],
+          allOf: [{
+            type: ['boolean', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          anyOf: [{
+            type: ['boolean', 'null', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          oneOf: [{
+            type: ['boolean', 'null', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+        }],
+        anyOf: [{
+          type: ['array', 'string'],
+          allOf: [{
+            type: ['array', 'null', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          anyOf: [{
+            type: ['array', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          oneOf: [{
+            type: ['array', 'null', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+        }],
+        oneOf: [{
+          type: ['object', 'string'],
+          allOf: [{
+            type: ['null', 'object', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          anyOf: [{
+            type: ['null', 'object', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+          oneOf: [{
+            type: ['object', 'string'],
+            allOf: null,
+            anyOf: null,
+            oneOf: null,
+          }],
+        }],
+      });
     });
   });
 });

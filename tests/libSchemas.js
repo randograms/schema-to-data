@@ -20,16 +20,90 @@ const IntermediateType = {
   ],
 };
 
+const NestedTypedSchema2 = {
+  type: 'object',
+  properties: {
+    allOf: { type: 'null' },
+    anyOf: { type: 'null' },
+    oneOf: { type: 'null' },
+    type: {
+      type: 'array',
+      items: IntermediateType,
+      minItems: 1,
+    },
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
+const NestedTypedSchema1 = {
+  type: 'object',
+  properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedTypedSchema2,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema2,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema2,
+      minItems: 1,
+    },
+    type: {
+      type: 'array',
+      items: IntermediateType,
+      minItems: 1,
+    },
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
 const TypedSchema = {
   type: 'object',
   properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedTypedSchema1,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema1,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedTypedSchema1,
+      minItems: 1,
+    },
     type: {
       type: 'array',
-      minItems: 1,
       items: IntermediateType,
+      minItems: 1,
     },
   },
-  required: ['type'],
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
   additionalProperties: true,
 };
 
