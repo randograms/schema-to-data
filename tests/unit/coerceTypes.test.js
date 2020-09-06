@@ -34,13 +34,13 @@ describe('coerceTypes', function () {
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
-        'null',
-        'string',
+        'array',
+        'boolean',
         'decimal',
         'integer',
-        'boolean',
-        'array',
+        'null',
         'object',
+        'string',
       ]);
     });
   });
@@ -86,7 +86,7 @@ describe('coerceTypes', function () {
     itReturnsASchemaWithATypeArray();
 
     it('returns a schema with a copy of the expanded data types', function () {
-      expect(this.result.type).to.eql(['decimal', 'integer', 'boolean']);
+      expect(this.result.type).to.eql(['boolean', 'decimal', 'integer']);
       expect(this.result.type).to.not.equal(this.schema.type);
     });
   });
@@ -111,13 +111,13 @@ describe('coerceTypes', function () {
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
-        'null',
-        'string',
+        'array',
+        'boolean',
         'decimal',
         'integer',
-        'boolean',
-        'array',
+        'null',
         'object',
+        'string',
       ]);
     });
   });
@@ -130,13 +130,13 @@ describe('coerceTypes', function () {
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
-        'null',
-        'string',
+        'array',
+        'boolean',
         'decimal',
         'integer',
-        'boolean',
-        'array',
+        'null',
         'object',
+        'string',
       ]);
     });
   });
@@ -149,13 +149,13 @@ describe('coerceTypes', function () {
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
-        'null',
-        'string',
+        'array',
+        'boolean',
         'decimal',
         'integer',
-        'boolean',
-        'array',
+        'null',
         'object',
+        'string',
       ]);
     });
   });
@@ -168,9 +168,9 @@ describe('coerceTypes', function () {
 
     it('returns a schema with the subset of valid types', function () {
       expect(this.result.type).to.eql([
-        'string',
         'array',
         'object',
+        'string',
       ]);
     });
   });
@@ -183,13 +183,13 @@ describe('coerceTypes', function () {
 
     it('returns a schema with all data types', function () {
       expect(this.result.type).to.eql([
-        'null',
-        'string',
+        'array',
+        'boolean',
         'decimal',
         'integer',
-        'boolean',
-        'array',
+        'null',
         'object',
+        'string',
       ]);
     });
   });
@@ -216,9 +216,9 @@ describe('coerceTypes', function () {
 
     it('returns a schema with the intersection of all allOf types', function () {
       expect(this.result.type).to.eql([
-        'string',
-        'integer',
         'boolean',
+        'integer',
+        'string',
       ]);
     });
   });
@@ -242,9 +242,9 @@ describe('coerceTypes', function () {
       ['string'],
       ['boolean'],
       ['integer'],
-      ['string', 'boolean'],
-      ['string', 'integer'],
-      ['string', 'boolean'],
+      ['boolean', 'string'],
+      ['integer', 'string'],
+      ['boolean', 'string'],
     ];
 
     expectedTypes.forEach((expectedType, index) => {
@@ -370,7 +370,15 @@ describe('coerceTypes', function () {
     });
 
     it('ignores combined schemas', function () {
-      expect(this.result.type).to.eql(['null', 'string', 'decimal', 'integer', 'boolean', 'array', 'object']);
+      expect(this.result.type).to.eql([
+        'array',
+        'boolean',
+        'decimal',
+        'integer',
+        'null',
+        'object',
+        'string',
+      ]);
     });
   });
 });
