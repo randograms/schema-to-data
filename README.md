@@ -1,6 +1,6 @@
 # schema-to-data
 
-Straightforward (and soon to be well-documented) algorithm for generating mock data given a json-schema. *schema-to-data* exists to serve [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) which provides a much more flexible api for generating mock data. If you are just here to generate mock data then install [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) instead!
+Straightforward algorithm for generating mock data given a json-schema. *schema-to-data* exists to serve [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) which provides a much more flexible api for generating mock data. If you are just here to generate mock data then install [schema-to-generator](https://www.npmjs.com/package/@randograms/schema-to-generator) instead!
 
 **Note**: This library has not been released to npm yet and is still under development
 
