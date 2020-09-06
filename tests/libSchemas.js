@@ -484,7 +484,7 @@ module.exports.libSchemas = {
     inputSchema: MergedSchema,
     outputSchema: ConformedStringKeywordsSchema,
   },
-  mergeCombinedSchemasForType: {
+  mergeCombinedSchemas: {
     inputSchema: SingleTypedSchema,
     outputSchema: MergedSchema,
   },

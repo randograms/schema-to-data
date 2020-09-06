@@ -76,7 +76,7 @@ partition "Schema to Data" {
     :selectType
     * pick one of the types from the type array;
 
-    :mergeCombinedSchemasForType
+    :mergeCombinedSchemas
     * merges all relevant keywords from "allOf" subschemas into the root schema
     * merges at least one random compatible "anyOf" subschema into the root schema
     * each additional compatible "anyOf" subschema has a 50% chance of being merged

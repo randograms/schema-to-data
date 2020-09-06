@@ -5,7 +5,7 @@ const { defaultMocker } = require('../../../lib/mocker');
  * Note: object schema keywords are used in this test because the library supports several of these keywords.
  * The merge rules for all of the keywords are thoroughly tested in another file
  */
-describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () {
+describe('mergeCombinedSchemas/mergeCombinedSchemas', function () {
   context('when the schema has an "allOf"', function () {
     before(function () {
       this.singleTypedSchema = {
@@ -34,7 +34,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         anyOf: null,
         oneOf: null,
       };
-      this.result = testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema);
+      this.result = testUnit(defaultMocker, 'mergeCombinedSchemas', this.singleTypedSchema);
     });
 
     it('does not modify the original schema', function () {
@@ -75,7 +75,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         oneOf: null,
       };
 
-      this.results = _.times(30, () => testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema));
+      this.results = _.times(30, () => testUnit(defaultMocker, 'mergeCombinedSchemas', this.singleTypedSchema));
     });
 
     it('always merges at least one relevant subschema', function () {
@@ -128,7 +128,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         ],
       };
 
-      this.results = _.times(20, () => testUnit(defaultMocker, 'mergeCombinedSchemasForType', this.singleTypedSchema));
+      this.results = _.times(20, () => testUnit(defaultMocker, 'mergeCombinedSchemas', this.singleTypedSchema));
     });
 
     it('always merges one compatible subschema', function () {
@@ -180,7 +180,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         }],
       };
 
-      this.result = testUnit(defaultMocker, 'mergeCombinedSchemasForType', singleTypedSchema);
+      this.result = testUnit(defaultMocker, 'mergeCombinedSchemas', singleTypedSchema);
     });
 
     it('merges all nested combined schemas', function () {
@@ -273,7 +273,7 @@ describe('mergeCombinedSchemasForType/mergeCombinedSchemasForType', function () 
         }],
       };
 
-      this.result = testUnit(defaultMocker, 'mergeCombinedSchemasForType', singleTypedSchema);
+      this.result = testUnit(defaultMocker, 'mergeCombinedSchemas', singleTypedSchema);
     });
 
     it('merges all nested combined schemas', function () {
