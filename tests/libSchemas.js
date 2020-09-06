@@ -107,12 +107,78 @@ const TypedSchema = {
   additionalProperties: true,
 };
 
+const NestedSingleTypedSchema2 = {
+  type: 'object',
+  properties: {
+    allOf: { type: 'null' },
+    anyOf: { type: 'null' },
+    oneOf: { type: 'null' },
+    type: IntermediateType,
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
+const NestedSingleTypedSchema1 = {
+  type: 'object',
+  properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedSingleTypedSchema2,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema2,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema2,
+      minItems: 1,
+    },
+    type: IntermediateType,
+  },
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
+  additionalProperties: true,
+};
+
 const SingleTypedSchema = {
   type: 'object',
   properties: {
+    allOf: {
+      type: ['null', 'array'],
+      minItems: 1,
+      items: NestedSingleTypedSchema1,
+    },
+    anyOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema1,
+      minItems: 1,
+    },
+    oneOf: {
+      type: ['null', 'array'],
+      items: NestedSingleTypedSchema1,
+      minItems: 1,
+    },
     type: IntermediateType,
   },
-  required: ['type'],
+  required: [
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'type',
+  ],
   additionalProperties: true,
 };
 
