@@ -71,17 +71,21 @@ partition "Schema to Data" {
     * "decimal" is not an official json-schema type
     * the "number" type is converted to "integer" and "decimal"
     to facilitate decision making later on
-    * traverses all "allOf" subschemas to find compatible types;
+    * traverse all "allOf", "anyOf" and "oneOf" subschemas to find compatible types
+    * update all "allOf", "anyOf" and "oneOf" subschemas to have coerced types
+    * note: nested "allOf", "anyOf" and "oneOf" subschemas may have less restrictive type sets than their root schema;
 
     :selectType
-    * pick one of the types from the type array;
+    * pick one of the types from the type array
+    * traverse all "allOf", "anyOf" and "oneOf" subschemas, update types, and removes incompatible subschemas;
 
     :mergeCombinedSchemas
-    * merges all relevant keywords from "allOf" subschemas into the root schema
-    * merges at least one random compatible "anyOf" subschema into the root schema
-    * each additional compatible "anyOf" subschema has a 50% chance of being merged
-    * merges one random compatible "oneOf" subschema
-    * keywords have independent merge rules;
+    * merge all relevant keywords from "allOf" subschemas into the root schema
+    * merge at least one random "anyOf" subschema into the root schema
+    * merge additional "anyOf" subschemas giving each a 50% chance of being merged
+    * merge one random "oneOf" subschema
+    * deeply merge all nested "allOf", "anyOf" and "oneOf" subschemas
+    * note: keywords have independent merge rules;
 
     :conformSchemaToType
     * guarantees default values for relevant keywords related to selected "type"
