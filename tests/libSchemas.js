@@ -371,10 +371,23 @@ const ConformedObjectSchema = {
 const ConformedStringKeywordsSchema = {
   type: 'object',
   properties: {
+    format: {
+      enum: [
+        null,
+        'date',
+        'date-time',
+        'email',
+        'ipv4',
+        'ipv6',
+        'time',
+        'uuid',
+      ],
+    },
     maxLength: { type: 'number' },
     minLength: { type: 'number' },
   },
   required: [
+    'format',
     'maxLength',
     'minLength',
   ],
@@ -384,13 +397,11 @@ const ConformedStringKeywordsSchema = {
 const ConformedStringSchema = {
   type: 'object',
   properties: {
-    maxLength: { type: 'number' },
-    minLength: { type: 'number' },
+    ...ConformedStringKeywordsSchema.properties,
     type: { const: 'string' },
   },
   required: [
-    'maxLength',
-    'minLength',
+    ...ConformedStringKeywordsSchema.required,
     'type',
   ],
   additionalProperties: false,

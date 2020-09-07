@@ -147,6 +147,15 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
     ],
     string: [
       {
+        keyword: 'format',
+        schemaAValue: 'uuid',
+        schemaBValue: 'ipv4',
+        bothHaveKeyword: {
+          statement: 'uses the value from schemaB',
+          expectedValue: 'ipv4',
+        },
+      },
+      {
         keyword: 'maxLength',
         schemaAValue: 1,
         schemaBValue: 2,
