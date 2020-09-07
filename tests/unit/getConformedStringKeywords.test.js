@@ -7,6 +7,7 @@ describe('getConformedStringKeywords', function () {
       const singleTypedSchema = { type: 'string' };
       const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 0,
         maxLength: 500,
       });
@@ -20,6 +21,7 @@ describe('getConformedStringKeywords', function () {
       const singleTypedSchema = { type: 'string' };
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 30,
         maxLength: 530,
       });
@@ -35,6 +37,7 @@ describe('getConformedStringKeywords', function () {
       const singleTypedSchema = { type: 'string' };
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 0,
         maxLength: 80,
       });
@@ -51,6 +54,7 @@ describe('getConformedStringKeywords', function () {
       };
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 70,
         maxLength: 90,
       });
@@ -67,6 +71,7 @@ describe('getConformedStringKeywords', function () {
       };
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 1,
         maxLength: 60,
       });
@@ -83,6 +88,7 @@ describe('getConformedStringKeywords', function () {
       };
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
+        format: null,
         minLength: 4,
         maxLength: 4,
       });
@@ -102,6 +108,36 @@ describe('getConformedStringKeywords', function () {
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minLength" and "maxLength"');
+    });
+  });
+
+  context('with a supported format', function () {
+    it('preserves the format', function () {
+      const singleTypedSchema = {
+        type: 'string',
+        format: 'uuid',
+      };
+      const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
+        format: 'uuid',
+        minLength: 0,
+        maxLength: 500,
+      });
+    });
+  });
+
+  context('with an unsupported format', function () {
+    it('ignores the format', function () {
+      const singleTypedSchema = {
+        type: 'string',
+        format: 'abcd',
+      };
+      const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
+        format: null,
+        minLength: 0,
+        maxLength: 500,
+      });
     });
   });
 });
