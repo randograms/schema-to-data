@@ -25,6 +25,7 @@
     "ajv-errors": "1.0.1",
     "ansi-colors": "4.1.1",
     "chai": "4.2.0",
+    "chai-json-schema-ajv": "5.1.0",
     "chai-like": "1.1.1",
     "chai-things": "0.2.0",
     "cross-env": "7.0.2",
@@ -42,6 +43,7 @@
   },
   "dependencies": {
     "faker": "4.1.0",
-    "lodash": "4.17.19"
+    "lodash": "4.17.19",
+    "uuid": "8.3.0"
   }
 }

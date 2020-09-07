@@ -68,4 +68,23 @@ describe('string schemas', function () {
       },
     ],
   });
+
+  const supportedFormats = [
+    ['date', 'a date'],
+    ['date-time', 'a date-timestamp'],
+    ['email', 'an email'],
+    ['ipv4', 'an ipv4'],
+    ['ipv6', 'an ipv6'],
+    ['time', 'a timestamp'],
+    ['uuid', 'a uuid'],
+  ];
+
+  supportedFormats.forEach(([format, description]) => testSchema({
+    scenario: `with the ${format} format`,
+    schema: {
+      itAlwaysReturns: description,
+      type: 'string',
+      format,
+    },
+  }));
 });
