@@ -109,6 +109,17 @@ describe('malformed schemas', function () {
   });
 
   testSchema({
+    scenario: 'with an array schema with a "false" literal "additionalItems" and "minItems" that exceeds the length of the tuple', // eslint-disable-line max-len
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minItems" and "false" literal "additionalItems"',
+      type: 'array',
+      items: [true, true],
+      minItems: 3,
+      additionalItems: false,
+    },
+  });
+
+  testSchema({
     scenario: 'with an object schema with a false literal property schema',
     schema: {
       itThrowsTheError: 'Cannot generate data for a "false" literal schema',
