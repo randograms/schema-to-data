@@ -237,11 +237,21 @@ partition "Schema to Data" {
       }
     else if (type?) then (string)
       notImplemented: handle keywords
-      * "format"
+      * "format" (additional formats)
       * "pattern";
 
-      :generateString
-      * return random string using "minLength" and "maxLength";
+      partition generateString {
+        if (format?) then(yes)
+          :* make string
+          matching format;
+        else
+          :* make string
+          using "minLength"
+          and "maxLength";
+        endif
+
+        :return random string;
+      }
     else (bad state)
       stop
       note right
