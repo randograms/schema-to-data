@@ -109,10 +109,11 @@ partition "Schema to Data" {
           :createPseudoArraySchema
           * coerces "items" to a tuple definition
           * guarantees an "additionalItems" schema
+            * uses "items" for a list array
+            * uses "additionalItems" or a default for a tuple array
           * guarantees values for "minItems" and "maxItems";
 
           notImplemented:handle keywords
-          * "additionalItems"
           * "uniqueItems";
 
           partition getCoercedItemSchemas {
