@@ -8,6 +8,7 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
     this.itemSchema1 = { referenceId: 'itemSchema1' };
     this.itemSchema2 = { referenceId: 'itemSchema2' };
     this.itemSchema3 = { referenceId: 'itemSchema3' };
+    this.additionalItemsSchema = { referenceId: 'additionalItemsSchema' };
     this.defaultNestedSchema = { referenceId: 'defaultNestedSchema' };
     sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
   });
@@ -51,6 +52,7 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       const singleTypedSchema = {
         type: 'array',
         items: this.itemSchema,
+        additionalItems: this.additionalItemsSchema, // should be ignored
       };
 
       this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
@@ -260,6 +262,98 @@ describe('getConformedArrayKeywords/createPseudoArraySchema', function () {
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minItems" and "maxItems"');
+    });
+  });
+
+  context('with a tuple array schema and "additionalItems"', function () {
+    localSetupCustomMocker({
+      minArrayItems: 1,
+      maxExtraAdditionalItems: 1,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'array',
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: this.additionalItemsSchema,
+      };
+
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
+    });
+
+    it('returns a schema with the tuple items and the given additionalItems schema', function () {
+      expect(this.result).to.eql({
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: this.additionalItemsSchema,
+        minItems: 1,
+        maxItems: 3,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalItems", a "minArrayItems" less than the length of "items" and no "minItems"', function () { // eslint-disable-line max-len
+    localSetupCustomMocker({
+      minArrayItems: 1,
+      maxExtraAdditionalItems: 4,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'array',
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: false,
+      };
+
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
+    });
+
+    it('returns a schema with "maxItems" set to the length of the tuple', function () {
+      expect(this.result).to.eql({
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: null,
+        minItems: 1,
+        maxItems: 2,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalItems", a "minArrayItems" greater than the length of "items" and no "minItems"', function () { // eslint-disable-line max-len
+    localSetupCustomMocker({
+      minArrayItems: 7,
+      maxExtraAdditionalItems: 7,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'array',
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: false,
+      };
+
+      this.result = testUnit(this.mocker, 'createPseudoArraySchema', singleTypedSchema);
+    });
+
+    it('returns a "schema" with a "minItems" that does not exceed the length of the tuple', function () {
+      expect(this.result).to.eql({
+        items: [this.itemSchema1, this.itemSchema2],
+        additionalItems: null,
+        minItems: 2,
+        maxItems: 2,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalItems" and "minItems" greater than the length of the tuple', function () {
+    it('throws an error', function () {
+      const singleTypedSchema = {
+        type: 'array',
+        items: [this.itemSchema1, this.itemSchema2],
+        minItems: 3,
+        additionalItems: false,
+      };
+
+      const testFn = () => {
+        testUnit(defaultMocker, 'createPseudoArraySchema', singleTypedSchema);
+      };
+
+      expect(testFn).to.throw('Cannot generate data for conflicting "minItems" and "false" literal "additionalItems"');
     });
   });
 });

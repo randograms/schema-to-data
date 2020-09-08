@@ -212,7 +212,7 @@ const PseudoArraySchema = {
     additionalItems: {
       oneOf: [
         ReferenceSchema,
-        { const: false },
+        { enum: [null, false] },
       ],
     },
     items: {
