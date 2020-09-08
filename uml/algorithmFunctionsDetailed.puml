@@ -109,10 +109,11 @@ partition "Schema to Data" {
           :createPseudoArraySchema
           * coerces "items" to a tuple definition
           * guarantees an "additionalItems" schema
+            * uses "items" for a list array
+            * uses "additionalItems" or a default for a tuple array
           * guarantees values for "minItems" and "maxItems";
 
           notImplemented:handle keywords
-          * "additionalItems"
           * "uniqueItems";
 
           partition getCoercedItemSchemas {
@@ -224,8 +225,6 @@ partition "Schema to Data" {
       * use pseudo "type" keyword to guarantee "integer" is an integer
       and "decimal" has a fractional value
       * return random number using "minimum" and "maximum";
-    else if (type?) then (null)
-      :return null;
     else if (type?) then (object)
       partition generateObject {
         while (has coerced properties?) is (yes)
@@ -237,18 +236,23 @@ partition "Schema to Data" {
       }
     else if (type?) then (string)
       notImplemented: handle keywords
-      * "format"
+      * "format" (additional formats)
       * "pattern";
 
-      :generateString
-      * return random string using "minLength" and "maxLength";
-    else (bad state)
-      stop
-      note right
-        Error
-        * Only expected to occur
-        during development
-      end note
+      partition generateString {
+        if (format?) then(yes)
+          :* make string
+          matching format;
+        else
+          :* make string
+          using "minLength"
+          and "maxLength";
+        endif
+
+        :return random string;
+      }
+    else (null)
+      :return null;
     endif
   }
 }

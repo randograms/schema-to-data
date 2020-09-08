@@ -112,19 +112,12 @@ partition "Schema to Data" {
       :generateBoolean;
     else if (type?) then (decimal or integer)
       :generateNumber;
-    else if (type?) then (null)
-      :return null;
     else if (type?) then (object)
       :generateObject;
     else if (type?) then (string)
       :generateString;
-    else (bad state)
-      stop
-      note right
-        Error
-        * Only expected to occur
-        during development
-      end note
+    else (null)
+      :return null;
     endif
   }
 }

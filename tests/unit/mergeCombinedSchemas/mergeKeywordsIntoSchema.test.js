@@ -26,10 +26,21 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
   const allTypesConfig = {
     array: [
       {
+        keyword: 'additionalItems',
+        schemaAValue: { referenceId: 'subschema1' },
+        schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
+        bothHaveKeyword: {
+          statement: 'combines the subschemas into a single additionalItems definition',
+          expectedValue: { allOf: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }] },
+        },
+      },
+      {
         keyword: 'items',
         clarification: '(list)',
         schemaAValue: { referenceId: 'subschema1' },
         schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
         bothHaveKeyword: {
           statement: 'combines the subschemas into a single items definition',
           expectedValue: { allOf: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }] },
@@ -38,24 +49,28 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
       {
         keyword: 'items',
         clarification: '(tuple)',
-        schemaAValue: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }],
-        schemaBValue: [{ referenceId: 'subschema3' }, { referenceId: 'subschema4' }, { referenceId: 'subschema5' }],
+        schemaAValue: [
+          { referenceId: 'subschema1a' },
+          { referenceId: 'subschema1b' },
+          { referenceId: 'subschema1c' }],
+        schemaBValue: [
+          { referenceId: 'subschema2a' },
+          true,
+          false,
+          { referenceId: 'subschema2d' },
+        ],
         bothHaveKeyword: {
           statement: 'combines the corresponding subschemas into a new tuple definition',
           expectedValue: [
             {
               allOf: [
-                { referenceId: 'subschema3' },
-                { referenceId: 'subschema1' },
+                { referenceId: 'subschema2a' },
+                { referenceId: 'subschema1a' },
               ],
             },
-            {
-              allOf: [
-                { referenceId: 'subschema4' },
-                { referenceId: 'subschema2' },
-              ],
-            },
-            { referenceId: 'subschema5' },
+            { referenceId: 'subschema1b' },
+            false, // yes this schema doesn't make sense, but at least the rules are consistent
+            { referenceId: 'subschema2d' },
           ],
         },
       },
@@ -64,6 +79,7 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
         clarification: '(list and tuple)',
         schemaAValue: { referenceId: 'subschema1' },
         schemaBValue: [{ referenceId: 'subschema2' }, { referenceId: 'subschema3' }],
+        keywordValueIsSchema: true,
         bothHaveKeyword: {
           statement: 'merges the list subschema into each tuple subschema',
           expectedValue: [
@@ -106,15 +122,16 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
       },
       {
         keyword: 'properties',
-        clarification: '(tuple)',
         schemaAValue: {
           property1: { referenceId: 'subschema1a' },
           property2: { referenceId: 'subschema2a' },
+          property3: { referenceId: 'subschema3a' },
         },
         schemaBValue: {
           property1: { referenceId: 'subschema1b' },
-          property2: { referenceId: 'subschema2b' },
-          property3: { referenceId: 'subschema3' },
+          property2: true,
+          property3: false,
+          property4: { referenceId: 'subschema4b' },
         },
         bothHaveKeyword: {
           statement: 'combines the corresponding subschemas',
@@ -125,13 +142,9 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
                 { referenceId: 'subschema1b' },
               ],
             },
-            property2: {
-              allOf: [
-                { referenceId: 'subschema2a' },
-                { referenceId: 'subschema2b' },
-              ],
-            },
-            property3: { referenceId: 'subschema3' },
+            property2: { referenceId: 'subschema2a' },
+            property3: false,
+            property4: { referenceId: 'subschema4b' },
           },
         },
       },
@@ -187,6 +200,7 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
     clarification = '',
     schemaAValue,
     schemaBValue,
+    keywordValueIsSchema = false,
     bothHaveKeyword: {
       statement,
       expectedValue,
@@ -232,6 +246,48 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
           expect(schemaA).to.eql({ [keyword]: expectedValue });
         });
       });
+
+      if (keywordValueIsSchema) {
+        context('when schemaAs value is "true"', function () {
+          it('modifies schemaA to have the keyword from schemaB', function () {
+            const schemaA = { [keyword]: true };
+            const schemaB = { [keyword]: schemaBValue };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: schemaBValue });
+          });
+        });
+
+        context('when schemaBs value is "true"', function () {
+          it('does not modify schemaA', function () {
+            const schemaA = { [keyword]: schemaAValue };
+            const schemaB = { [keyword]: true };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: schemaAValue });
+          });
+        });
+
+        context('when schemaAs value is "false"', function () {
+          it('sets the value to false', function () {
+            const schemaA = { [keyword]: false };
+            const schemaB = { [keyword]: schemaBValue };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: false });
+          });
+        });
+
+        context('when schemaBs value is "false"', function () {
+          it('sets the value to false', function () {
+            const schemaA = { [keyword]: schemaAValue };
+            const schemaB = { [keyword]: false };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: false });
+          });
+        });
+      }
     });
   });
 });
