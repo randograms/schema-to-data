@@ -57,6 +57,14 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - properties
   - required
 - String
+  - format
+    - date
+    - date-time
+    - email
+    - ipv4
+    - ipv6
+    - time
+    - uuid
   - maxLength
   - minLength
 - Number
@@ -78,6 +86,17 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - propertyNames
 - String
   - format
+    - idn-email
+    - hostname
+    - idn-hostname
+    - uri
+    - uri-reference
+    - iri
+    - iri-reference
+    - uri-template
+    - json-pointer
+    - relative-json-pointer
+    - regex
   - pattern
 - Number
   - exclusiveMaximum (draft4 and draft6)
