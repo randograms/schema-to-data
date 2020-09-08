@@ -362,8 +362,8 @@ const ConformedObjectSchema = {
     type: { const: 'object' },
   },
   required: [
-    'type',
     'properties',
+    'type',
   ],
   additionalProperties: false,
 };
