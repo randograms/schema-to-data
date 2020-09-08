@@ -224,8 +224,6 @@ partition "Schema to Data" {
       * use pseudo "type" keyword to guarantee "integer" is an integer
       and "decimal" has a fractional value
       * return random number using "minimum" and "maximum";
-    else if (type?) then (null)
-      :return null;
     else if (type?) then (object)
       partition generateObject {
         while (has coerced properties?) is (yes)
@@ -252,13 +250,8 @@ partition "Schema to Data" {
 
         :return random string;
       }
-    else (bad state)
-      stop
-      note right
-        Error
-        * Only expected to occur
-        during development
-      end note
+    else (null)
+      :return null;
     endif
   }
 }
