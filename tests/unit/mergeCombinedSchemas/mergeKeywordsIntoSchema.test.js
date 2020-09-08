@@ -26,6 +26,16 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
   const allTypesConfig = {
     array: [
       {
+        keyword: 'additionalItems',
+        schemaAValue: { referenceId: 'subschema1' },
+        schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
+        bothHaveKeyword: {
+          statement: 'combines the subschemas into a single additionalItems definition',
+          expectedValue: { allOf: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }] },
+        },
+      },
+      {
         keyword: 'items',
         clarification: '(list)',
         schemaAValue: { referenceId: 'subschema1' },
@@ -187,6 +197,7 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
     clarification = '',
     schemaAValue,
     schemaBValue,
+    keywordValueIsSchema = false,
     bothHaveKeyword: {
       statement,
       expectedValue,
@@ -232,6 +243,48 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
           expect(schemaA).to.eql({ [keyword]: expectedValue });
         });
       });
+
+      if (keywordValueIsSchema) {
+        context('when schemaAs value is "true"', function () {
+          it('modifies schemaA to have the keyword from schemaB', function () {
+            const schemaA = { [keyword]: true };
+            const schemaB = { [keyword]: schemaBValue };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: schemaBValue });
+          });
+        });
+
+        context('when schemaBs value is "true"', function () {
+          it('does not modify schemaA', function () {
+            const schemaA = { [keyword]: schemaAValue };
+            const schemaB = { [keyword]: true };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: schemaAValue });
+          });
+        });
+
+        context('when schemaAs value is "false"', function () {
+          it('sets the value to false', function () {
+            const schemaA = { [keyword]: false };
+            const schemaB = { [keyword]: schemaBValue };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: false });
+          });
+        });
+
+        context('when schemaBs value is "false"', function () {
+          it('sets the value to false', function () {
+            const schemaA = { [keyword]: schemaAValue };
+            const schemaB = { [keyword]: false };
+            defaultMocker.mergeKeywordsIntoSchema(schemaA, schemaB, type);
+
+            expect(schemaA).to.eql({ [keyword]: false });
+          });
+        });
+      }
     });
   });
 });
