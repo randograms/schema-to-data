@@ -40,6 +40,7 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
         clarification: '(list)',
         schemaAValue: { referenceId: 'subschema1' },
         schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
         bothHaveKeyword: {
           statement: 'combines the subschemas into a single items definition',
           expectedValue: { allOf: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }] },
@@ -48,24 +49,28 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
       {
         keyword: 'items',
         clarification: '(tuple)',
-        schemaAValue: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }],
-        schemaBValue: [{ referenceId: 'subschema3' }, { referenceId: 'subschema4' }, { referenceId: 'subschema5' }],
+        schemaAValue: [
+          { referenceId: 'subschema1a' },
+          { referenceId: 'subschema1b' },
+          { referenceId: 'subschema1c' }],
+        schemaBValue: [
+          { referenceId: 'subschema2a' },
+          true,
+          false,
+          { referenceId: 'subschema2d' },
+        ],
         bothHaveKeyword: {
           statement: 'combines the corresponding subschemas into a new tuple definition',
           expectedValue: [
             {
               allOf: [
-                { referenceId: 'subschema3' },
-                { referenceId: 'subschema1' },
+                { referenceId: 'subschema2a' },
+                { referenceId: 'subschema1a' },
               ],
             },
-            {
-              allOf: [
-                { referenceId: 'subschema4' },
-                { referenceId: 'subschema2' },
-              ],
-            },
-            { referenceId: 'subschema5' },
+            { referenceId: 'subschema1b' },
+            false, // yes this schema doesn't make sense, but at least the rules are consistent
+            { referenceId: 'subschema2d' },
           ],
         },
       },
@@ -74,6 +79,7 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
         clarification: '(list and tuple)',
         schemaAValue: { referenceId: 'subschema1' },
         schemaBValue: [{ referenceId: 'subschema2' }, { referenceId: 'subschema3' }],
+        keywordValueIsSchema: true,
         bothHaveKeyword: {
           statement: 'merges the list subschema into each tuple subschema',
           expectedValue: [
@@ -116,15 +122,16 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
       },
       {
         keyword: 'properties',
-        clarification: '(tuple)',
         schemaAValue: {
           property1: { referenceId: 'subschema1a' },
           property2: { referenceId: 'subschema2a' },
+          property3: { referenceId: 'subschema3a' },
         },
         schemaBValue: {
           property1: { referenceId: 'subschema1b' },
-          property2: { referenceId: 'subschema2b' },
-          property3: { referenceId: 'subschema3' },
+          property2: true,
+          property3: false,
+          property4: { referenceId: 'subschema4b' },
         },
         bothHaveKeyword: {
           statement: 'combines the corresponding subschemas',
@@ -135,13 +142,9 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
                 { referenceId: 'subschema1b' },
               ],
             },
-            property2: {
-              allOf: [
-                { referenceId: 'subschema2a' },
-                { referenceId: 'subschema2b' },
-              ],
-            },
-            property3: { referenceId: 'subschema3' },
+            property2: { referenceId: 'subschema2a' },
+            property3: false,
+            property4: { referenceId: 'subschema4b' },
           },
         },
       },
