@@ -57,6 +57,14 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - properties
   - required
 - String
+  - format
+    - date
+    - date-time
+    - email
+    - ipv4
+    - ipv6
+    - time
+    - uuid
   - maxLength
   - minLength
 - Number
@@ -78,6 +86,17 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - propertyNames
 - String
   - format
+    - idn-email
+    - hostname
+    - idn-hostname
+    - uri
+    - uri-reference
+    - iri
+    - iri-reference
+    - uri-template
+    - json-pointer
+    - relative-json-pointer
+    - regex
   - pattern
 - Number
   - exclusiveMaximum (draft4 and draft6)
@@ -87,7 +106,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 ### Unplanned Keywords
 
 - All
-  - $ref
   - not
 - Array
   - uniqueItems
@@ -173,6 +191,8 @@ Schema keywords always take precedence over configurable defaults (ex: if a sche
   - *schema-to-data* does not provide a means to seed random data even if some of the underlying libraries provide such functionality
 - Exposing internal dependencies
   - *schema-to-data* is not strictly tied to any underlying library for data generation and will not expose any underlying library
+- Parsing $ref
+  - There are other libraries that can parse $ref before the schema is passed to *schema-to-data*
 
 ## More Docs
 
