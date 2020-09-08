@@ -4,9 +4,9 @@
 
 Diagrams are written with [PlantUml](https://plantuml.com/) and are located in the `uml/` directory
 
-* [High Level Overview](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/highLevelOverview.png)
-* [Algorithm Functions (High Level)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsHighLevel.png)
-* [Algorithm Functions (Detailed)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-assets/build/algorithmFunctionsDetailed.png)
+* [High Level Overview](https://raw.githubusercontent.com/randograms/schema-to-data/readme-previews/support-additional-items/build/highLevelOverview.png)
+* [Algorithm Functions (High Level)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-previews/support-additional-items/build/algorithmFunctionsHighLevel.png)
+* [Algorithm Functions (Detailed)](https://raw.githubusercontent.com/randograms/schema-to-data/readme-previews/support-additional-items/build/algorithmFunctionsDetailed.png)
 
 Building diagrams locally:
 
