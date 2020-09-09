@@ -239,6 +239,11 @@ const CoercedArrayItemsSchema = {
 const ConformedArraySchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'array' },
+    },
     items: {
       type: 'array',
       items: ReferenceSchema,
@@ -246,6 +251,7 @@ const ConformedArraySchema = {
     type: { const: 'array' },
   },
   required: [
+    'enum',
     'items',
     'type',
   ],
@@ -255,9 +261,15 @@ const ConformedArraySchema = {
 const ConformedBooleanSchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'boolean' },
+    },
     type: { const: 'boolean' },
   },
   required: [
+    'enum',
     'type',
   ],
   additionalProperties: false,
@@ -279,9 +291,15 @@ const ConformedNumberKeywordsSchema = {
 const ConformedNullSchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'null' },
+    },
     type: { const: 'null' },
   },
   required: [
+    'enum',
     'type',
   ],
   additionalProperties: false,
@@ -290,11 +308,17 @@ const ConformedNullSchema = {
 const ConformedNumberSchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'number' },
+    },
     maximum: { type: 'number' },
     minimum: { type: 'number' },
     type: { enum: ['decimal', 'integer'] },
   },
   required: [
+    'enum',
     'maximum',
     'minimum',
     'type',
@@ -360,6 +384,11 @@ const CoercedObjectPropertiesSchema = {
 const ConformedObjectSchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'object' },
+    },
     properties: {
       type: 'object',
       additionalProperties: ReferenceSchema,
@@ -367,6 +396,7 @@ const ConformedObjectSchema = {
     type: { const: 'object' },
   },
   required: [
+    'enum',
     'properties',
     'type',
   ],
@@ -404,10 +434,16 @@ const ConformedStringKeywordsSchema = {
 const ConformedStringSchema = {
   type: 'object',
   properties: {
+    const: true,
+    enum: {
+      type: ['null', 'array'],
+      items: { type: 'string' },
+    },
     ...ConformedStringKeywordsSchema.properties,
     type: { const: 'string' },
   },
   required: [
+    'enum',
     ...ConformedStringKeywordsSchema.required,
     'type',
   ],
