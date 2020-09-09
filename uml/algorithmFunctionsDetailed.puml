@@ -152,7 +152,6 @@ partition "Schema to Data" {
           * guarantees valid "minProperties" and "maxProperties";
 
           notImplemented:handle keywords
-          * "additionalProperties"
           * "propertyNames"
           * "patternProperties";
 
@@ -164,6 +163,7 @@ partition "Schema to Data" {
           * picks a random valid object size
           * populates "propertyNamesToGenerate" using optional
           and random additional properties
+          * only uses optional properties if "additionalProperties" is false
           * guarantees each additional property will have its own schema
           using the "additionalProperties" schema;
 

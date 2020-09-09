@@ -128,4 +128,31 @@ describe('malformed schemas', function () {
       required: ['property1'],
     },
   });
+
+  testSchema({
+    scenario: 'with an object schema with a "false" literal "additionalProperties" and "minProperties" that exceeds the number of defined properties', // eslint-disable-line max-len
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "minProperties" and "false" literal "additionalProperties"', // eslint-disable-line max-len
+      type: 'object',
+      properties: {
+        property1: true,
+        property2: true,
+      },
+      minProperties: 3,
+      additionalProperties: false,
+    },
+  });
+  testSchema({
+    scenario: 'with an object schema with a "false" literal "additionalProperties" and "minProperties" that exceeds the number of defined properties', // eslint-disable-line max-len
+    schema: {
+      itThrowsTheError: 'Cannot generate data for conflicting "required" property without a schema and "false" literal "additionalProperties"', // eslint-disable-line max-len
+      type: 'object',
+      properties: {
+        property1: true,
+        property2: true,
+      },
+      required: ['property3'],
+      additionalProperties: false,
+    },
+  });
 });
