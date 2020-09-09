@@ -7,6 +7,7 @@ describe('generateArray', function () {
     it('returns an empty array', function () {
       const conformedSchema = {
         type: 'array',
+        enum: null,
         items: [],
       };
       const result = testUnit(defaultMocker, 'generateArray', conformedSchema);
@@ -32,6 +33,7 @@ describe('generateArray', function () {
 
       const conformedSchema = {
         type: 'array',
+        enum: null,
         items: [
           this.itemSchema1,
           this.itemSchema2,

@@ -10,6 +10,7 @@ describe('generateObject', function () {
         'generateObject',
         {
           type: 'object',
+          enum: null,
           properties: {},
         },
       );
@@ -34,6 +35,7 @@ describe('generateObject', function () {
         'generateObject',
         {
           type: 'object',
+          enum: null,
           properties: {
             property1: this.propertySchema1,
             property2: this.propertySchema2,
