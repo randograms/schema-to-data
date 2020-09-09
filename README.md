@@ -48,6 +48,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - oneOf
   - type
 - Array
+  - additionalItems
   - items
   - maxItems
   - minItems
@@ -67,6 +68,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
     - uuid
   - maxLength
   - minLength
+  - pattern
 - Number
   - maximum
   - minimum
@@ -75,10 +77,10 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 
 - All
   - const
+  - default
   - enum
   - examples
 - Array
-  - additionalItems
   - contains
 - Object
   - additionalProperties
@@ -97,7 +99,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
     - json-pointer
     - relative-json-pointer
     - regex
-  - pattern
 - Number
   - exclusiveMaximum (draft4 and draft6)
   - exclusiveMinimum (draft4 and draft6)
