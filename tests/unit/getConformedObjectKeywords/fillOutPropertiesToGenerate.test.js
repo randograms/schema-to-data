@@ -267,4 +267,44 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
       });
     });
   });
+
+  context('when "additionalPropertiesSchema" is null (regardless of "optionalPropertyPrioritization")', function () {
+    setupCustomMocker({ optionalPropertyPrioritization: 0 });
+
+    before(function () {
+      this.results = _.times(10, () => {
+        const pseudoObjectSchema = {
+          propertiesSchemas: {
+            property1: this.propertySchema1,
+            property2: this.propertySchema2,
+            property3: this.propertySchema3,
+            property4: this.propertySchema4,
+          },
+          propertyNamesToGenerate: ['property1', 'property2'],
+          shuffledOptionalPropertyNames: ['property3', 'property4'],
+          additionalPropertiesSchema: null,
+          minProperties: 4,
+          maxProperties: 4,
+        };
+
+        return testUnit(this.mocker, 'fillOutPropertiesToGenerate', pseudoObjectSchema);
+      });
+    });
+
+    it('always uses the optional properties instead of generated additional properties', function () {
+      expect(this.results).to.all.eql({
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+          property3: this.propertySchema3,
+          property4: this.propertySchema4,
+        },
+        propertyNamesToGenerate: ['property1', 'property2', 'property3', 'property4'],
+        shuffledOptionalPropertyNames: [],
+        additionalPropertiesSchema: null,
+        minProperties: 4,
+        maxProperties: 4,
+      });
+    });
+  });
 });

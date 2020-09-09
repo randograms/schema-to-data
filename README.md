@@ -53,6 +53,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - maxItems
   - minItems
 - Object
+  - additionalProperties
   - maxProperties
   - minProperties
   - properties
@@ -83,7 +84,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 - Array
   - contains
 - Object
-  - additionalProperties
   - patternProperties
   - propertyNames
 - String

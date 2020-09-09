@@ -13,6 +13,7 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
     this.propertySchema5 = { referenceId: 'propertySchema5' };
     this.propertySchema6 = { referenceId: 'propertySchema6' };
     this.propertySchema7 = { referenceId: 'propertySchema7' };
+    this.additionalPropertiesSchema = { referenceId: 'additionalPropertiesSchema' };
 
     this.defaultNestedSchema = { referenceId: 'defaultNestedSchema' };
     sandbox.stub(defaultMocker, 'generateDefaultNestedSchema').returns(this.defaultNestedSchema);
@@ -322,6 +323,143 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "minProperties" and "maxProperties"');
+    });
+  });
+
+  context('with a schema with "additionalProperties"', function () {
+    localSetupCustomMocker({
+      maxExtraAdditionalProperties: 1,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'object',
+        additionalProperties: this.additionalPropertiesSchema,
+      };
+
+      this.result = testUnit(this.mocker, 'createPseudoObjectSchema', singleTypedSchema);
+    });
+
+    it('returns a schema with the "additionalProperties" schema', function () {
+      expect(this.result).to.eql({
+        propertiesSchemas: {},
+        propertyNamesToGenerate: [],
+        shuffledOptionalPropertyNames: [],
+        additionalPropertiesSchema: this.additionalPropertiesSchema,
+        minProperties: 0,
+        maxProperties: 1,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalProperties", a "minObjectProperties" less than the number of defined "properties" and no "minProperties"', function () { // eslint-disable-line max-len
+    localSetupCustomMocker({
+      minObjectProperties: 1,
+      maxExtraAdditionalProperties: 3,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'object',
+        properties: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        additionalProperties: false,
+      };
+
+      const result = testUnit(this.mocker, 'createPseudoObjectSchema', singleTypedSchema);
+
+      this.relevantResult = _.omit(result, [
+        'shuffledOptionalPropertyNames',
+      ]);
+    });
+
+    it('returns a schema with "maxProperties" set to the number of defined properties', function () {
+      expect(this.relevantResult).to.eql({
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        propertyNamesToGenerate: [],
+        additionalPropertiesSchema: null,
+        minProperties: 1,
+        maxProperties: 2,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalProperties", a "minObjectProperties" greater than the number of defined "properties" and no "minProperties"', function () { // eslint-disable-line max-len
+    localSetupCustomMocker({
+      minObjectProperties: 7,
+      maxExtraAdditionalProperties: 7,
+    });
+    before(function () {
+      const singleTypedSchema = {
+        type: 'object',
+        properties: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        additionalProperties: false,
+      };
+
+      const result = testUnit(this.mocker, 'createPseudoObjectSchema', singleTypedSchema);
+
+      this.relevantResult = _.omit(result, [
+        'shuffledOptionalPropertyNames',
+      ]);
+    });
+
+    it('returns a schema with a "minProperties" that does not exceed the number of defined properties', function () {
+      expect(this.relevantResult).to.eql({
+        propertiesSchemas: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        propertyNamesToGenerate: [],
+        additionalPropertiesSchema: null,
+        minProperties: 2,
+        maxProperties: 2,
+      });
+    });
+  });
+
+  context('with a "false" literal "additionalProperties" and "minProperties" greater than the number of defined properties', function () { // eslint-disable-line max-len
+    it('throws an error', function () {
+      const singleTypedSchema = {
+        type: 'object',
+        properties: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        minProperties: 3,
+        additionalProperties: false,
+      };
+
+      const testFn = () => {
+        testUnit(defaultMocker, 'createPseudoObjectSchema', singleTypedSchema);
+      };
+
+      expect(testFn).to.throw('Cannot generate data for conflicting "minProperties" and "false" literal "additionalProperties"'); // eslint-disable-line max-len
+    });
+  });
+
+  context('with a "false" literal "additionalProperties" and a required property without a schema', function () {
+    it('throws an error', function () {
+      const singleTypedSchema = {
+        type: 'object',
+        properties: {
+          property1: this.propertySchema1,
+          property2: this.propertySchema2,
+        },
+        required: ['property3'],
+        additionalProperties: false,
+      };
+
+      const testFn = () => {
+        testUnit(defaultMocker, 'createPseudoObjectSchema', singleTypedSchema);
+      };
+
+      expect(testFn).to.throw('Cannot generate data for conflicting "required" property without a schema and "false" literal "additionalProperties"'); // eslint-disable-line max-len
     });
   });
 });

@@ -305,7 +305,12 @@ const ConformedNumberSchema = {
 const PseudoObjectSchema = {
   type: 'object',
   properties: {
-    additionalPropertiesSchema: ReferenceSchema,
+    additionalPropertiesSchema: {
+      oneOf: [
+        ReferenceSchema,
+        { const: null },
+      ],
+    },
     maxProperties: {
       oneOf: [
         { type: 'number' },

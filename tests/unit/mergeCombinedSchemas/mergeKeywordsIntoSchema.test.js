@@ -103,6 +103,16 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
     integer: numberConfig,
     object: [
       {
+        keyword: 'additionalProperties',
+        schemaAValue: { referenceId: 'subschema1' },
+        schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
+        bothHaveKeyword: {
+          statement: 'combines the subschemas into a single additionalProperties definition',
+          expectedValue: { allOf: [{ referenceId: 'subschema1' }, { referenceId: 'subschema2' }] },
+        },
+      },
+      {
         keyword: 'maxProperties',
         schemaAValue: 1,
         schemaBValue: 2,
