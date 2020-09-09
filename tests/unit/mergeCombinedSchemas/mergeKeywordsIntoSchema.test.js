@@ -186,6 +186,15 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
           expectedValue: 2,
         },
       },
+      {
+        keyword: 'pattern',
+        schemaAValue: 'abc',
+        schemaBValue: '123',
+        bothHaveKeyword: {
+          statement: 'uses the value from schemaB',
+          expectedValue: '123',
+        },
+      },
     ],
   };
 

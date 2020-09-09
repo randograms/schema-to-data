@@ -87,4 +87,13 @@ describe('string schemas', function () {
       format,
     },
   }));
+
+  testSchema({
+    scenario: 'with a pattern',
+    schema: {
+      itAlwaysReturns: 'a string with the pattern',
+      type: 'string',
+      pattern: 'a{1,5}b{1,4}c{0,3}',
+    },
+  });
 });

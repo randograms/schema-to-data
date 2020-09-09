@@ -8,6 +8,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 0,
         maxLength: 500,
       });
@@ -22,6 +23,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 30,
         maxLength: 530,
       });
@@ -38,6 +40,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 0,
         maxLength: 80,
       });
@@ -55,6 +58,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 70,
         maxLength: 90,
       });
@@ -72,6 +76,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 1,
         maxLength: 60,
       });
@@ -89,6 +94,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(this.mocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
         minLength: 4,
         maxLength: 4,
       });
@@ -120,6 +126,7 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: 'uuid',
+        pattern: null,
         minLength: 0,
         maxLength: 500,
       });
@@ -135,6 +142,39 @@ describe('getConformedStringKeywords', function () {
       const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
       expect(conformedKeywords).to.eql({
         format: null,
+        pattern: null,
+        minLength: 0,
+        maxLength: 500,
+      });
+    });
+  });
+
+  context('with a "pattern" string', function () {
+    it('preserves the "pattern"', function () {
+      const singleTypedSchema = {
+        type: 'string',
+        pattern: 'abcd',
+      };
+      const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
+        format: null,
+        pattern: 'abcd',
+        minLength: 0,
+        maxLength: 500,
+      });
+    });
+  });
+
+  context('with a non string "pattern"', function () {
+    it('ignores the "pattern"', function () {
+      const singleTypedSchema = {
+        type: 'string',
+        pattern: 123,
+      };
+      const conformedKeywords = testUnit(defaultMocker, 'getConformedStringKeywords', singleTypedSchema);
+      expect(conformedKeywords).to.eql({
+        format: null,
+        pattern: null,
         minLength: 0,
         maxLength: 500,
       });
