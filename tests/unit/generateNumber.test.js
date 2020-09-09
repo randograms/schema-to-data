@@ -9,6 +9,7 @@ describe('generateNumber', function () {
         'generateNumber',
         {
           type: 'decimal',
+          enum: null,
           minimum: -10,
           maximum: 10,
         },
@@ -35,6 +36,7 @@ describe('generateNumber', function () {
         'generateNumber',
         {
           type: 'integer',
+          enum: null,
           minimum: -10,
           maximum: 10,
         },

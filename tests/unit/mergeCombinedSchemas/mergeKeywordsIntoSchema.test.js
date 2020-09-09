@@ -24,6 +24,26 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
   ];
 
   const allTypesConfig = {
+    all: [
+      {
+        keyword: 'const',
+        schemaAValue: 'abc',
+        schemaBValue: 'def',
+        bothHaveKeyword: {
+          statement: 'uses the value from schemaB',
+          expectedValue: 'def',
+        },
+      },
+      {
+        keyword: 'enum',
+        schemaAValue: ['a', 'b', 1, 2, 1.1, 2.1, true, [1], [2], { value: 1 }, { value: 2 }, null],
+        schemaBValue: ['b', 'c', 2, 3, 2.1, 3.1, true, false, [2], [3], { value: 2 }, { value: 3 }, null],
+        bothHaveKeyword: {
+          statement: 'uses the intersection of both lists using deep equality checks',
+          expectedValue: ['b', 2, 2.1, true, [2], { value: 2 }, null],
+        },
+      },
+    ],
     array: [
       {
         keyword: 'additionalItems',

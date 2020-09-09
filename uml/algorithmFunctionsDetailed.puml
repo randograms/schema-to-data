@@ -93,10 +93,11 @@ partition "Schema to Data" {
 
     partition conformSchemaToType {
       notImplemented:handle keywords
-      * "enum"
-      * "const"
       * "default"
       * "examples";
+
+      :* keep "const" value if present
+      * filter "enum" based on type if present;
 
       if (type?) then (array)
         :getConformedArrayKeywords
@@ -203,7 +204,14 @@ partition "Schema to Data" {
   note right: (B)
 
   partition "Generate Data" {
-    if (type?) then (array)
+    if (has const?) then (yes)
+      :* return clone
+      of const;
+    else if(has enum?) then (yes)
+      :* return clone
+      of random value
+      from enum;
+    else if (type?) then (array)
       partition generateArray {
         while (has coerced items?) is (yes)
           (B)

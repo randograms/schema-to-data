@@ -45,6 +45,8 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 - All
   - allOf
   - anyOf
+  - const
+  - enum
   - oneOf
   - type
 - Array
@@ -77,9 +79,7 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
 ### Planned Supported Keywords
 
 - All
-  - const
   - default
-  - enum
   - examples
 - Array
   - contains

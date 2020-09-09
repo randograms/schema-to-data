@@ -11,6 +11,7 @@ describe('generateString', function () {
         'generateString',
         {
           type: 'string',
+          enum: null,
           format: null,
           pattern: null,
           minLength: 5,
@@ -55,6 +56,7 @@ describe('generateString', function () {
       before(function () {
         const coercedSchema = {
           type: 'string',
+          enum: null,
           format,
           pattern: '^aabbcc$',
           minLength: 1,
@@ -94,6 +96,7 @@ describe('generateString', function () {
         'generateString',
         {
           type: 'string',
+          enum: null,
           format: null,
           pattern: 'mock pattern',
           minLength: 0,

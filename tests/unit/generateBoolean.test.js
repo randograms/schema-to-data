@@ -3,7 +3,7 @@ const { defaultMocker } = require('../../lib/mocker');
 
 describe('generateBoolean', function () {
   before(function () {
-    this.results = _.times(10, () => testUnit(defaultMocker, 'generateBoolean', { type: 'boolean' }));
+    this.results = _.times(10, () => testUnit(defaultMocker, 'generateBoolean', { type: 'boolean', enum: null }));
   });
 
   it('always returns a boolean', function () {
