@@ -236,13 +236,16 @@ partition "Schema to Data" {
       }
     else if (type?) then (string)
       notImplemented: handle keywords
-      * "format" (additional formats)
-      * "pattern";
+      * "format" (additional formats);
 
       partition generateString {
-        if (format?) then(yes)
+        if (format?) then (yes)
           :* make string
           matching format;
+        else if (pattern?) then (yes)
+          :* use randexp.js
+          to make string
+          matching pattern;
         else
           :* make string
           using "minLength"

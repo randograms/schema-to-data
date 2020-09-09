@@ -1,8 +1,10 @@
 const _ = require('lodash');
 const { defaultMocker } = require('../../lib/mocker');
 
+const sandbox = sinon.createSandbox();
+
 describe('generateString', function () {
-  context('when format is null', function () {
+  context('when format and pattern are null', function () {
     before(function () {
       this.results = _.times(50, () => testUnit(
         defaultMocker,
@@ -10,6 +12,7 @@ describe('generateString', function () {
         {
           type: 'string',
           format: null,
+          pattern: null,
           minLength: 5,
           maxLength: 10,
         },
@@ -49,21 +52,59 @@ describe('generateString', function () {
 
   supportedFormats.forEach(([format, description]) => {
     context(`with a schema with the ${format} format`, function () {
-      it(`ignores the min and max length and returns ${description}`, function () {
+      before(function () {
         const coercedSchema = {
           type: 'string',
           format,
+          pattern: '^aabbcc$',
           minLength: 1,
           maxLength: 2,
         };
 
-        const result = testUnit(defaultMocker, 'generateString', coercedSchema);
+        this.results = _.times(10, () => testUnit(defaultMocker, 'generateString', coercedSchema));
+      });
 
-        expect(result).to.be.jsonSchema({
+      it(`always ignores "pattern", "minLength" and "maxLength", returns ${description}`, function () {
+        expect(this.results).to.all.be.jsonSchema({
           type: 'string',
           format,
         });
       });
+
+      it('aways returns a random value', function () {
+        const duplicates = _(this.results)
+          .groupBy()
+          .pickBy((resultGroup) => resultGroup.length > 5)
+          .keys()
+          .value();
+
+        expect(duplicates).to.eql([]);
+      });
+    });
+  });
+
+  context('with a pattern', function () {
+    before(function () {
+      sandbox.stub(defaultMocker, 'generateStringFromPattern')
+        .withArgs('mock pattern')
+        .returns('mock generated string');
+
+      this.result = testUnit(
+        defaultMocker,
+        'generateString',
+        {
+          type: 'string',
+          format: null,
+          pattern: 'mock pattern',
+          minLength: 0,
+          maxLength: 500,
+        },
+      );
+    });
+    after(sandbox.restore);
+
+    it('passes the pattern to "generateStringFromPattern" and returns the generated value', function () {
+      expect(this.result).to.equal('mock generated string');
     });
   });
 });

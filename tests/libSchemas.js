@@ -385,11 +385,13 @@ const ConformedStringKeywordsSchema = {
     },
     maxLength: { type: 'number' },
     minLength: { type: 'number' },
+    pattern: { type: ['null', 'string'] },
   },
   required: [
     'format',
     'maxLength',
     'minLength',
+    'pattern',
   ],
   additionalProperties: false,
 };
