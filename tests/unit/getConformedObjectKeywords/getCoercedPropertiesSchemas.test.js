@@ -25,6 +25,8 @@ describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
   context('when the schema does not have properties', function () {
     before(function () {
       const pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {},
         propertyNamesToGenerate: [],
         shuffledOptionalPropertyNames: [],
@@ -44,6 +46,8 @@ describe('getConformedObjectKeywords/getCoercedPropertiesSchemas', function () {
   context('when the schema has more properties defined than need to be generated', function () {
     before(function () {
       const pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,

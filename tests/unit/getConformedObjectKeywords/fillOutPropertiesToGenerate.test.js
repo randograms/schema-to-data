@@ -23,6 +23,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
       ));
 
       this.pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -78,6 +80,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
       ));
 
       this.pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -131,6 +135,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
       stub.onThirdCall().returns('additionalProperty2');
 
       this.pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -175,6 +181,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
       ));
 
       this.pseudoObjectSchema = {
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -274,6 +282,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
     before(function () {
       this.results = _.times(10, () => {
         const pseudoObjectSchema = {
+          patternPropertiesSchemas: null,
+          propertyNamesSchema: null,
           propertiesSchemas: {
             property1: this.propertySchema1,
             property2: this.propertySchema2,
@@ -293,6 +303,8 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
 
     it('always uses the optional properties instead of generated additional properties', function () {
       expect(this.results).to.all.eql({
+        patternPropertiesSchemas: null,
+        propertyNamesSchema: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -304,6 +316,102 @@ describe('getConformedObjectKeywords/fillOutPropertiesToGenerate', function () {
         additionalPropertiesSchema: null,
         minProperties: 4,
         maxProperties: 4,
+      });
+    });
+  });
+
+  context('when "propertyNamesSchema" is not null', function () {
+    before(function () {
+      const stub = sandbox.stub(defaultMocker, 'schemaToData');
+      const expectedPropertyNamesSchema = {
+        type: 'string',
+        referenceId: 'propertyNamesSchema',
+      };
+      stub.withArgs(expectedPropertyNamesSchema).onFirstCall().returns('abc');
+      stub.withArgs(expectedPropertyNamesSchema).onSecondCall().returns('def');
+
+      this.result = testUnit(
+        defaultMocker,
+        'fillOutPropertiesToGenerate',
+        {
+          propertyNamesSchema: { referenceId: 'propertyNamesSchema' },
+          patternPropertiesSchemas: null,
+          propertiesSchemas: {},
+          propertyNamesToGenerate: [],
+          shuffledOptionalPropertyNames: [],
+          additionalPropertiesSchema: this.additionalPropertiesSchema,
+          minProperties: 2,
+          maxProperties: 2,
+        },
+      );
+    });
+    after(sandbox.restore);
+
+    it('generates additional property names that match the pattern', function () {
+      expect(this.result).to.eql({
+        propertyNamesSchema: { referenceId: 'propertyNamesSchema' },
+        patternPropertiesSchemas: null,
+        propertiesSchemas: {
+          abc: this.additionalPropertiesSchema,
+          def: this.additionalPropertiesSchema,
+        },
+        propertyNamesToGenerate: ['abc', 'def'],
+        shuffledOptionalPropertyNames: [],
+        additionalPropertiesSchema: this.additionalPropertiesSchema,
+        minProperties: 2,
+        maxProperties: 2,
+      });
+    });
+  });
+
+  context('when "propertyNamesSchema" and "patternPropertiesSchemas" are not null', function () {
+    before(function () {
+      const stub = sandbox.stub(defaultMocker, 'schemaToData');
+      const expectedPropertyNamesSchema = {
+        type: 'string',
+        referenceId: 'propertyNamesSchema',
+      };
+      stub.withArgs(expectedPropertyNamesSchema).onFirstCall().returns('abc');
+      stub.withArgs(expectedPropertyNamesSchema).onSecondCall().returns('def');
+      stub.withArgs(expectedPropertyNamesSchema).onThirdCall().returns('ghi');
+
+      this.result = testUnit(
+        defaultMocker,
+        'fillOutPropertiesToGenerate',
+        {
+          propertyNamesSchema: { referenceId: 'propertyNamesSchema' },
+          patternPropertiesSchemas: {
+            bc: this.propertySchema1,
+            ef: this.propertySchema2,
+          },
+          propertiesSchemas: {},
+          propertyNamesToGenerate: [],
+          shuffledOptionalPropertyNames: [],
+          additionalPropertiesSchema: this.additionalPropertiesSchema,
+          minProperties: 3,
+          maxProperties: 3,
+        },
+      );
+    });
+    after(sandbox.restore);
+
+    it('uses the patternProperties schema if the random name matches a pattern', function () {
+      expect(this.result).to.eql({
+        propertyNamesSchema: { referenceId: 'propertyNamesSchema' },
+        patternPropertiesSchemas: {
+          bc: this.propertySchema1,
+          ef: this.propertySchema2,
+        },
+        propertiesSchemas: {
+          abc: this.propertySchema1,
+          def: this.propertySchema2,
+          ghi: this.additionalPropertiesSchema,
+        },
+        propertyNamesToGenerate: ['abc', 'def', 'ghi'],
+        shuffledOptionalPropertyNames: [],
+        additionalPropertiesSchema: this.additionalPropertiesSchema,
+        minProperties: 3,
+        maxProperties: 3,
       });
     });
   });

@@ -140,4 +140,34 @@ describe('object schemas', function () {
       },
     ],
   });
+
+  testSchema({
+    scenario: 'with "propertyNames"',
+    schema: {
+      itAlwaysReturns: 'an object with properties with names that matches the propertyNames schema',
+      type: 'object',
+      propertyNames: {
+        enum: ['abc', 'def'],
+      },
+      minProperties: 2,
+      maxProperties: 2,
+    },
+  });
+
+  testSchema({
+    scenario: 'with "patternProperties"',
+    schema: {
+      itAlwaysReturns: 'an object with properties with valid types',
+      type: 'object',
+      patternProperties: {
+        ab: { type: 'string' },
+        cd: { type: 'integer' },
+      },
+      propertyNames: {
+        enum: ['ab', 'cd'],
+      },
+      minProperties: 2,
+      maxProperties: 2,
+    },
+  });
 });
