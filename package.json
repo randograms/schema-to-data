@@ -1,6 +1,6 @@
 {
   "name": "@randograms/schema-to-data",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "build:diagrams": "node buildDiagrams",
     "build:diagrams:watch": "nodemon buildDiagrams.js -e .puml --watch uml",
