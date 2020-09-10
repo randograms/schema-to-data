@@ -151,6 +151,34 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
         },
       },
       {
+        keyword: 'patternProperties',
+        schemaAValue: {
+          pattern1: { referenceId: 'subschema1a' },
+          pattern2: { referenceId: 'subschema2a' },
+          pattern3: { referenceId: 'subschema3a' },
+        },
+        schemaBValue: {
+          pattern1: { referenceId: 'subschema1b' },
+          pattern2: true,
+          pattern3: false,
+          pattern4: { referenceId: 'subschema4b' },
+        },
+        bothHaveKeyword: {
+          statement: 'combines the corresponding subschemas',
+          expectedValue: {
+            pattern1: {
+              allOf: [
+                { referenceId: 'subschema1a' },
+                { referenceId: 'subschema1b' },
+              ],
+            },
+            pattern2: { referenceId: 'subschema2a' },
+            pattern3: false,
+            pattern4: { referenceId: 'subschema4b' },
+          },
+        },
+      },
+      {
         keyword: 'properties',
         schemaAValue: {
           property1: { referenceId: 'subschema1a' },
@@ -175,6 +203,21 @@ describe('mergeCombinedSchemas/mergeKeywordsIntoSchema', function () {
             property2: { referenceId: 'subschema2a' },
             property3: false,
             property4: { referenceId: 'subschema4b' },
+          },
+        },
+      },
+      {
+        keyword: 'propertyNames',
+        schemaAValue: { referenceId: 'subschema1' },
+        schemaBValue: { referenceId: 'subschema2' },
+        keywordValueIsSchema: true,
+        bothHaveKeyword: {
+          statement: 'combines the schemas',
+          expectedValue: {
+            allOf: [
+              { referenceId: 'subschema1' },
+              { referenceId: 'subschema2' },
+            ],
           },
         },
       },
