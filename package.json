@@ -1,6 +1,13 @@
 {
   "name": "@randograms/schema-to-data",
   "version": "0.1.0",
+  "author": "Rachid Lamouri",
+  "main": "index.js",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/randograms/schema-to-data/issues"
+  },
+  "homepage": "https://github.com/randograms/schema-to-data",
   "scripts": {
     "build:diagrams": "node buildDiagrams",
     "build:diagrams:watch": "nodemon buildDiagrams.js -e .puml --watch uml",
