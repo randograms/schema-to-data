@@ -40,6 +40,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
 
     it('returns a schema with default custom keys', function () {
       expect(this.result).to.eql({
+        propertyNamesSchema: null,
+        patternPropertiesSchemas: null,
         propertiesSchemas: {},
         propertyNamesToGenerate: [],
         shuffledOptionalPropertyNames: [],
@@ -341,6 +343,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
 
     it('returns a schema with the "additionalProperties" schema', function () {
       expect(this.result).to.eql({
+        propertyNamesSchema: null,
+        patternPropertiesSchemas: null,
         propertiesSchemas: {},
         propertyNamesToGenerate: [],
         shuffledOptionalPropertyNames: [],
@@ -375,6 +379,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
 
     it('returns a schema with "maxProperties" set to the number of defined properties', function () {
       expect(this.relevantResult).to.eql({
+        propertyNamesSchema: null,
+        patternPropertiesSchemas: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -411,6 +417,8 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
 
     it('returns a schema with a "minProperties" that does not exceed the number of defined properties', function () {
       expect(this.relevantResult).to.eql({
+        propertyNamesSchema: null,
+        patternPropertiesSchemas: null,
         propertiesSchemas: {
           property1: this.propertySchema1,
           property2: this.propertySchema2,
@@ -460,6 +468,37 @@ describe('getConformedObjectKeywords/createPseudoObjectSchema', function () {
       };
 
       expect(testFn).to.throw('Cannot generate data for conflicting "required" property without a schema and "false" literal "additionalProperties"'); // eslint-disable-line max-len
+    });
+  });
+
+  context('when the schema has "propertyNames"', function () {
+    it('preserves the value', function () {
+      const singleTypedSchema = {
+        type: 'object',
+        propertyNames: { referenceId: 'propertyNamesSchema' },
+      };
+
+      const result = testUnit(defaultMocker, 'createPseudoObjectSchema', singleTypedSchema);
+
+      expect(result.propertyNamesSchema).to.eql({ referenceId: 'propertyNamesSchema' });
+    });
+  });
+
+  context('when the schema has "patternProperties"', function () {
+    it('preserves the value', function () {
+      const singleTypedSchema = {
+        type: 'object',
+        patternProperties: {
+          pattern1: this.propertySchema1,
+          pattern2: this.propertySchema2,
+        },
+      };
+
+      const result = testUnit(defaultMocker, 'createPseudoObjectSchema', singleTypedSchema);
+      expect(result.patternPropertiesSchemas).to.eql({
+        pattern1: this.propertySchema1,
+        pattern2: this.propertySchema2,
+      });
     });
   });
 });

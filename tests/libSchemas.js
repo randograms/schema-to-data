@@ -347,6 +347,10 @@ const PseudoObjectSchema = {
         ReferenceSchema,
       ],
     },
+    patternPropertiesSchemas: {
+      type: ['null', 'object'],
+      additionalProperties: ReferenceSchema,
+    },
     propertiesSchemas: {
       type: 'object',
       additionalProperties: {
@@ -355,6 +359,12 @@ const PseudoObjectSchema = {
           { enum: [true, false] },
         ],
       },
+    },
+    propertyNamesSchema: {
+      oneOf: [
+        { const: null },
+        ReferenceSchema,
+      ],
     },
     propertyNamesToGenerate: {
       type: 'array',
@@ -369,7 +379,9 @@ const PseudoObjectSchema = {
     'additionalPropertiesSchema',
     'maxProperties',
     'minProperties',
+    'patternPropertiesSchemas',
     'propertiesSchemas',
+    'propertyNamesSchema',
     'propertyNamesToGenerate',
     'shuffledOptionalPropertyNames',
   ],

@@ -152,13 +152,10 @@ partition "Schema to Data" {
           * guarantees an "additionalProperties" schema
           * guarantees valid "minProperties" and "maxProperties";
 
-          notImplemented:handle keywords
-          * "propertyNames"
-          * "patternProperties";
-
           :guaranteeRequiredPropertiesHaveSchemas
           * Uses the "additionalProperties" schema to fill in
-          missing schemas for "required" properties;
+          missing schemas for "required" properties
+          * respects "patternProperties";
 
           :fillOutPropertiesToGenerate
           * picks a random valid object size
@@ -166,7 +163,8 @@ partition "Schema to Data" {
           and random additional properties
           * only uses optional properties if "additionalProperties" is false
           * guarantees each additional property will have its own schema
-          using the "additionalProperties" schema;
+          using the "additionalProperties" schema
+          * respects "patternProperties" and "propertyNames";
 
           partition getCoercedPropertiesSchemas {
             :* coerces and gathers property
