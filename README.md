@@ -58,7 +58,9 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - additionalProperties
   - maxProperties
   - minProperties
+  - patternProperties
   - properties
+  - propertyNames
   - required
 - String
   - format
@@ -83,9 +85,6 @@ Github project [roadmap](https://github.com/randograms/schema-to-data/projects/1
   - examples
 - Array
   - contains
-- Object
-  - patternProperties
-  - propertyNames
 - String
   - format
     - idn-email
