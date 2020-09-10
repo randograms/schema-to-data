@@ -1,0 +1,5 @@
+/build
+/tests
+/uml
+buildDiagrams.js
+unignoreBuild.js
