@@ -1,13 +1,20 @@
 {
   "name": "@randograms/schema-to-data",
-  "version": "0.0.0",
+  "version": "0.1.1",
+  "author": "Rachid Lamouri",
+  "main": "index.js",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/randograms/schema-to-data/issues"
+  },
+  "homepage": "https://github.com/randograms/schema-to-data",
   "scripts": {
     "build:diagrams": "node buildDiagrams",
     "build:diagrams:watch": "nodemon buildDiagrams.js -e .puml --watch uml",
     "clean:build": "rm -rf build/",
     "lint": "npm run lint:md && npm run lint:js",
     "lint:js": "eslint . --color",
-    "lint:md": "markdownlint --ignore node_modules/ .",
+    "lint:md": "markdownlint --ignore node_modules/ --ignore LICENSE.md .",
     "prepush": "npm run lint && cross-env RUN_COUNT=50 npm run test",
     "test": "npm run test:unit && npm run test:integration && npm run test:uml",
     "test:integration": "mocha --colors --require tests/setup --require tests/setupIntegration tests/integration/**/*.test.js",
