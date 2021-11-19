@@ -1,5 +1,7 @@
+const { expect } = require('chai');
 const _ = require('lodash');
 const { defaultMocker } = require('../../lib/mocker');
+const { setupCustomMocker } = require('./helpers/setupCustomMocker');
 
 const sandbox = sinon.createSandbox();
 
@@ -85,7 +87,7 @@ describe('generateString', function () {
     });
   });
 
-  context('with a pattern', function () {
+  context('with a recognizeable pattern', function () {
     before(function () {
       sandbox.stub(defaultMocker, 'generateStringFromPattern')
         .withArgs('mock pattern')
@@ -108,6 +110,88 @@ describe('generateString', function () {
 
     it('passes the pattern to "generateStringFromPattern" and returns the generated value', function () {
       expect(this.result).to.equal('mock generated string');
+    });
+  });
+
+  context.only('with a pattern that cannot be handled and mocker without " "', function () {
+    it('throws an error', function () {
+      const testFn = () => {
+        testUnit(
+          defaultMocker,
+          'generateString',
+          {
+            type: 'string',
+            enum: null,
+            format: null,
+            pattern: '^(?<!a)b$',
+            minLength: 0,
+            maxLength: 500,
+          },
+        );
+      };
+
+      // eslint-disable-next-line max-len
+      expect(testFn).to.throw('Failed to generate data for regex pattern "^(?<!a)b$" due to: "Invalid regular expression: /^(?<!a)b$/: Invalid group, character \'<\' after \'?\' at column 3". If the pattern is valid, then consult the README for the "onUnknownPattern" option.');
+    });
+  });
+
+  context.only('with a pattern that cannot be handled and a mocker with "onUnknownPattern" that returns a string', function () {
+    const onUnknownPattern = sinon.stub().returns('mock value');
+    setupCustomMocker({ onUnknownPattern });
+
+    before(function () {
+      this.result = testUnit(
+        this.mocker,
+        'generateString',
+        {
+          type: 'string',
+          enum: null,
+          format: null,
+          pattern: '^(?<!a)b$',
+          minLength: 0,
+          maxLength: 500,
+        },
+      );
+    });
+
+    it('calls onUnknownPattern with the coerced schema', function () {
+      expect(onUnknownPattern).to.be.called
+        .and.to.be.calledWithExactly({
+          type: 'string',
+          enum: null,
+          format: null,
+          pattern: '^(?<!a)b$',
+          minLength: 0,
+          maxLength: 500,
+        });
+    });
+
+    it('returns the data returned by onUnknownPattern', function () {
+      expect(this.result).to.equal('mock value');
+    });
+  });
+
+  context.only('with a pattern that cannot be handled and a mocker with "onUnknownPattern" that does not return a string', function () {
+    const onUnknownPattern = sinon.stub().returns(123);
+    setupCustomMocker({ onUnknownPattern });
+
+    it('throws an error', function () {
+      const testFn = () => {
+        testUnit(
+          this.mocker,
+          'generateString',
+          {
+            type: 'string',
+            enum: null,
+            format: null,
+            pattern: '^(?<!a)b$',
+            minLength: 0,
+            maxLength: 500,
+          },
+        );
+      };
+
+      expect(testFn).to.throw('"onUnknownPattern" must return a string');
     });
   });
 });

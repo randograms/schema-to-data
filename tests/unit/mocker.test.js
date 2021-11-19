@@ -14,6 +14,16 @@ describe('mocker', function () {
       });
     });
 
+    context.only('when "onUnknownPattern" is not a function', function () {
+      it('throws an error', function () {
+        const testFn = () => {
+          new Mocker({ onUnknownPattern: 'test' });
+        };
+
+        expect(testFn).to.throw('"onUnknownPattern" must be a function');
+      });
+    });
+
     describe('array default errors', function () {
       context('when "arrayItemsRange" is less than zero', function () {
         it('throws an error', function () {
