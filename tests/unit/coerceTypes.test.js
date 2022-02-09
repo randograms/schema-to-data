@@ -541,4 +541,88 @@ describe('coerceTypes', function () {
       });
     });
   });
+
+  context('when the schema has the "const" keyword', function () {
+    before(function () {
+      this.schema = {
+        const: 2.3,
+        additionalSchemaKeys,
+      };
+
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+    });
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
+
+    it('restricts the type to the types in the schema', function () {
+      expect(this.result.type).to.eql([
+        'decimal',
+      ]);
+    });
+  });
+
+  context('when the schema has an enum with every data type', function () {
+    before(function () {
+      this.schema = {
+        enum: [
+          [],
+          true,
+          1.1,
+          1,
+          null,
+          {},
+          '2',
+        ],
+        additionalSchemaKeys,
+      };
+
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+    });
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
+
+    it('returns a schema with all data types', function () {
+      expect(this.result.type).to.eql([
+        'array',
+        'boolean',
+        'decimal',
+        'integer',
+        'null',
+        'object',
+        'string',
+      ]);
+    });
+  });
+
+  context('when the schema has an enum with multiple types', function () {
+    before(function () {
+      this.schema = {
+        enum: [
+          1,
+          2,
+          '2',
+          {},
+        ],
+        additionalSchemaKeys,
+      };
+
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+    });
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
+
+    it('restricts the type to the types in the schema', function () {
+      expect(this.result.type).to.eql([
+        'integer',
+        'object',
+        'string',
+      ]);
+    });
+  });
 });
