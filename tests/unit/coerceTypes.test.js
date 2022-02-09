@@ -541,4 +541,25 @@ describe('coerceTypes', function () {
       });
     });
   });
+
+  context('when the schema has the "const" keyword', function () {
+    before(function () {
+      this.schema = {
+        const: 2.3,
+        additionalSchemaKeys,
+      };
+
+      this.result = testUnit(defaultMocker, 'coerceTypes', this.schema);
+    });
+
+    itReturnsACopyOfTheSchema();
+    itReturnsASchemaWithATypeArray();
+    itReturnsASchemaWithNullCombinedSchemas();
+
+    it('restricts the type to the types in the schema', function () {
+      expect(this.result.type).to.eql([
+        'decimal',
+      ]);
+    });
+  });
 });
