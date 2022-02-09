@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "faker": "4.1.0",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "randexp": "0.5.3",
     "uuid": "8.3.0"
   }
